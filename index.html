@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ordem Oculta — O Protocolo da Resposta Imediata</title>
-    <meta name="theme-color" content="#070709">
+    <meta name="theme-color" content="#08080a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
-    <!-- Google Fonts (Mesmas fontes da Página de Vendas da Ordem Oculta) -->
+    <!-- Google Fonts Oficiais da Ordem Oculta -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome -->
+    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <link rel="stylesheet" href="style.css">
@@ -24,42 +24,77 @@
         <header class="app-header">
             <div class="brand">
                 <div class="brand-crest">
-                    <i class="fa-solid fa-eye"></i>
+                    <i class="fa-solid fa-fire"></i>
                 </div>
                 <div class="brand-text">
                     <span class="brand-tag">ORDEM OCULTA</span>
-                    <h1 class="brand-title">O ORÁCULO</h1>
+                    <h1 class="brand-title">O PROTOCOLO</h1>
                 </div>
             </div>
             <div class="header-status">
                 <span class="status-pulse"></span>
-                <span class="status-label">PROTOCOLO ATIVO</span>
+                <span class="status-label">ORÁCULO ATIVO</span>
             </div>
         </header>
 
         <!-- Main Content Area (Tabs) -->
         <main class="app-content">
-            <!-- TAB 1: SCANNER (TELA PRINCIPAL) -->
+            <!-- ============================================================
+                 TAB 1: ORÁCULO IA (SCANNER GUIADO POR FASE)
+                 ============================================================ -->
             <section id="tab-scanner" class="tab-pane active">
                 <div class="scanner-hero">
                     <div class="badge-phase">
-                        <i class="fa-solid fa-bolt"></i> IA DE RESPOSTA INVOLUNTÁRIA
+                        <i class="fa-solid fa-crosshairs"></i> PASSO 1: ESCOLHA A FASE DA CONVERSA
                     </div>
-                    <h2 class="section-heading">Scanner do Oráculo</h2>
-                    <p class="section-desc">Suba o print do story, feed ou da conversa. A visão computacional detecta ganchos ocultos e gera respostas anti-gado instantâneas.</p>
+                    <h2 class="section-heading">Onde você <span class="gradient">está travado?</span></h2>
+                    <p class="section-desc">Selecione o momento atual da conversa. O Oráculo calibrará a visão computacional para atingir o objetivo exato daquela fase.</p>
                 </div>
 
-                <!-- Mode Selector -->
-                <div class="mode-selector">
-                    <button class="mode-chip active" data-mode="conversa">
-                        <i class="fa-solid fa-comments"></i> Print da Conversa
+                <!-- 4 Interactive Phases Selector -->
+                <div class="phase-selector-grid">
+                    <button class="phase-btn active" data-phase="invasao">
+                        <div class="phase-btn-badge">FASE I</div>
+                        <i class="fa-solid fa-bolt-lightning phase-icon"></i>
+                        <span class="phase-btn-title">A Invasão</span>
+                        <span class="phase-btn-desc">Quebrar o Gelo</span>
                     </button>
-                    <button class="mode-chip" data-mode="perfil">
-                        <i class="fa-solid fa-camera"></i> Foto / Story / Perfil
+
+                    <button class="phase-btn" data-phase="conducao">
+                        <div class="phase-btn-badge">FASE II</div>
+                        <i class="fa-solid fa-magnet phase-icon"></i>
+                        <span class="phase-btn-title">A Condução</span>
+                        <span class="phase-btn-desc">Criar Tensão</span>
+                    </button>
+
+                    <button class="phase-btn" data-phase="extracao">
+                        <div class="phase-btn-badge">FASE III</div>
+                        <i class="fa-brands fa-whatsapp phase-icon"></i>
+                        <span class="phase-btn-title">A Extração</span>
+                        <span class="phase-btn-desc">Ponte WhatsApp</span>
+                    </button>
+
+                    <button class="phase-btn" data-phase="fechamento">
+                        <div class="phase-btn-badge">FASE IV</div>
+                        <i class="fa-solid fa-champagne-glasses phase-icon"></i>
+                        <span class="phase-btn-title">O Fechamento</span>
+                        <span class="phase-btn-desc">Marcar Encontro</span>
                     </button>
                 </div>
 
-                <!-- Dropzone / Upload Box -->
+                <!-- Active Phase Mission Banner -->
+                <div class="phase-mission-banner" id="phaseMissionBanner">
+                    <div class="mission-header">
+                        <i class="fa-solid fa-bullseye mission-icon"></i>
+                        <span class="mission-tag">OBJETIVO DA FASE I</span>
+                    </div>
+                    <h3 class="mission-title" id="missionTitle">A Invasão: Quebrar o Silêncio nos Stories & DMs</h3>
+                    <p class="mission-desc" id="missionDesc">
+                        A IA irá escanear o cenário do print, identificar 2 elementos inusitados de fundo (roupas, objetos, bebidas) e gerar uma abertura anti-gado para ela responder sem pensar.
+                    </p>
+                </div>
+
+                <!-- Upload Dropzone & File Picker -->
                 <div class="upload-card" id="dropzone">
                     <input type="file" id="fileInput" accept="image/*" class="file-input-hidden">
                     
@@ -68,12 +103,12 @@
                             <i class="fa-solid fa-expand upload-icon-radar"></i>
                             <i class="fa-solid fa-crosshairs upload-icon-center"></i>
                         </div>
-                        <h3 class="upload-title">Toque para escanear print</h3>
-                        <p class="upload-subtitle">Ou cole da área de transferência (Ctrl+V)</p>
-                        <span class="upload-badge">LGPD · Processamento 100% Efêmero</span>
+                        <h3 class="upload-title">Toque para carregar o print</h3>
+                        <p class="upload-subtitle">Ou cole diretamente da área de transferência (Ctrl+V)</p>
+                        <span class="upload-badge"><i class="fa-solid fa-shield-halved"></i> LGPD · Processamento Efêmero (Sem armazenamento)</span>
                     </div>
 
-                    <!-- Image Preview & Laser Scanning State -->
+                    <!-- Image Preview & Laser Scan Animation -->
                     <div class="preview-wrapper hidden" id="previewWrapper">
                         <img id="previewImg" src="" alt="Print em análise" class="preview-image">
                         <div class="scanning-laser" id="scanningLaser"></div>
@@ -84,54 +119,49 @@
                     </div>
                 </div>
 
-                <!-- Scan Trigger Button -->
+                <!-- Scan Trigger Action Button -->
                 <div class="action-dock">
                     <button class="btn-primary-glow" id="btnScan" disabled>
                         <span class="btn-content">
                             <i class="fa-solid fa-wand-magic-sparkles"></i>
-                            <span class="btn-label">DECODIFICAR E GERAR RESPOSTA</span>
+                            <span class="btn-label" id="btnLabel">ENVIE O PRINT PARA DECODIFICAR</span>
                         </span>
                         <div class="btn-spinner hidden" id="scanSpinner"></div>
                     </button>
                 </div>
 
-                <!-- Analysis & Generated Responses Area -->
+                <!-- Results Area (3 Copie & Cole Options) -->
                 <div class="results-container hidden" id="resultsContainer">
-                    <!-- Psychological Intel Strip -->
                     <div class="intel-strip">
                         <div class="intel-pill">
-                            <span class="intel-label">Fase Detectada</span>
-                            <span class="intel-value" id="intelPhase">Fase I: A Invasão</span>
+                            <span class="intel-label">Fase Ativa</span>
+                            <span class="intel-value gold" id="intelPhase">Fase I: A Invasão</span>
                         </div>
                         <div class="intel-pill">
                             <span class="intel-label">Termômetro</span>
-                            <span class="intel-value gold" id="intelInterest">Curiosidade Latente</span>
+                            <span class="intel-value" id="intelInterest">Curiosidade</span>
                         </div>
                         <div class="intel-pill">
-                            <span class="intel-label">Gatilho de Fundo</span>
+                            <span class="intel-label">Gancho Oculto</span>
                             <span class="intel-value" id="intelHook">Elemento Visual</span>
                         </div>
                     </div>
 
-                    <!-- Response Options -->
                     <div class="responses-stack">
                         <!-- Option 1 -->
                         <div class="response-card" data-tone="enigmatico">
                             <div class="response-header">
                                 <span class="response-badge badge-gold">
-                                    <i class="fa-solid fa-mask"></i> Opção 1 · Enigmática & Tensão
+                                    <i class="fa-solid fa-mask"></i> Opção 1 · Enigmática
                                 </span>
                                 <span class="response-type">Resposta Involuntária</span>
                             </div>
-                            <p class="response-text" id="textOption1">
-                                "Você tem exatamente a cara de quem finge costume com viagens assim, mas se perde na primeira esquina."
-                            </p>
+                            <p class="response-text" id="textOption1">...</p>
                             <div class="response-footer">
                                 <button class="btn-copy" data-target="textOption1">
                                     <i class="fa-regular fa-copy"></i>
                                     <span>Copiar Resposta</span>
                                 </button>
-                                <span class="copy-success-tooltip">Copiado!</span>
                             </div>
                         </div>
 
@@ -143,15 +173,12 @@
                                 </span>
                                 <span class="response-type">Desarma Defesas</span>
                             </div>
-                            <p class="response-text" id="textOption2">
-                                "Três detalhes me chamaram atenção no fundo desse story, mas o segundo com certeza você achou que ninguém ia reparar."
-                            </p>
+                            <p class="response-text" id="textOption2">...</p>
                             <div class="response-footer">
                                 <button class="btn-copy" data-target="textOption2">
                                     <i class="fa-regular fa-copy"></i>
                                     <span>Copiar Resposta</span>
                                 </button>
-                                <span class="copy-success-tooltip">Copiado!</span>
                             </div>
                         </div>
 
@@ -159,96 +186,54 @@
                         <div class="response-card highlight-glow" data-tone="avanco">
                             <div class="response-header">
                                 <span class="response-badge badge-emerald">
-                                    <i class="fa-solid fa-forward-step"></i> Opção 3 · Avanço Direto
+                                    <i class="fa-solid fa-arrow-trend-up"></i> Opção 3 · Avanço Direto
                                 </span>
-                                <span class="response-type">Ponte WhatsApp / Encontro</span>
+                                <span class="response-type" id="option3Type">Direcionada</span>
                             </div>
-                            <p class="response-text" id="textOption3">
-                                "Quem controla o ritmo decide o roteiro. Quinta-feira às 20h30 eu te mostro onde servem o melhor drink dessa cidade."
-                            </p>
+                            <p class="response-text" id="textOption3">...</p>
                             <div class="response-footer">
                                 <button class="btn-copy" data-target="textOption3">
                                     <i class="fa-regular fa-copy"></i>
                                     <span>Copiar Resposta</span>
                                 </button>
-                                <span class="copy-success-tooltip">Copiado!</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- TAB 2: PROTOCOLOS (BANCO DE DADOS MANUAL) -->
+            <!-- ============================================================
+                 TAB 2: O GRIMÓRIO (A METODOLOGIA & ESTUDO DOS GUIAS)
+                 ============================================================ -->
             <section id="tab-protocolos" class="tab-pane">
                 <div class="tab-header">
-                    <span class="tab-tag"><i class="fa-solid fa-book-skull"></i> GRIMÓRIO DE EXECUÇÃO</span>
-                    <h2 class="tab-title">Os 4 Protocolos</h2>
-                    <p class="tab-subtitle">Scripts estratégicos baseados em cenários de combate real. Toque em uma fase para abrir os roteiros comprovados.</p>
+                    <span class="tab-tag"><i class="fa-solid fa-book-skull"></i> O CONHECIMENTO OCULTO</span>
+                    <h2 class="tab-title">O Grimório <span class="gradient">dos 4 Guias</span></h2>
+                    <p class="tab-subtitle">Estude a psicologia comportamental e as regras de ouro por trás de cada fase para nunca mais ficar sem saber o que fazer.</p>
                 </div>
 
-                <!-- Phase Navigation Accordion / Buttons -->
-                <div class="protocol-grid">
-                    <button class="protocol-card active" data-phase="invasao">
-                        <div class="protocol-icon-box">
-                            <i class="fa-solid fa-bolt-lightning"></i>
-                        </div>
-                        <div class="protocol-info">
-                            <span class="protocol-number">FASE I</span>
-                            <h3 class="protocol-name">A Invasão</h3>
-                            <p class="protocol-desc">Quebra de silêncio em Stories & Aberturas</p>
-                        </div>
-                        <i class="fa-solid fa-chevron-right protocol-arrow"></i>
-                    </button>
-
-                    <button class="protocol-card" data-phase="conducao">
-                        <div class="protocol-icon-box">
-                            <i class="fa-solid fa-magnet"></i>
-                        </div>
-                        <div class="protocol-info">
-                            <span class="protocol-number">FASE II</span>
-                            <h3 class="protocol-name">A Condução</h3>
-                            <p class="protocol-desc">Ritmo magnético, tensão e eliminação do vácuo</p>
-                        </div>
-                        <i class="fa-solid fa-chevron-right protocol-arrow"></i>
-                    </button>
-
-                    <button class="protocol-card" data-phase="extracao">
-                        <div class="protocol-icon-box">
-                            <i class="fa-brands fa-whatsapp"></i>
-                        </div>
-                        <div class="protocol-info">
-                            <span class="protocol-number">FASE III</span>
-                            <h3 class="protocol-name">A Extração</h3>
-                            <p class="protocol-desc">Ponte natural do Instagram para o WhatsApp</p>
-                        </div>
-                        <i class="fa-solid fa-chevron-right protocol-arrow"></i>
-                    </button>
-
-                    <button class="protocol-card" data-phase="fechamento">
-                        <div class="protocol-icon-box">
-                            <i class="fa-solid fa-champagne-glasses"></i>
-                        </div>
-                        <div class="protocol-info">
-                            <span class="protocol-number">FASE IV</span>
-                            <h3 class="protocol-name">O Fechamento</h3>
-                            <p class="protocol-desc">O convite blindado para o encontro a dois</p>
-                        </div>
-                        <i class="fa-solid fa-chevron-right protocol-arrow"></i>
-                    </button>
+                <!-- Grimório Guide Accordion / Tabs -->
+                <div class="grimorio-nav">
+                    <button class="grimorio-tab-btn active" data-guide="1">Guia I</button>
+                    <button class="grimorio-tab-btn" data-guide="2">Guia II</button>
+                    <button class="grimorio-tab-btn" data-guide="3">Guia III</button>
+                    <button class="grimorio-tab-btn" data-guide="4">Guia IV</button>
                 </div>
 
-                <!-- Active Phase Scenario Scripts Viewer -->
-                <div class="protocol-viewer" id="protocolViewer">
-                    <!-- Injected dynamically by app.js -->
+                <!-- Dynamic Guide Content Injected by app.js -->
+                <div class="grimorio-content-card" id="grimorioContent">
+                    <!-- Injected dynamically -->
                 </div>
             </section>
 
-            <!-- TAB 3: ARSENAL (UPSELL & MURAIS) -->
+            <!-- ============================================================
+                 TAB 3: ARSENAL (MURAIS DE UPGRADE & UPSELL)
+                 ============================================================ -->
             <section id="tab-arsenal" class="tab-pane">
                 <div class="tab-header">
-                    <span class="tab-tag tag-gold"><i class="fa-solid fa-shield-halved"></i> ACESSO EXCLUSIVO</span>
-                    <h2 class="tab-title">Arsenal da Ordem</h2>
-                    <p class="tab-subtitle">Módulos avançados, upgrades secretos e ferramentas de domínio liberadas sob demanda.</p>
+                    <span class="tab-tag"><i class="fa-solid fa-shield-halved"></i> UPGRADES DA ORDEM</span>
+                    <h2 class="tab-title">Arsenal <span class="gradient">Exclusivo</span></h2>
+                    <p class="tab-subtitle">Módulos avançados, upgrades secretos e ferramentas de domínio liberadas para acelerar seus resultados.</p>
                 </div>
 
                 <div class="arsenal-feed">
@@ -260,12 +245,12 @@
                                 <i class="fa-solid fa-infinity"></i>
                             </div>
                             <div>
-                                <h3 class="arsenal-name">Oráculo Pro · Consultas Ilimitadas</h3>
-                                <p class="arsenal-status">Recomendado para uso diário</p>
+                                <h3 class="arsenal-name">Oráculo Pro · Scans Ilimitados</h3>
+                                <p class="arsenal-status">Sem filas e sem limite diário</p>
                             </div>
                         </div>
                         <p class="arsenal-desc">
-                            Remova o limite diário de scans. Analise quantos perfis e conversas quiser sem filas de processamento e com velocidade prioritária de IA.
+                            Remova o limite diário de scans. Analise quantas conversas e perfis quiser sem restrições e com prioridade máxima de processamento de IA.
                         </p>
                         <div class="arsenal-price-row">
                             <div class="arsenal-price">
@@ -291,7 +276,7 @@
                             </div>
                         </div>
                         <p class="arsenal-desc">
-                            A entonação, pausas e modulação exatas para gravar áudios que fazem ela escutar 3 vezes seguidas de fone no ouvido.
+                            A modulação, entonação e ritmo exatos para gravar áudios que fazem ela ouvir com fone no ouvido e responder com frio na barriga.
                         </p>
                         <div class="arsenal-price-row">
                             <div class="arsenal-price">
@@ -309,15 +294,15 @@
                     <div class="arsenal-card">
                         <div class="arsenal-header">
                             <div class="arsenal-icon-box">
-                                <i class="fa-solid fa-fire-flame-curved"></i>
+                                <i class="fa-solid fa-champagne-glasses"></i>
                             </div>
                             <div>
-                                <h3 class="arsenal-name">Protocolo do Encontro Inesquecível</h3>
-                                <p class="arsenal-status">Do Barzinho ao Final a Dois</p>
+                                <h3 class="arsenal-name">O Fechamento Perfeito a Dois</h3>
+                                <p class="arsenal-status">Da Mesa do Bar ao Final a Dois</p>
                             </div>
                         </div>
                         <p class="arsenal-desc">
-                            Como conduzir a linguagem corporal, contato visual e escalada física no primeiro encontro sem parecer forçado.
+                            Como conduzir a conversa cara a cara, contato visual, toque físico sem parecer invasivo e a transição definitiva para o momento a dois.
                         </p>
                         <div class="arsenal-price-row">
                             <div class="arsenal-price">
@@ -338,16 +323,16 @@
         <nav class="bottom-nav">
             <button class="nav-item active" data-tab="tab-scanner">
                 <div class="nav-icon-wrapper">
-                    <i class="fa-solid fa-expand"></i>
+                    <i class="fa-solid fa-crosshairs"></i>
                 </div>
-                <span class="nav-label">Scanner</span>
+                <span class="nav-label">O Oráculo</span>
             </button>
 
             <button class="nav-item" data-tab="tab-protocolos">
                 <div class="nav-icon-wrapper">
                     <i class="fa-solid fa-book-bookmark"></i>
                 </div>
-                <span class="nav-label">Protocolos</span>
+                <span class="nav-label">O Grimório</span>
             </button>
 
             <button class="nav-item" data-tab="tab-arsenal">
@@ -362,7 +347,7 @@
     <!-- Notification Toast -->
     <div id="toast" class="toast hidden">
         <i class="fa-solid fa-circle-check"></i>
-        <span id="toastMsg">Texto copiado!</span>
+        <span id="toastMsg">Script copiado!</span>
     </div>
 
     <script src="app.js"></script>

@@ -94,7 +94,7 @@ html, body {
     position: sticky;
     top: 0;
     z-index: 40;
-    background: rgba(8, 8, 10, 0.92);
+    background: rgba(8, 8, 10, 0.94);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     border-bottom: 1px solid var(--bg-card-border);
@@ -193,7 +193,7 @@ html, body {
 
 /* Headings */
 .scanner-hero {
-    margin-bottom: 16px;
+    margin-bottom: 14px;
 }
 
 .badge-phase {
@@ -232,39 +232,121 @@ html, body {
     line-height: 1.45;
 }
 
-/* Mode Selector Chips */
-.mode-selector {
-    display: flex;
-    gap: 8px;
+/* ==========================================================================
+   THE 4 PHASES SELECTOR GRID (ABA 1: O ORÁCULO)
+   ========================================================================== */
+.phase-selector-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
     margin-bottom: 14px;
 }
 
-.mode-chip {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px 12px;
-    border-radius: var(--radius-md);
+.phase-btn {
     background: var(--bg-card);
     border: 1px solid var(--bg-card-border);
-    color: var(--text-muted);
-    font-size: 12px;
-    font-weight: 700;
+    border-radius: var(--radius-md);
+    padding: 12px 10px;
     cursor: pointer;
-    transition: var(--transition, all 0.2s ease);
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: all 0.2s ease;
+    color: var(--text-main);
 }
 
-.mode-chip.active {
-    background: rgba(245, 158, 11, 0.12);
-    border-color: var(--accent-gold);
-    color: #ffffff;
-    box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
+.phase-btn:hover {
+    background: var(--bg-card-hover);
+    border-color: rgba(245, 158, 11, 0.3);
 }
 
-.mode-chip:active {
+.phase-btn.active {
+    background: linear-gradient(145deg, rgba(239, 68, 68, 0.14) 0%, rgba(245, 158, 11, 0.08) 100%);
+    border-color: var(--accent-red);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.18);
+}
+
+.phase-btn:active {
     transform: scale(0.97);
+}
+
+.phase-btn-badge {
+    font-size: 8.5px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--accent-gold);
+    margin-bottom: 4px;
+}
+
+.phase-icon {
+    font-size: 18px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    transition: all 0.2s ease;
+}
+
+.phase-btn.active .phase-icon {
+    color: var(--accent-red);
+    transform: scale(1.1);
+}
+
+.phase-btn-title {
+    font-family: var(--font-heading);
+    font-size: 14px;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
+.phase-btn-desc {
+    font-size: 10.5px;
+    color: var(--text-muted);
+}
+
+/* Phase Mission Banner */
+.phase-mission-banner {
+    background: rgba(17, 17, 22, 0.85);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-left: 3px solid var(--accent-red);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    transition: all 0.2s ease;
+}
+
+.mission-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+.mission-icon {
+    color: var(--accent-red);
+    font-size: 12px;
+}
+
+.mission-tag {
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--accent-gold);
+    text-transform: uppercase;
+}
+
+.mission-title {
+    font-family: var(--font-heading);
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 3px;
+}
+
+.mission-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.45;
 }
 
 /* ==========================================================================
@@ -274,7 +356,7 @@ html, body {
     background: var(--bg-card);
     border: 1.5px dashed rgba(245, 158, 11, 0.35);
     border-radius: var(--radius-lg);
-    padding: 24px 16px;
+    padding: 22px 16px;
     text-align: center;
     cursor: pointer;
     position: relative;
@@ -302,9 +384,9 @@ html, body {
 }
 
 .upload-crest-pulse {
-    width: 62px;
-    height: 62px;
-    margin: 0 auto 12px;
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 10px;
     border-radius: 50%;
     background: rgba(245, 158, 11, 0.08);
     border: 1px solid rgba(245, 158, 11, 0.25);
@@ -315,33 +397,33 @@ html, body {
 }
 
 .upload-icon-radar {
-    font-size: 24px;
+    font-size: 22px;
     color: var(--accent-gold);
 }
 
 .upload-icon-center {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--accent-red);
     position: absolute;
 }
 
 .upload-title {
     font-family: var(--font-heading);
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     color: #ffffff;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 }
 
 .upload-subtitle {
-    font-size: 12px;
+    font-size: 11.5px;
     color: var(--text-dim);
     margin-bottom: 10px;
 }
 
 .upload-badge {
     display: inline-block;
-    font-size: 10px;
+    font-size: 9.5px;
     color: var(--accent-green);
     background: rgba(16, 185, 129, 0.08);
     border: 1px solid rgba(16, 185, 129, 0.2);
@@ -422,7 +504,7 @@ html, body {
 }
 
 /* ==========================================================================
-   PRIMARY ACTION BUTTON (O BOTÃO PULSANTE DA PÁGINA DE VENDAS)
+   PRIMARY ACTION BUTTON
    ========================================================================== */
 .action-dock {
     margin-bottom: 20px;
@@ -485,7 +567,7 @@ html, body {
 }
 
 /* ==========================================================================
-   RESULTS AREA & INTEL STRIP
+   RESULTS AREA
    ========================================================================== */
 .results-container {
     animation: fadeInTab 0.3s ease-out forwards;
@@ -638,137 +720,85 @@ html, body {
 }
 
 /* ==========================================================================
-   TAB 2: PROTOCOLOS
+   TAB 2: O GRIMÓRIO (METODOLOGIA & ESTUDO DOS GUIAS)
    ========================================================================== */
-.tab-header {
-    margin-bottom: 16px;
+.grimorio-nav {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
 }
 
-.tab-tag {
+.grimorio-tab-btn {
+    flex: 1;
+    padding: 10px 0;
+    text-align: center;
+    background: var(--bg-card);
+    border: 1px solid var(--bg-card-border);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-family: var(--font-heading);
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.grimorio-tab-btn.active {
+    background: var(--brand-gradient);
+    color: #ffffff;
+    border-color: transparent;
+    box-shadow: 0 4px 15px var(--accent-red-glow);
+}
+
+.grimorio-content-card {
+    background: var(--bg-card);
+    border: 1px solid var(--bg-card-border);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+}
+
+.guide-rule-pill {
+    display: inline-block;
     font-size: 10px;
     font-weight: 800;
     letter-spacing: 1px;
     color: var(--accent-gold);
-    text-transform: uppercase;
-    display: inline-block;
-    margin-bottom: 6px;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    margin-bottom: 8px;
 }
 
-.protocol-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 18px;
-}
-
-.protocol-card {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    background: var(--bg-card);
-    border: 1px solid var(--bg-card-border);
-    border-radius: var(--radius-md);
-    padding: 12px 14px;
-    cursor: pointer;
-    text-align: left;
-    transition: all 0.2s ease;
-    color: var(--text-main);
-    width: 100%;
-}
-
-.protocol-card:hover {
-    background: var(--bg-card-hover);
-    border-color: rgba(245, 158, 11, 0.25);
-}
-
-.protocol-card.active {
-    border-color: var(--accent-red);
-    background: rgba(239, 68, 68, 0.08);
-    box-shadow: 0 0 20px rgba(239, 68, 68, 0.15);
-}
-
-.protocol-icon-box {
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-sm);
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--bg-card-border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-muted);
-    font-size: 17px;
-    flex-shrink: 0;
-}
-
-.protocol-card.active .protocol-icon-box {
-    background: var(--brand-gradient);
-    color: #ffffff;
-    border: none;
-    box-shadow: 0 4px 12px var(--accent-red-glow);
-}
-
-.protocol-info {
-    flex: 1;
-}
-
-.protocol-number {
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: 1.2px;
-    color: var(--accent-gold);
-    display: block;
-}
-
-.protocol-name {
+.guide-heading {
     font-family: var(--font-heading);
-    font-size: 15px;
-    font-weight: 700;
+    font-size: 17px;
+    font-weight: 800;
     color: #ffffff;
-    margin-bottom: 2px;
+    margin-bottom: 8px;
 }
 
-.protocol-desc {
-    font-size: 11px;
-    color: var(--text-dim);
+.guide-text {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 16px;
 }
 
-.protocol-arrow {
-    color: var(--text-dim);
-    font-size: 12px;
-    transition: transform 0.2s ease;
-}
-
-.protocol-card.active .protocol-arrow {
-    color: var(--accent-red);
-    transform: rotate(90deg);
-}
-
-/* Protocol Viewer */
-.protocol-viewer {
-    background: var(--bg-card);
-    border: 1px solid var(--bg-card-border);
-    border-radius: var(--radius-lg);
-    padding: 16px;
-}
-
-.script-scenario-box {
-    background: rgba(0, 0, 0, 0.3);
+.guide-section-box {
+    background: rgba(0, 0, 0, 0.35);
     border: 1px solid var(--bg-card-border);
     border-radius: var(--radius-md);
     padding: 14px;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
 }
 
-.script-scenario-box:last-child {
-    margin-bottom: 0;
-}
-
-.scenario-title {
+.box-title {
     font-family: var(--font-heading);
     font-size: 12px;
     font-weight: 800;
-    color: var(--accent-gold);
+    color: var(--accent-red);
     text-transform: uppercase;
     letter-spacing: 0.8px;
     margin-bottom: 6px;
@@ -777,22 +807,14 @@ html, body {
     gap: 6px;
 }
 
-.scenario-script {
-    font-size: 13.5px;
-    color: #ffffff;
-    line-height: 1.5;
-    margin-bottom: 10px;
-    background: rgba(0, 0, 0, 0.4);
-    padding: 10px 12px;
-    border-radius: var(--radius-sm);
-    border-left: 2px solid var(--accent-red);
+.box-title.gold {
+    color: var(--accent-gold);
 }
 
-.scenario-rule {
-    font-size: 11px;
-    color: var(--text-dim);
-    font-style: italic;
-    margin-bottom: 10px;
+.box-content {
+    font-size: 12.5px;
+    color: var(--text-main);
+    line-height: 1.45;
 }
 
 /* ==========================================================================
