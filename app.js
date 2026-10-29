@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tabPanes: document.querySelectorAll('.tab-pane'),
 
         // Scanner / Oráculo
-        phaseBtns: document.querySelectorAll('.phase-btn'),
+        phaseCards: document.querySelectorAll('.phase-card-row'),
         missionTag: document.querySelector('.mission-tag'),
         missionTitle: document.getElementById('missionTitle'),
         missionDesc: document.getElementById('missionDesc'),
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inicialização
     function init() {
         setupNavigation();
-        setupPhaseSelector();
+        setupPhaseRows();
         setupDropzone();
         setupClipboardPaste();
         setupGrimorio();
@@ -175,19 +175,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Seletor das 4 Fases no Oráculo (Aba 1)
-    function setupPhaseSelector() {
-        elements.phaseBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
+    // Seletor das 4 Fases Full-Width (De fora a fora)
+    function setupPhaseRows() {
+        elements.phaseCards.forEach(card => {
+            card.addEventListener('click', () => {
                 triggerHaptic();
-                const phaseKey = btn.dataset.phase;
-                elements.phaseBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+                const phaseKey = card.dataset.phase;
+                elements.phaseCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
                 state.selectedPhase = phaseKey;
 
                 updatePhaseBanner(phaseKey);
 
-                // Se já houver imagem carregada e resultados visíveis, recalibra imediatamente
+                // Se houver arquivo selecionado, atualiza o label do botão
+                if (state.selectedBase64) {
+                    elements.btnLabel.textContent = `DECODIFICAR ${phaseDefinitions[phaseKey].badge}`;
+                }
+
+                // Se os resultados já estiverem na tela, recalibra na hora
                 if (state.selectedBase64 && !elements.resultsContainer.classList.contains('hidden')) {
                     applyPhaseResponses(phaseKey);
                 }
@@ -312,7 +317,6 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.scanSpinner.classList.remove('hidden');
         elements.btnLabel.textContent = 'ANALISANDO CENÁRIO & SINAIS...';
 
-        // Simulação do handshake (no backend real conectará na API do modelo com visão)
         setTimeout(() => {
             state.isScanning = false;
             elements.previewWrapper.classList.remove('scanning');

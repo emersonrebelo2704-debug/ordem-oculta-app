@@ -40,49 +40,73 @@
         <!-- Main Content Area (Tabs) -->
         <main class="app-content">
             <!-- ============================================================
-                 TAB 1: ORÁCULO IA (SCANNER GUIADO POR FASE)
+                 TAB 1: ORÁCULO IA (SCANNER GUIADO PELOS CARDS DE FORA A FORA)
                  ============================================================ -->
             <section id="tab-scanner" class="tab-pane active">
                 <div class="scanner-hero">
                     <div class="badge-phase">
-                        <i class="fa-solid fa-crosshairs"></i> PASSO 1: ESCOLHA A FASE DA CONVERSA
+                        <i class="fa-solid fa-crosshairs"></i> PASSO 1: SELECIONE A FASE
                     </div>
                     <h2 class="section-heading">Onde você <span class="gradient">está travado?</span></h2>
-                    <p class="section-desc">Selecione o momento atual da conversa. O Oráculo calibrará a visão computacional para atingir o objetivo exato daquela fase.</p>
+                    <p class="section-desc">Toque na fase da conversa que você quer destravar. O Oráculo calibrará a visão computacional para esse objetivo.</p>
                 </div>
 
-                <!-- 4 Interactive Phases Selector -->
-                <div class="phase-selector-grid">
-                    <button class="phase-btn active" data-phase="invasao">
-                        <div class="phase-btn-badge">FASE I</div>
-                        <i class="fa-solid fa-bolt-lightning phase-icon"></i>
-                        <span class="phase-btn-title">A Invasão</span>
-                        <span class="phase-btn-desc">Quebrar o Gelo</span>
+                <!-- 4 Stacked Full-Width Phase Cards (De fora a fora) -->
+                <div class="phase-stack-list">
+                    <!-- Fase 1 -->
+                    <button class="phase-card-row active" data-phase="invasao">
+                        <div class="phase-icon-box">
+                            <i class="fa-solid fa-bolt-lightning"></i>
+                        </div>
+                        <div class="phase-row-info">
+                            <span class="phase-row-badge">FASE I</span>
+                            <h3 class="phase-row-title">A Invasão</h3>
+                            <p class="phase-row-desc">Quebrar o silêncio nos Stories e DMs</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right phase-row-arrow"></i>
                     </button>
 
-                    <button class="phase-btn" data-phase="conducao">
-                        <div class="phase-btn-badge">FASE II</div>
-                        <i class="fa-solid fa-magnet phase-icon"></i>
-                        <span class="phase-btn-title">A Condução</span>
-                        <span class="phase-btn-desc">Criar Tensão</span>
+                    <!-- Fase 2 -->
+                    <button class="phase-card-row" data-phase="conducao">
+                        <div class="phase-icon-box">
+                            <i class="fa-solid fa-magnet"></i>
+                        </div>
+                        <div class="phase-row-info">
+                            <span class="phase-row-badge">FASE II</span>
+                            <h3 class="phase-row-title">A Condução</h3>
+                            <p class="phase-row-desc">Ritmo magnético, tensão e atração</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right phase-row-arrow"></i>
                     </button>
 
-                    <button class="phase-btn" data-phase="extracao">
-                        <div class="phase-btn-badge">FASE III</div>
-                        <i class="fa-brands fa-whatsapp phase-icon"></i>
-                        <span class="phase-btn-title">A Extração</span>
-                        <span class="phase-btn-desc">Ponte WhatsApp</span>
+                    <!-- Fase 3 -->
+                    <button class="phase-card-row" data-phase="extracao">
+                        <div class="phase-icon-box">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </div>
+                        <div class="phase-row-info">
+                            <span class="phase-row-badge">FASE III</span>
+                            <h3 class="phase-row-title">A Extração</h3>
+                            <p class="phase-row-desc">A ponte natural para o WhatsApp</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right phase-row-arrow"></i>
                     </button>
 
-                    <button class="phase-btn" data-phase="fechamento">
-                        <div class="phase-btn-badge">FASE IV</div>
-                        <i class="fa-solid fa-champagne-glasses phase-icon"></i>
-                        <span class="phase-btn-title">O Fechamento</span>
-                        <span class="phase-btn-desc">Marcar Encontro</span>
+                    <!-- Fase 4 -->
+                    <button class="phase-card-row" data-phase="fechamento">
+                        <div class="phase-icon-box">
+                            <i class="fa-solid fa-champagne-glasses"></i>
+                        </div>
+                        <div class="phase-row-info">
+                            <span class="phase-row-badge">FASE IV</span>
+                            <h3 class="phase-row-title">O Fechamento</h3>
+                            <p class="phase-row-desc">O convite blindado para o encontro a dois</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right phase-row-arrow"></i>
                     </button>
                 </div>
 
-                <!-- Active Phase Mission Banner -->
+                <!-- Active Phase Mission Banner (Aparece logo abaixo explicando o objetivo) -->
                 <div class="phase-mission-banner" id="phaseMissionBanner">
                     <div class="mission-header">
                         <i class="fa-solid fa-bullseye mission-icon"></i>
@@ -90,7 +114,7 @@
                     </div>
                     <h3 class="mission-title" id="missionTitle">A Invasão: Quebrar o Silêncio nos Stories & DMs</h3>
                     <p class="mission-desc" id="missionDesc">
-                        A IA irá escanear o cenário do print, identificar 2 elementos inusitados de fundo (roupas, objetos, bebidas) e gerar uma abertura anti-gado para ela responder sem pensar.
+                        A IA irá escanear o print, detectar 2 elementos inusitados de fundo no ambiente e gerar abridores descontraídos anti-gado para ela responder na hora.
                     </p>
                 </div>
 
@@ -103,7 +127,7 @@
                             <i class="fa-solid fa-expand upload-icon-radar"></i>
                             <i class="fa-solid fa-crosshairs upload-icon-center"></i>
                         </div>
-                        <h3 class="upload-title">Toque para carregar o print</h3>
+                        <h3 class="upload-title">Toque para carregar o print da fase</h3>
                         <p class="upload-subtitle">Ou cole diretamente da área de transferência (Ctrl+V)</p>
                         <span class="upload-badge"><i class="fa-solid fa-shield-halved"></i> LGPD · Processamento Efêmero (Sem armazenamento)</span>
                     </div>
@@ -212,7 +236,6 @@
                     <p class="tab-subtitle">Estude a psicologia comportamental e as regras de ouro por trás de cada fase para nunca mais ficar sem saber o que fazer.</p>
                 </div>
 
-                <!-- Grimório Guide Accordion / Tabs -->
                 <div class="grimorio-nav">
                     <button class="grimorio-tab-btn active" data-guide="1">Guia I</button>
                     <button class="grimorio-tab-btn" data-guide="2">Guia II</button>
@@ -220,9 +243,8 @@
                     <button class="grimorio-tab-btn" data-guide="4">Guia IV</button>
                 </div>
 
-                <!-- Dynamic Guide Content Injected by app.js -->
                 <div class="grimorio-content-card" id="grimorioContent">
-                    <!-- Injected dynamically -->
+                    <!-- Injetado dinamicamente -->
                 </div>
             </section>
 
@@ -237,7 +259,6 @@
                 </div>
 
                 <div class="arsenal-feed">
-                    <!-- Upsell 1 -->
                     <div class="arsenal-card featured">
                         <div class="arsenal-badge">OPERAÇÃO ALTA PRIORIDADE</div>
                         <div class="arsenal-header">
@@ -264,7 +285,6 @@
                         </div>
                     </div>
 
-                    <!-- Upsell 2 -->
                     <div class="arsenal-card">
                         <div class="arsenal-header">
                             <div class="arsenal-icon-box">
@@ -290,7 +310,6 @@
                         </div>
                     </div>
 
-                    <!-- Upsell 3 -->
                     <div class="arsenal-card">
                         <div class="arsenal-header">
                             <div class="arsenal-icon-box">
