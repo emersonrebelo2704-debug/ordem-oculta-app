@@ -118,6 +118,36 @@
                     </p>
                 </div>
 
+                <!-- Sub-Modo da Imagem (Story / Foto vs Conversa / Chat) -->
+                <div class="submode-container">
+                    <div class="submode-label">
+                        <i class="fa-solid fa-sliders"></i> TIPO DO PRINT ENVIADO:
+                    </div>
+                    <div class="submode-selector">
+                        <button class="submode-card active" data-submode="story">
+                            <div class="submode-card-header">
+                                <i class="fa-solid fa-camera submode-icon"></i>
+                                <span class="submode-card-title">Foto do Story / Perfil</span>
+                            </div>
+                            <p class="submode-card-desc">Para puxar assunto do zero sem parecer gado</p>
+                        </button>
+
+                        <button class="submode-card" data-submode="chat">
+                            <div class="submode-card-header">
+                                <i class="fa-solid fa-comments submode-icon"></i>
+                                <span class="submode-card-title">Print da Conversa / DM</span>
+                            </div>
+                            <p class="submode-card-desc">Para responder vácuo ou última mensagem</p>
+                        </button>
+                    </div>
+
+                    <!-- Micro-explicação dinâmica do porquê -->
+                    <div class="submode-explanation" id="submodeExplanation">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <span id="submodeExplText"><strong>Visão no Story:</strong> A IA varre o cenário da foto (comidas, fundo, roupas) para criar um gancho espontâneo que força ela a responder.</span>
+                    </div>
+                </div>
+
                 <!-- Upload Dropzone & File Picker -->
                 <div class="upload-card" id="dropzone">
                     <input type="file" id="fileInput" accept="image/*" class="file-input-hidden">

@@ -8,10 +8,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const state = {
         activeTab: 'tab-scanner',
         selectedPhase: 'invasao', // 'invasao' | 'conducao' | 'extracao' | 'fechamento'
+        selectedSubmode: 'story', // 'story' | 'chat'
         selectedFile: null,
         selectedBase64: null,
         isScanning: false,
         activeGuide: '1'
+    };
+
+    // Explicações Dinâmicas por Submodo & Fase
+    const submodeExplanations = {
+        story: {
+            invasao: "<strong>Visão no Story / Foto:</strong> A IA varre o cenário da foto (comida, taça, roupas, fundo) para criar uma quebra de padrão espontânea sem elogiar o corpo.",
+            conducao: "<strong>Visão no Story:</strong> A IA analisa uma foto postada no meio da conversa para reacender a atração com um comentário desafiador.",
+            extracao: "<strong>Visão no Story:</strong> A IA usa a imagem como desculpa para dizer que o Instagram corta conteúdos e pedir o WhatsApp.",
+            fechamento: "<strong>Visão no Story:</strong> A IA usa o restaurante, bebida ou evento do story dela como pretexto exato para fazer o convite a dois."
+        },
+        chat: {
+            invasao: "<strong>Visão na Conversa / Vácuo:</strong> A IA lê a DM anterior onde ela parou de responder e gera uma mensagem de reativação para quebrar o gelo sem parecer carente.",
+            conducao: "<strong>Visão na Conversa:</strong> A IA analisa o tom e tamanho da última mensagem dela para calibrar o ritmo e devolver uma resposta com tensão magnética.",
+            extracao: "<strong>Visão na Conversa:</strong> A IA identifica o ápice do diálogo para criar a ponte orgânica para o WhatsApp no momento perfeito.",
+            fechamento: "<strong>Visão na Conversa:</strong> A IA analisa a receptividade do chat e formula o convite fechado (dia, local e hora) eliminando desculpas."
+        }
     };
 
     // Dados das 4 Fases para o Oráculo
@@ -109,6 +126,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Scanner / Oráculo
         phaseCards: document.querySelectorAll('.phase-card-row'),
+        submodeCards: document.querySelectorAll('.submode-card'),
+        submodeExplText: document.getElementById('submodeExplText'),
         missionTag: document.querySelector('.mission-tag'),
         missionTitle: document.getElementById('missionTitle'),
         missionDesc: document.getElementById('missionDesc'),
@@ -143,11 +162,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function init() {
         setupNavigation();
         setupPhaseRows();
+        setupSubmodeSelector();
         setupDropzone();
         setupClipboardPaste();
         setupGrimorio();
         setupCopyButtons();
         updatePhaseBanner('invasao');
+        updateSubmodeUI();
         renderGrimorioGuide('1');
     }
 
@@ -207,6 +228,42 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.missionTag.textContent = `OBJETIVO DA ${def.badge}`;
         elements.missionTitle.textContent = def.title;
         elements.missionDesc.textContent = def.desc;
+        updateSubmodeUI();
+    }
+
+    // Seletor de Submodo (Story / Foto vs Conversa / Chat)
+    function setupSubmodeSelector() {
+        elements.submodeCards.forEach(card => {
+            card.addEventListener('click', () => {
+                triggerHaptic();
+                const submode = card.dataset.submode;
+                elements.submodeCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                state.selectedSubmode = submode;
+
+                updateSubmodeUI();
+
+                if (state.selectedBase64 && !elements.resultsContainer.classList.contains('hidden')) {
+                    applyPhaseResponses(state.selectedPhase);
+                }
+            });
+        });
+    }
+
+    function updateSubmodeUI() {
+        const expl = submodeExplanations[state.selectedSubmode][state.selectedPhase];
+        if (expl && elements.submodeExplText) {
+            elements.submodeExplText.innerHTML = expl;
+        }
+
+        const uploadTitle = document.querySelector('.upload-title');
+        if (uploadTitle) {
+            if (state.selectedSubmode === 'story') {
+                uploadTitle.textContent = 'Toque para carregar o print do Story ou Foto';
+            } else {
+                uploadTitle.textContent = 'Toque para carregar o print da Conversa / DM';
+            }
+        }
     }
 
     // Dropzone & Manipulação de Arquivo
