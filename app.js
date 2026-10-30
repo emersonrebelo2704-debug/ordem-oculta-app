@@ -395,7 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Execução da Sequência de Escaneamento
-    function runScanSequence() {
+    async function runScanSequence() {
         state.isScanning = true;
         triggerHaptic(40);
 
@@ -404,20 +404,69 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.scanSpinner.classList.remove('hidden');
         elements.btnLabel.textContent = 'ANALISANDO CENÁRIO & SINAIS...';
 
-        setTimeout(() => {
+        try {
+            // Tenta chamar o backend real com Visão Computacional
+            const response = await fetch('api/scan.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    image: state.selectedBase64,
+                    phase: state.selectedPhase,
+                    submode: state.selectedSubmode
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success && result.data) {
+                // SUCESSO REAL VIA IA
+                renderRealAIResponse(result.data);
+                showToast('Decodificação REAL da IA concluída!');
+            } else if (result.needs_key) {
+                // Chave ainda não preenchida no config.php
+                applyPhaseResponses(state.selectedPhase);
+                showToast('Aviso: Configure a GEMINI_API_KEY no api/config.php para leitura ao vivo!');
+            } else {
+                // Fallback inteligente
+                applyPhaseResponses(state.selectedPhase);
+                showToast('Usando calibração padrão da fase.');
+            }
+        } catch (err) {
+            // Se estiver testando via file:/// sem servidor PHP local
+            applyPhaseResponses(state.selectedPhase);
+            showToast('Modo de demonstração ativado.');
+        } finally {
             state.isScanning = false;
             elements.previewWrapper.classList.remove('scanning');
             elements.btnScan.disabled = false;
             elements.scanSpinner.classList.add('hidden');
             elements.btnLabel.textContent = `DECODIFICAR NOVAMENTE`;
 
-            applyPhaseResponses(state.selectedPhase);
             elements.resultsContainer.classList.remove('hidden');
             elements.resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
             triggerHaptic(50);
-            showToast('Decodificação da Ordem concluída!');
-        }, 2200);
+        }
+    }
+
+    function renderRealAIResponse(data) {
+        if (data.intel) {
+            if (data.intel.phase) document.getElementById('intelPhase').textContent = data.intel.phase;
+            if (data.intel.termometro) document.getElementById('intelInterest').textContent = data.intel.termometro;
+            if (data.intel.gancho) document.getElementById('intelHook').textContent = data.intel.gancho;
+        }
+
+        if (data.options && data.options.length >= 3) {
+            document.getElementById('textOption1').textContent = data.options[0].text;
+            document.getElementById('textOption2').textContent = data.options[1].text;
+            document.getElementById('textOption3').textContent = data.options[2].text;
+
+            const desc1 = document.getElementById('intelDescOption1');
+            const desc2 = document.getElementById('intelDescOption2');
+            const desc3 = document.getElementById('intelDescOption3');
+            if (desc1) desc1.innerHTML = data.options[0].advice || '';
+            if (desc2) desc2.innerHTML = data.options[1].advice || '';
+            if (desc3) desc3.innerHTML = data.options[2].advice || '';
+        }
     }
 
     function applyPhaseResponses(phaseKey) {
