@@ -43,6 +43,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 opt2: '"Três detalhes me chamaram atenção no fundo desse story, mas o segundo com certeza você achou que ninguém ia notar."',
                 opt3: '"O fotógrafo merece aumento pelo ângulo, mas o reflexo na taça entregou o verdadeiro contexto dessa foto."'
             },
+            advice: {
+                opt1: "<strong>Quando usar:</strong> Perfeita se ela estiver bancando a inacessível. O humor desconcertante obriga ela a se justificar rindo, sem você parecer emocionado.",
+                opt2: "<strong>Quando usar:</strong> Excelente para quebrar o padrão dos caras que só elogiam a beleza. Cria curiosidade imediata e ela vai perguntar qual é o detalhe.",
+                opt3: "<strong>Quando usar:</strong> Use se houver contexto visual de restaurante/festa. Desarma a pose de perfeita mostrando que você é observador e audacioso."
+            },
             opt3Badge: "Avanço Seguro"
         },
         conducao: {
@@ -54,6 +59,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 opt1: '"Se você for metade do tempo tão imprevisível pessoalmente quanto é por mensagem, nossa conversa vai ser um perigo."',
                 opt2: '"Geralmente quem demora para responder ou está fingindo desinteresse ou não aguenta 10 minutos de conversa afiada. Qual das duas é você?"',
                 opt3: '"Acho fascinante como você consegue sustentar uma pose de durona com cara de quem pede sobremesa antes do almoço."'
+            },
+            advice: {
+                opt1: "<strong>Quando usar:</strong> Quando a conversa estiver morna. Insinua atração e perigo sem você ser vulgar, deixando ela pensando em você.",
+                opt2: "<strong>Quando usar:</strong> Se ela começou a demorar para responder ou mandou texto curto. Desafia o ego dela com elegância e sem desespero.",
+                opt3: "<strong>Quando usar:</strong> Excelente contraste entre humor e tensão sexual. Mostra que você enxerga através das defesas dela."
             },
             opt3Badge: "Tensão Ativa"
         },
@@ -67,6 +77,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 opt2: '"O Instagram vai cortar o áudio desse caso. Me passa seu número que te mando por lá antes que eu entre em reunião."',
                 opt3: '"Só troco ideia no WhatsApp com quem parece que vai sustentar uma conversa interessante pessoalmente. Você passou no teste preliminar."'
             },
+            advice: {
+                opt1: "<strong>Quando usar:</strong> No auge de um assunto curioso. Você entrega seu número e inverte o papel: agora é ela quem tem que ir atrás de você.",
+                opt2: "<strong>Quando usar:</strong> O pretexto funcional perfeito. Áudios geram muito mais conexão e intimidade que texto na DM.",
+                opt3: "<strong>Quando usar:</strong> Se ela estiver muito investida na conversa. A qualificação sutil faz ela se sentir escolhida, aumentando o valor dela para você."
+            },
             opt3Badge: "Ponte WhatsApp"
         },
         fechamento: {
@@ -78,6 +93,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 opt1: '"Quinta-feira eu vou tomar um drink em um lugar que você provavelmente nunca foi. Às 20h30 eu passo pra te buscar ou você prefere ir direto?"',
                 opt2: '"Depois de você defender aquele assunto com tanta convicção, você me deve uma avaliação gastronômica. Sábado às 20h você é minha convidada."',
                 opt3: '"Sem problemas, eu também só saio com quem tem certeza da companhia. Se você conseguir vaga nessa sua agenda concorrida, me avisa até quarta."'
+            },
+            advice: {
+                opt1: "<strong>Quando usar:</strong> O convite assertivo definitivo. Dita dia, horário e clima com falsa escolha (buscar ou ir direto), sem dar margem para enrolação.",
+                opt2: "<strong>Quando usar:</strong> Quando vocês brincaram sobre comida ou gostos. Usa a própria coerência dela como justificativa elegante para o encontro.",
+                opt3: "<strong>Quando usar:</strong> Retirada tática imediata se ela der desculpa de 'vou ver na agenda'. Mostra desapego de alto valor e faz ela reconsiderar na hora."
             },
             opt3Badge: "Convite Cravado"
         }
@@ -146,6 +166,15 @@ document.addEventListener('DOMContentLoaded', () => {
         grimorioTabs: document.querySelectorAll('.grimorio-tab-btn'),
         grimorioContent: document.getElementById('grimorioContent'),
 
+        // Arsenal & Modal
+        btnBuyList: document.querySelectorAll('.btn-buy'),
+        btnAccessList: document.querySelectorAll('.btn-arsenal-access'),
+        moduleModal: document.getElementById('moduleModal'),
+        moduleModalOverlay: document.getElementById('moduleModalOverlay'),
+        btnCloseModal: document.getElementById('btnCloseModal'),
+        modalTitle: document.getElementById('modalTitle'),
+        modalBody: document.getElementById('modalBody'),
+
         // Toast
         toast: document.getElementById('toast'),
         toastMsg: document.getElementById('toastMsg')
@@ -166,6 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setupDropzone();
         setupClipboardPaste();
         setupGrimorio();
+        setupArsenalAndModals();
         setupCopyButtons();
         updatePhaseBanner('invasao');
         updateSubmodeUI();
@@ -402,6 +432,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('textOption2').textContent = def.responses.opt2;
         document.getElementById('textOption3').textContent = def.responses.opt3;
 
+        // Injetar Parecer do Expert / Dicas de Uso
+        const desc1 = document.getElementById('intelDescOption1');
+        const desc2 = document.getElementById('intelDescOption2');
+        const desc3 = document.getElementById('intelDescOption3');
+        if (desc1) desc1.innerHTML = def.advice.opt1;
+        if (desc2) desc2.innerHTML = def.advice.opt2;
+        if (desc3) desc3.innerHTML = def.advice.opt3;
+
         document.getElementById('option3Type').textContent = def.opt3Badge;
     }
 
@@ -462,6 +500,150 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
 
         setupCopyButtons();
+    }
+
+    // ==========================================================================
+    // ARSENAL & MODAL DE CONTEÚDO LIBERADO (LIVROS / ÁUDIOS)
+    // ==========================================================================
+    const moduleContentDatabase = {
+        'oraculo-pro': {
+            title: "Oráculo Pro · Acesso Ilimitado Ativado",
+            html: `
+                <div class="modal-book-box">
+                    <div style="color: var(--accent-gold); font-size: 11px; font-weight: 800; letter-spacing: 1px; margin-bottom: 6px;">STATUS DA CONTA</div>
+                    <h4 style="color: #fff; font-size: 15px; margin-bottom: 8px;">Scans Ilimitados sem Restrições</h4>
+                    <p style="color: var(--text-muted); font-size: 12.5px; line-height: 1.5; margin-bottom: 12px;">
+                        Sua conta foi promovida ao nível <strong>Adepto da Ordem</strong>. Agora você tem prioridade máxima nas filas de processamento da IA e pode escanear quantos prints de conversas e stories quiser por dia.
+                    </p>
+                    <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 10px; color: var(--accent-green); font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-check-circle"></i> Limite Diário Removido com Sucesso
+                    </div>
+                </div>
+            `
+        },
+        'audios': {
+            title: "Grimório dos Áudios Magnéticos",
+            html: `
+                <div class="modal-book-box">
+                    <div style="color: var(--accent-gold); font-size: 11px; font-weight: 800; letter-spacing: 1px; margin-bottom: 6px;">TREINAMENTO TÁTICO DE VOZ</div>
+                    <p style="color: var(--text-muted); font-size: 12px; line-height: 1.5; margin-bottom: 14px;">
+                        Ouça as faixas abaixo com fones de ouvido para calibrar o tom grave, a ressonância do peito e as pausas magnéticas antes de mandar áudios no WhatsApp.
+                    </p>
+                    
+                    <div class="modal-audio-track">
+                        <div class="track-header">
+                            <span class="track-name"><i class="fa-solid fa-play" style="color: var(--accent-gold); margin-right: 6px;"></i> 01. A Modulação Hipnótica (Tom Grave)</span>
+                            <span class="track-duration">03:42</span>
+                        </div>
+                        <audio controls style="width: 100%; height: 36px; margin-top: 4px;">
+                            <source src="#" type="audio/mpeg">
+                            Seu navegador não suporta reprodução de áudio.
+                        </audio>
+                    </div>
+
+                    <div class="modal-audio-track">
+                        <div class="track-header">
+                            <span class="track-name"><i class="fa-solid fa-play" style="color: var(--accent-gold); margin-right: 6px;"></i> 02. O Poder da Pausa & Silêncio Tático</span>
+                            <span class="track-duration">04:15</span>
+                        </div>
+                        <audio controls style="width: 100%; height: 36px; margin-top: 4px;">
+                            <source src="#" type="audio/mpeg">
+                        </audio>
+                    </div>
+
+                    <div class="modal-audio-track">
+                        <div class="track-header">
+                            <span class="track-name"><i class="fa-solid fa-play" style="color: var(--accent-gold); margin-right: 6px;"></i> 03. O Áudio Coringa de Convite Irrecusável</span>
+                            <span class="track-duration">02:50</span>
+                        </div>
+                        <audio controls style="width: 100%; height: 36px; margin-top: 4px;">
+                            <source src="#" type="audio/mpeg">
+                        </audio>
+                    </div>
+                </div>
+            `
+        },
+        'fechamento-dois': {
+            title: "O Fechamento Perfeito a Dois",
+            html: `
+                <div class="modal-book-box">
+                    <div style="color: var(--accent-gold); font-size: 11px; font-weight: 800; letter-spacing: 1px; margin-bottom: 6px;">LIVRO DIGITAL & PROTOCOLO COMPLETO</div>
+                    <h4 style="color: #fff; font-size: 15px; margin-bottom: 8px;">Do Barzinho ao Final a Dois</h4>
+                    <p style="color: var(--text-muted); font-size: 12.5px; line-height: 1.5; margin-bottom: 12px;">
+                        O passo a passo minucioso de 48 páginas sobre como sentar à mesa, posicionar sua linguagem corporal, quebrar a barreira do toque sutil e fazer a transição para a sua casa sem parecer apressado.
+                    </p>
+                    <button class="btn-download-book" onclick="alert('Iniciando download do Livro Digital (PDF)...')">
+                        <i class="fa-solid fa-file-pdf"></i>
+                        <span>BAIXAR O LIVRO DIGITAL COMPLETO (PDF)</span>
+                    </button>
+                </div>
+            `
+        }
+    };
+
+    function setupArsenalAndModals() {
+        const unlockedModules = JSON.parse(localStorage.getItem('ordem_unlocked_modules') || '[]');
+
+        function updateUnlockedUI() {
+            unlockedModules.forEach(modId => {
+                const buyBtn = document.querySelector(`.btn-buy[data-module="${modId}"]`);
+                const accessBtn = document.querySelector(`.btn-arsenal-access[data-module="${modId}"]`);
+                if (buyBtn && accessBtn) {
+                    buyBtn.classList.add('hidden');
+                    accessBtn.classList.remove('hidden');
+                }
+            });
+        }
+        updateUnlockedUI();
+
+        elements.btnBuyList.forEach(btn => {
+            btn.addEventListener('click', () => {
+                triggerHaptic(20);
+                const modId = btn.dataset.module;
+                const checkoutUrl = btn.dataset.checkout;
+
+                window.open(checkoutUrl, '_blank');
+
+                if (!unlockedModules.includes(modId)) {
+                    unlockedModules.push(modId);
+                    localStorage.setItem('ordem_unlocked_modules', JSON.stringify(unlockedModules));
+                }
+
+                showToast('Acesso liberado! Clique em ACESSAR MÓDULO.');
+                updateUnlockedUI();
+            });
+        });
+
+        elements.btnAccessList.forEach(btn => {
+            btn.addEventListener('click', () => {
+                triggerHaptic();
+                const modId = btn.dataset.module;
+                openModuleModal(modId);
+            });
+        });
+
+        if (elements.btnCloseModal) {
+            elements.btnCloseModal.addEventListener('click', closeModuleModal);
+        }
+        if (elements.moduleModalOverlay) {
+            elements.moduleModalOverlay.addEventListener('click', closeModuleModal);
+        }
+    }
+
+    function openModuleModal(modId) {
+        const data = moduleContentDatabase[modId];
+        if (!data) return;
+
+        elements.modalTitle.textContent = data.title;
+        elements.modalBody.innerHTML = data.html;
+        elements.moduleModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModuleModal() {
+        triggerHaptic(15);
+        elements.moduleModal.classList.add('hidden');
+        document.body.style.overflow = '';
     }
 
     // Botões de Copiar com 1 Clique
