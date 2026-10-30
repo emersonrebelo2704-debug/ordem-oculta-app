@@ -405,8 +405,10 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.btnLabel.textContent = 'ANALISANDO CENÁRIO & SINAIS...';
 
         try {
-            // Tenta chamar o backend real com Visão Computacional
-            const response = await fetch('api/scan.php', {
+            // Tenta chamar o endpoint de Visão Computacional (Node ou PHP)
+            const endpoint = window.location.protocol === 'file:' ? 'http://localhost:3000/api/scan' : '/api/scan';
+            
+            const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
