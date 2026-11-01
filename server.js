@@ -235,6 +235,108 @@ FORMATO OBRIGATÓRIO DE SAÍDA (JSON PURO):
     }
 });
 
+// ENDPOINT D'O DESFIBRILADOR (RESSUSCITAÇÃO DE VÁCUO & GHOSTING COM IA)
+app.post('/api/desfibrilador', async (req, res) => {
+    try {
+        const { timeWindow = '3dias', topic = '' } = req.body;
+
+        const systemPrompt = `
+VOCÊ É O MESTRE DA PSICOLOGIA DE RESSUSCITAÇÃO DE CONVERSAS ("O DESFIBRILADOR").
+VOCÊ É O MAIOR ESPECIALISTA DO BRASIL EM REVERTER VÁCUO E GHOSTING NO INSTAGRAM E WHATSAPP.
+
+O USUÁRIO ESTÁ DIANTE DE UM PROBLEMA GRAVE:
+Ele e a mulher conversavam, mas a conversa morreu ou ela parou de responder há ${timeWindow}.
+O último assunto que eles conversavam ou contexto informado foi: "${topic || 'Vácuo sem assunto específico'}".
+
+SUAS REGRAS INEGOCIÁVEIS (ANTI-GENÉRICO & LINGUAGEM NATURAL):
+1. PROIBIÇÃO DE MENSAGENS ROBÓTICAS OU FORMULAICAS:
+   - NUNCA use frases artificiais como "Você não vai acreditar sobre o que estávamos falando sobre X". Isso soa como robô mal traduzido!
+   - Fale como um homem autêntico, descontraído, com malícia e naturalidade brasileira. Use pontuação informal ("kkkk", reticências no momento certo, frases curtas).
+2. INCORPORAÇÃO ORGÂNICA DO ASSUNTO:
+   - Se o usuário falou que o assunto era "festas quando era mais novo vs hoje em dia mais sossegado", a frase DEVE soar natural, por exemplo:
+     * "Lembrei agora da nossa conversa sobre as festas de antigamente... na moral, se a gente tentasse fazer metade daquilo hoje, a gente não sobrevivia até domingo kkkk"
+     * "Acabei de ver uma cena na rua que me fez lembrar exatamente do que você me falou sobre a fase das festas. Tive que vir te contar."
+3. AS 3 VERTENTES EXATAS QUE VOCÊ DEVE GERAR:
+
+GATILHO 1: A LEMBRANÇA ESPONTÂNEA (Loop de Curiosidade & Conexão)
+- O homem viu algo no dia a dia dele que o fez lembrar de algo específico que ela disse ou do assunto anterior.
+- Soa 100% genuíno, sem parecer que ele estava pensando nela o tempo todo.
+
+GATILHO 2: O FALSO ENGANO / PROVOCAÇÃO BEM-HUMORADA
+- Uma quebra de expectativa onde ele parece que vai mandar outra coisa ou joga uma cutucada elegante sobre o sumiço dela.
+
+GATILHO 3: A DESQUALIFICAÇÃO COM HUMOR (Alto Valor & Desapego)
+- Mostra que o homem é seguro de si, brinca com o vácuo com leveza sem cobrar satisfação e inverte o papel (coloca ela na posição de quem precisa se justificar).
+
+FORMATO OBRIGATÓRIO DE SAÍDA (JSON PURO):
+{
+  "options": [
+    {
+      "badge": "Lembrança Espontânea",
+      "rate": "95% de Resposta",
+      "text": "Frase natural e orgânica citando o contexto sem parecer forçado.",
+      "reason": "Por que desarma o vácuo e como ela vai interpretar."
+    },
+    {
+      "badge": "Gatilho de Curiosidade",
+      "rate": "91% de Resposta",
+      "text": "Frase enigmática e magnética.",
+      "reason": "Por que força ela a abrir o direct e perguntar o que houve."
+    },
+    {
+      "badge": "Desqualificação com Humor",
+      "rate": "88% de Resposta",
+      "text": "Frase de alto valor brincando com o silêncio dela.",
+      "reason": "Mostra desapego e masculinidade sem ressentimento."
+    }
+  ]
+}
+        `;
+
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${GEMINI_API_KEY}`;
+        const payload = {
+            contents: [
+                {
+                    parts: [
+                        { text: systemPrompt }
+                    ]
+                }
+            ],
+            generationConfig: {
+                temperature: 0.75,
+                topP: 0.95,
+                maxOutputTokens: 2000,
+                responseMimeType: "application/json"
+            }
+        };
+
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const resData = await response.json();
+
+        if (!response.ok || !resData.candidates || !resData.candidates[0].content) {
+            return res.status(500).json({ success: false, error: 'Erro na API Gemini', details: resData });
+        }
+
+        const rawText = resData.candidates[0].content.parts[0].text;
+        const cleanText = rawText.replace(/^```json\s*|\s*```$/gm, '').trim();
+        const decoded = JSON.parse(cleanText);
+
+        res.json({
+            success: true,
+            data: decoded
+        });
+
+    } catch (err) {
+        console.error("Erro interno no desfibrilador:", err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Oráculo Server rodando em http://localhost:${PORT}`);
 });

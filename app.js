@@ -458,34 +458,66 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         if (btnShock) {
-            btnShock.addEventListener('click', () => {
+            btnShock.addEventListener('click', async () => {
                 triggerHaptic(40);
                 btnShock.disabled = true;
-                btnShock.innerHTML = '<i class="fa-solid fa-bolt fa-fade"></i><span>DISPARANDO CHOQUE...</span>';
+                btnShock.innerHTML = '<i class="fa-solid fa-bolt fa-fade"></i><span>DISPARANDO IA TÁTICA...</span>';
 
-                setTimeout(() => {
+                const topic = topicInput ? topicInput.value.trim() : '';
+
+                try {
+                    const endpoint = window.location.protocol === 'file:' ? 'http://localhost:3000/api/desfibrilador' : '/api/desfibrilador';
+                    const res = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            timeWindow: selectedTime,
+                            topic: topic
+                        })
+                    });
+                    const result = await res.json();
+
+                    if (result.success && result.data && result.data.options) {
+                        const opts = result.data.options;
+                        if (opts[0]) {
+                            text1.textContent = opts[0].text;
+                            const reason1 = document.querySelector('.desf-option-card:nth-child(1) .desf-reason');
+                            if (reason1) reason1.textContent = opts[0].reason || '';
+                        }
+                        if (opts[1]) {
+                            text2.textContent = opts[1].text;
+                            const reason2 = document.querySelector('.desf-option-card:nth-child(2) .desf-reason');
+                            if (reason2) reason2.textContent = opts[1].reason || '';
+                        }
+                        if (opts[2]) {
+                            text3.textContent = opts[2].text;
+                            const reason3 = document.querySelector('.desf-option-card:nth-child(3) .desf-reason');
+                            if (reason3) reason3.textContent = opts[2].reason || '';
+                        }
+                    } else {
+                        throw new Error('Falha na resposta da IA');
+                    }
+                } catch (err) {
+                    // Fallback humanizado inteligente
                     const preset = shockPresets[selectedTime] || shockPresets['24h'];
-                    const topic = topicInput ? topicInput.value.trim() : '';
-
                     if (topic) {
-                        text1.textContent = `"Você não vai acreditar no que aconteceu sobre '${topic}'. Na hora me veio seu nome na cabeça."`;
-                        text2.textContent = `"Acabei seguindo aquilo que você comentou sobre '${topic}'. Deu um resultado surreal."`;
+                        text1.textContent = `Lembrei agora da nossa conversa sobre "${topic}"... na hora me veio um negócio na cabeça que eu tive que vir te falar kkkk`;
+                        text2.textContent = `Aconteceu um negócio surreal hoje ligado àquilo de "${topic}" que você comentou. Depois dessa nem você acredita.`;
                         text3.textContent = preset.opt3;
                     } else {
                         text1.textContent = preset.opt1;
                         text2.textContent = preset.opt2;
                         text3.textContent = preset.opt3;
                     }
-
+                } finally {
                     if (resultsContainer) {
                         resultsContainer.classList.remove('hidden');
                         resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
-
                     btnShock.disabled = false;
                     btnShock.innerHTML = '<i class="fa-solid fa-bolt"></i><span>APLICAR NOVO CHOQUE</span>';
                     showToast('Gatilhos de ressuscitação gerados!');
-                }, 400);
+                }
             });
         }
 
