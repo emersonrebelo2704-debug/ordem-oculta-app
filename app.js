@@ -480,6 +480,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 diagEl.textContent = data.intel.diagnosis;
             }
 
+            // Se o Oráculo detectou o tipo de print (story vs chat), sincroniza a caixinha automaticamente
+            if (data.intel.detected_submode) {
+                const detectedSub = data.intel.detected_submode.toLowerCase();
+                const targetSubCard = document.querySelector(`.submode-card[data-submode="${detectedSub}"]`);
+                if (targetSubCard) {
+                    elements.submodeCards.forEach(c => c.classList.remove('active'));
+                    targetSubCard.classList.add('active');
+                    state.selectedSubmode = detectedSub;
+                    updateSubmodeUI();
+                }
+            }
+
             // Se o Oráculo detectou a fase e estávamos no modo auto, atualiza os cards visualmente
             if (data.intel.detected_phase_key) {
                 const detectedKey = data.intel.detected_phase_key.toLowerCase();
@@ -487,6 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (targetCard) {
                     elements.phaseCards.forEach(c => c.classList.remove('active'));
                     targetCard.classList.add('active');
+                    state.selectedPhase = detectedKey;
                     updatePhaseBanner(detectedKey);
                 }
             }
