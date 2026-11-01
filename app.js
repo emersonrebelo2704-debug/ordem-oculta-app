@@ -331,6 +331,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Suporte para renovação via URL (?reset=1 ou ?creditos=5)
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('reset') || urlParams.has('renovar') || urlParams.has('creditos')) {
+            const val = urlParams.get('creditos') || '5';
+            syncGlobalCredits(parseInt(val, 10));
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    } catch (e) {}
+
     // Helper para criar Card de Carregamento na Linha do Tempo
     function createThreadLoadingCard(container, message, isFz = false) {
         const loadingDiv = document.createElement('div');
@@ -465,6 +475,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 hidePaywallLock();
                 const plansNavBtn = document.querySelector('.nav-item[data-tab="tab-protocolos"]');
                 if (plansNavBtn) plansNavBtn.click();
+            });
+        }
+
+        // Botão de Renovação Rápida (Modo Teste)
+        const btnDevReset = document.getElementById('btnDevResetCredits');
+        if (btnDevReset) {
+            btnDevReset.addEventListener('click', () => {
+                syncGlobalCredits(5);
+                hidePaywallLock();
+                showToast('⚡ 5 Créditos renovados com sucesso!');
+            });
+        }
+
+        // Clique no contador de créditos do cabeçalho recarrega +5 no modo teste
+        const headerCreditsBadge = document.getElementById('headerCreditsBadge');
+        if (headerCreditsBadge) {
+            headerCreditsBadge.style.cursor = 'pointer';
+            headerCreditsBadge.title = 'Clique para recarregar +5 créditos no modo teste';
+            headerCreditsBadge.addEventListener('click', () => {
+                const current = getGlobalCredits();
+                const nextCredits = current <= 0 ? 5 : current + 5;
+                syncGlobalCredits(nextCredits);
+                hidePaywallLock();
+                showToast(`⚡ Créditos recarregados! Saldo atual: ${nextCredits}`);
             });
         }
 
