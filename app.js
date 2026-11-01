@@ -307,6 +307,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Helper Global para Escape de HTML
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
     // Helper Global para Sincronização de Créditos
     function getGlobalCredits() {
         return parseInt(localStorage.getItem('ordem_user_credits') || '5', 10);
@@ -319,17 +330,85 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Setup do Coach de Emergência (com Sistema de Créditos, Continuação em Loop & Paywall Lock)
+    // Helper para criar Card de Carregamento na Linha do Tempo
+    function createThreadLoadingCard(container, message, isFz = false) {
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = `turn-loading-card ${isFz ? 'fz-loading' : ''}`;
+        loadingDiv.innerHTML = `
+            <i class="fa-solid fa-spinner fa-spin loading-spinner-circle"></i>
+            <span>${message}</span>
+        `;
+        container.appendChild(loadingDiv);
+        loadingDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        return loadingDiv;
+    }
+
+    // Helper para renderizar turno do Coach de Cima Para Baixo
+    function appendCoachTurn(container, userText, botData, round) {
+        // 1. Balão do Usuário
+        const userBubble = document.createElement('div');
+        userBubble.className = 'turn-user-bubble';
+        const headerTitle = round === 1 ? 'VOCÊ RELATOU:' : `O QUE ELA RESPONDEU (ETAPA ${round}):`;
+        const icon = round === 1 ? 'fa-user' : 'fa-reply';
+        userBubble.innerHTML = `
+            <div class="bubble-header"><i class="fa-solid ${icon}"></i> ${headerTitle}</div>
+            <p class="bubble-text">"${escapeHtml(userText)}"</p>
+        `;
+        container.appendChild(userBubble);
+
+        // 2. Card Completo de Resposta do Coach
+        const responseCard = document.createElement('div');
+        responseCard.className = 'turn-response-card';
+        responseCard.id = `coach-turn-${round}`;
+        responseCard.innerHTML = `
+            <div class="coach-response-header">
+                <div class="coach-header-left">
+                    <span class="coach-status-dot"></span>
+                    <span class="coach-name">PARECER DO COACH (ETAPA ${round})</span>
+                </div>
+                <span class="coach-badge-tactic">DIAGNÓSTICO FRIO</span>
+            </div>
+
+            <div class="coach-diagnosis-box">
+                <div class="coach-diagnosis-title"><i class="fa-solid fa-crosshairs"></i> O QUE ESTÁ ACONTECENDO:</div>
+                <p class="coach-diagnosis-text">${escapeHtml(botData.diagnosis || '')}</p>
+            </div>
+
+            <div class="coach-script-box">
+                <div class="coach-script-title"><i class="fa-solid fa-quote-left"></i> SUA PRÓXIMA MENSAGEM:</div>
+                <p class="coach-script-text">${escapeHtml(botData.script || '')}</p>
+                <button class="btn-copy-coach">
+                    <i class="fa-regular fa-copy"></i>
+                    <span>Copiar Resposta</span>
+                </button>
+            </div>
+
+            <div class="coach-action-guide">
+                <div class="guide-title"><i class="fa-solid fa-lightbulb"></i> ATITUDE RECOMENDADA:</div>
+                <p class="guide-desc">${escapeHtml(botData.actionGuide || '')}</p>
+            </div>
+        `;
+
+        const copyBtn = responseCard.querySelector('.btn-copy-coach');
+        if (copyBtn) {
+            copyBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText((botData.script || '').replace(/"/g, ''));
+                showToast('Resposta do Coach copiada!');
+            });
+        }
+
+        container.appendChild(responseCard);
+        return responseCard;
+    }
+
+    // Setup do Coach de Emergência (Linha do Tempo 100% Sequencial De Cima Para Baixo)
     function setupCoachEmergency() {
+        const initialInputContainer = document.getElementById('coachInitialInputContainer');
         const situationInput = document.getElementById('coachSituationInput');
         const btnAskCoach = document.getElementById('btnAskCoach');
         const responseContainer = document.getElementById('coachResponseContainer');
         const coachThreadFeed = document.getElementById('coachThreadFeed');
-        const coachTurnTitle = document.getElementById('coachTurnTitle');
-        const diagnosisTextEl = document.getElementById('coachDiagnosisText');
-        const scriptTextEl = document.getElementById('coachScriptText');
-        const actionGuideEl = document.getElementById('coachActionGuide');
-        const btnCopyCoach = document.getElementById('btnCopyCoach');
+        const coachContinuationBox = document.getElementById('coachContinuationBox');
         const coachFollowupInput = document.getElementById('coachFollowupInput');
         const btnCoachFollowup = document.getElementById('btnCoachFollowup');
         const btnResetCoach = document.getElementById('btnResetCoachThread');
@@ -341,7 +420,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const btnLockViewPlans = document.getElementById('btnLockViewPlans');
 
         let coachHistory = [];
-        let currentCoachExchange = null;
 
         syncGlobalCredits(getGlobalCredits());
 
@@ -365,32 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        function renderCoachHistoryItem(item, round) {
-            const div = document.createElement('div');
-            div.className = 'thread-turn-item';
-            div.innerHTML = `
-                <div class="thread-turn-header">
-                    <span class="thread-turn-badge"><i class="fa-solid fa-circle-check"></i> ETAPA ${round}</span>
-                    <span class="desf-rate">CONSELHO ANTERIOR</span>
-                </div>
-                <div class="thread-user-quote"><strong>Cenário:</strong> "${item.situation}"</div>
-                <div class="thread-bot-reply">"${item.script}"</div>
-                <div class="thread-turn-footer">
-                    <span class="thread-turn-reason">${item.diagnosis || ''}</span>
-                    <button class="btn-copy-small" data-copy="${item.script.replace(/"/g, '&quot;')}"><i class="fa-regular fa-copy"></i> Copiar</button>
-                </div>
-            `;
-            const copyBtn = div.querySelector('.btn-copy-small');
-            if (copyBtn) {
-                copyBtn.addEventListener('click', () => {
-                    navigator.clipboard.writeText(item.script.replace(/"/g, ''));
-                    showToast('Resposta copiada!');
-                });
-            }
-            return div;
-        }
-
-        // Primeiro envio do Coach
+        // Primeiro envio do Coach (Etapa 1)
         if (btnAskCoach) {
             btnAskCoach.addEventListener('click', async () => {
                 const situation = situationInput ? situationInput.value.trim() : '';
@@ -410,6 +463,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 btnAskCoach.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Consultando Coach...</span>';
                 triggerHaptic(30);
 
+                // Alterna visão: esconde entrada inicial e mostra a timeline de respostas
+                if (initialInputContainer) initialInputContainer.classList.add('hidden');
+                if (responseContainer) responseContainer.classList.remove('hidden');
+                if (coachThreadFeed) coachThreadFeed.innerHTML = '';
+
+                // Mostra balão do usuário e card de carregamento na linha do tempo
+                const loadingCard = createThreadLoadingCard(coachThreadFeed, 'Coach analisando a dinâmica friamente...');
+
                 try {
                     const endpoint = window.location.protocol === 'file:' ? 'http://localhost:3000/api/coach' : '/api/coach';
                     const res = await fetch(endpoint, {
@@ -419,45 +480,40 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                     const result = await res.json();
 
+                    loadingCard.remove();
+
                     if (result.success && result.data) {
                         credits--;
                         syncGlobalCredits(credits);
 
-                        coachHistory = [];
-                        if (coachThreadFeed) coachThreadFeed.innerHTML = '';
-                        currentCoachExchange = {
+                        coachHistory = [{
                             situation,
                             diagnosis: result.data.diagnosis,
                             script: result.data.script,
                             actionGuide: result.data.actionGuide
-                        };
+                        }];
 
-                        if (coachTurnTitle) coachTurnTitle.textContent = 'PARECER DO COACH (ETAPA 1)';
-                        if (diagnosisTextEl) diagnosisTextEl.textContent = result.data.diagnosis || 'Análise da dinâmica traçada.';
-                        if (scriptTextEl) scriptTextEl.textContent = result.data.script || 'Envie a resposta de contra-ataque.';
-                        if (actionGuideEl) actionGuideEl.textContent = result.data.actionGuide || 'Mantenha a postura recomendada.';
-
-                        if (responseContainer) {
-                            responseContainer.classList.remove('hidden');
-                            responseContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
+                        const cardEl = appendCoachTurn(coachThreadFeed, situation, result.data, 1);
+                        cardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         showToast(`Parecer pronto! Restam ${credits} créditos.`);
                     } else {
                         showToast('Erro ao consultar o Coach. Tente novamente.');
                     }
                 } catch (e) {
+                    loadingCard.remove();
                     credits--;
                     syncGlobalCredits(credits);
-                    currentCoachExchange = {
-                        situation,
+                    const fallbackData = {
                         diagnosis: "Ela está testando o seu nível de apego e segurança. Quanto mais rápido você cobrar resposta, mais baixo fica o seu valor.",
                         script: '"Pelo visto o dia aí tá corrido. Me avisa quando desocupar pra gente continuar o papo."',
                         actionGuide: "Aguarde ela responder espontaneamente sem mandar nenhuma mensagem adicional."
                     };
-                    if (diagnosisTextEl) diagnosisTextEl.textContent = currentCoachExchange.diagnosis;
-                    if (scriptTextEl) scriptTextEl.textContent = currentCoachExchange.script;
-                    if (actionGuideEl) actionGuideEl.textContent = currentCoachExchange.actionGuide;
-                    if (responseContainer) responseContainer.classList.remove('hidden');
+                    coachHistory = [{
+                        situation,
+                        ...fallbackData
+                    }];
+                    const cardEl = appendCoachTurn(coachThreadFeed, situation, fallbackData, 1);
+                    cardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     showToast(`Parecer gerado. Restam ${credits} créditos.`);
                 } finally {
                     btnAskCoach.disabled = false;
@@ -466,7 +522,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // CONTINUAÇÃO DO COACH (O QUE ELA RESPONDEU / O QUE ACONTECEU AGORA?)
+        // CONTINUAÇÃO DO COACH (Etapa 2, 3, etc. - SEMPRE DESCENDO PARA BAIXO)
         if (btnCoachFollowup) {
             btnCoachFollowup.addEventListener('click', async () => {
                 const followupText = coachFollowupInput ? coachFollowupInput.value.trim() : '';
@@ -483,17 +539,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 btnCoachFollowup.disabled = true;
-                btnCoachFollowup.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Atualizando Estratégia...</span>';
+                btnCoachFollowup.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Consultando Coach...</span>';
                 triggerHaptic(30);
 
-                // Empurra o turno atual para o feed de histórico
-                if (currentCoachExchange) {
-                    coachHistory.push(currentCoachExchange);
-                    if (coachThreadFeed) {
-                        const historyCard = renderCoachHistoryItem(currentCoachExchange, coachHistory.length);
-                        coachThreadFeed.appendChild(historyCard);
-                    }
-                }
+                if (coachFollowupInput) coachFollowupInput.value = '';
+
+                // Mostra o card de carregamento logo abaixo na timeline
+                const roundNumber = coachHistory.length + 1;
+                const loadingCard = createThreadLoadingCard(coachThreadFeed, `Coach formulando o próximo passo da Etapa ${roundNumber}...`);
 
                 try {
                     const endpoint = window.location.protocol === 'file:' ? 'http://localhost:3000/api/coach' : '/api/coach';
@@ -507,40 +560,41 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                     const result = await res.json();
 
+                    loadingCard.remove();
+
                     if (result.success && result.data) {
                         credits--;
                         syncGlobalCredits(credits);
 
-                        currentCoachExchange = {
+                        coachHistory.push({
                             situation: followupText,
                             diagnosis: result.data.diagnosis,
                             script: result.data.script,
                             actionGuide: result.data.actionGuide
-                        };
+                        });
 
-                        if (coachTurnTitle) coachTurnTitle.textContent = `PRÓXIMO PASSO (ETAPA ${coachHistory.length + 1})`;
-                        if (diagnosisTextEl) diagnosisTextEl.textContent = result.data.diagnosis || 'Nova dinâmica diagnosticada.';
-                        if (scriptTextEl) scriptTextEl.textContent = result.data.script || 'Próxima resposta tática pronta.';
-                        if (actionGuideEl) actionGuideEl.textContent = result.data.actionGuide || 'Postura ajustada.';
-
-                        if (coachFollowupInput) coachFollowupInput.value = '';
-                        document.getElementById('coachActiveTurn')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        // Anexa a nova pergunta e a nova resposta PARA BAIXO
+                        const newCard = appendCoachTurn(coachThreadFeed, followupText, result.data, roundNumber);
+                        newCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         showToast(`Próximo passo liberado! Restam ${credits} créditos.`);
                     } else {
                         showToast('Erro ao continuar. Tente novamente.');
                     }
                 } catch (e) {
+                    loadingCard.remove();
                     credits--;
                     syncGlobalCredits(credits);
-                    currentCoachExchange = {
-                        situation: followupText,
+                    const fallbackData = {
                         diagnosis: "Ela continuou medindo sua reação. A chave agora é desapego total com postura relaxada.",
                         script: '"De boa, sem estresse. Segue seu ritmo aí."',
                         actionGuide: "Não mande áudios e demore o dobro do tempo dela para visualizar."
                     };
-                    if (diagnosisTextEl) diagnosisTextEl.textContent = currentCoachExchange.diagnosis;
-                    if (scriptTextEl) scriptTextEl.textContent = currentCoachExchange.script;
-                    if (actionGuideEl) actionGuideEl.textContent = currentCoachExchange.actionGuide;
+                    coachHistory.push({
+                        situation: followupText,
+                        ...fallbackData
+                    });
+                    const newCard = appendCoachTurn(coachThreadFeed, followupText, fallbackData, roundNumber);
+                    newCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     showToast(`Conselho gerado. Restam ${credits} créditos.`);
                 } finally {
                     btnCoachFollowup.disabled = false;
@@ -549,24 +603,17 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Resetar histórico do Coach
+        // Resetar histórico do Coach (Iniciar Novo Caso)
         if (btnResetCoach) {
             btnResetCoach.addEventListener('click', () => {
                 coachHistory = [];
-                currentCoachExchange = null;
                 if (coachThreadFeed) coachThreadFeed.innerHTML = '';
                 if (responseContainer) responseContainer.classList.add('hidden');
+                if (initialInputContainer) initialInputContainer.classList.remove('hidden');
                 if (situationInput) situationInput.value = '';
                 if (coachFollowupInput) coachFollowupInput.value = '';
                 document.getElementById('view-coach')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 showToast('Novo caso iniciado.');
-            });
-        }
-
-        if (btnCopyCoach && scriptTextEl) {
-            btnCopyCoach.addEventListener('click', () => {
-                navigator.clipboard.writeText(scriptTextEl.textContent.replace(/"/g, ''));
-                showToast('Resposta do Coach copiada!');
             });
         }
     }
@@ -691,50 +738,73 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Setup de "A Rota de Fuga" (Anti-Friendzone com Continuação em Sequência)
+    // Helper para renderizar turno da Rota de Fuga de Cima Para Baixo
+    function appendFzTurn(container, userText, botData, round) {
+        // 1. Balão do Usuário
+        const userBubble = document.createElement('div');
+        userBubble.className = 'turn-user-bubble fz-bubble';
+        const headerTitle = round === 1 ? 'ELA TE MANDOU:' : `ELA REBATEU (RODADA ${round}):`;
+        userBubble.innerHTML = `
+            <div class="bubble-header"><i class="fa-solid fa-quote-left"></i> ${headerTitle}</div>
+            <p class="bubble-text">"${escapeHtml(userText)}"</p>
+        `;
+        container.appendChild(userBubble);
+
+        // 2. Card Completo de Resposta da Rota de Fuga
+        const responseCard = document.createElement('div');
+        responseCard.className = 'turn-response-card fz-turn-card';
+        responseCard.id = `fz-turn-${round}`;
+        const roundTitle = round === 1 ? 'RESPOSTA DE DESQUALIFICAÇÃO (RODADA 1)' : `TRÉPLICA IMPLACÁVEL (RODADA ${round})`;
+        responseCard.innerHTML = `
+            <div class="coach-response-header">
+                <div class="coach-header-left">
+                    <span class="coach-status-dot fz-dot"></span>
+                    <span class="coach-name">${roundTitle}</span>
+                </div>
+                <span class="coach-badge-tactic fz-badge">CORTE DE FRAME</span>
+            </div>
+
+            <div class="coach-script-box fz-script">
+                <div class="coach-script-title"><i class="fa-solid fa-fire"></i> COPIE E MANDE EXATAMENTE ISTO:</div>
+                <p class="coach-script-text">${escapeHtml(botData.script || '')}</p>
+                <button class="btn-copy-coach">
+                    <i class="fa-regular fa-copy"></i>
+                    <span>Copiar Resposta</span>
+                </button>
+            </div>
+
+            <div class="coach-action-guide">
+                <div class="guide-title"><i class="fa-solid fa-brain"></i> POR QUE ESSA RESPOSTA ENLOUQUECE ELA:</div>
+                <p class="guide-desc">${escapeHtml(botData.reason || '')}</p>
+            </div>
+        `;
+
+        const copyBtn = responseCard.querySelector('.btn-copy-coach');
+        if (copyBtn) {
+            copyBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText((botData.script || '').replace(/"/g, ''));
+                showToast('Resposta copiada! Mande para ela agora.');
+            });
+        }
+
+        container.appendChild(responseCard);
+        return responseCard;
+    }
+
+    // Setup de "A Rota de Fuga" (Anti-Friendzone 100% Sequencial De Cima Para Baixo)
     function setupFriendzoneEscape() {
+        const initialInputContainer = document.getElementById('fzInitialInputContainer');
         const inputEl = document.getElementById('fzMessageInput');
         const btnInvert = document.getElementById('btnInvertGame');
         const responseBox = document.getElementById('fzResponseContainer');
         const threadFeed = document.getElementById('fzThreadFeed');
-        const activeTurnCard = document.getElementById('fzActiveTurn');
-        const turnTitle = document.getElementById('fzTurnTitle');
-        const scriptEl = document.getElementById('fzScriptText');
-        const reasonEl = document.getElementById('fzReasonText');
-        const btnCopy = document.getElementById('btnCopyFz');
         const followupInput = document.getElementById('fzFollowupInput');
         const btnFollowup = document.getElementById('btnInvertFollowup');
         const btnReset = document.getElementById('btnResetFzThread');
 
         let fzHistory = [];
-        let currentFzExchange = null;
 
-        function renderFzHistoryItem(item, round) {
-            const div = document.createElement('div');
-            div.className = 'thread-turn-item fz-turn';
-            div.innerHTML = `
-                <div class="thread-turn-header">
-                    <span class="thread-turn-badge"><i class="fa-solid fa-shield-halved"></i> RODADA ${round}</span>
-                    <span class="desf-rate">DESARME APLICADO</span>
-                </div>
-                <div class="thread-user-quote"><strong>Ela mandou:</strong> "${item.herMessage}"</div>
-                <div class="thread-bot-reply">"${item.script}"</div>
-                <div class="thread-turn-footer">
-                    <span class="thread-turn-reason">${item.reason || ''}</span>
-                    <button class="btn-copy-small"><i class="fa-regular fa-copy"></i> Copiar</button>
-                </div>
-            `;
-            const copyBtn = div.querySelector('.btn-copy-small');
-            if (copyBtn) {
-                copyBtn.addEventListener('click', () => {
-                    navigator.clipboard.writeText(item.script.replace(/"/g, ''));
-                    showToast('Resposta copiada!');
-                });
-            }
-            return div;
-        }
-
-        // Primeiro desarme (Abertura do protocolo)
+        // Primeiro desarme (Rodada 1)
         if (btnInvert) {
             btnInvert.addEventListener('click', async () => {
                 const message = inputEl ? inputEl.value.trim() : '';
@@ -755,6 +825,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 btnInvert.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Desarmando Friendzone...</span>';
                 triggerHaptic(30);
 
+                // Alterna visão: oculta formulário inicial e exibe a timeline de respostas
+                if (initialInputContainer) initialInputContainer.classList.add('hidden');
+                if (responseBox) responseBox.classList.remove('hidden');
+                if (threadFeed) threadFeed.innerHTML = '';
+
+                const loadingCard = createThreadLoadingCard(threadFeed, 'Desarmando frase e quebrando frame com IA...', true);
+
                 try {
                     const endpoint = window.location.protocol === 'file:' ? 'http://localhost:3000/api/friendzone' : '/api/friendzone';
                     const res = await fetch(endpoint, {
@@ -764,43 +841,40 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                     const result = await res.json();
 
+                    loadingCard.remove();
+
                     if (result.success && result.data) {
                         credits--;
                         syncGlobalCredits(credits);
 
-                        fzHistory = [];
-                        if (threadFeed) threadFeed.innerHTML = '';
-                        currentFzExchange = {
+                        fzHistory = [{
                             herMessage: message,
                             script: result.data.script,
                             reason: result.data.reason
-                        };
+                        }];
 
-                        if (turnTitle) turnTitle.textContent = 'RESPOSTA DE DESQUALIFICAÇÃO (RODADA 1)';
-                        if (scriptEl) scriptEl.textContent = result.data.script || 'Resposta pronta.';
-                        if (reasonEl) reasonEl.textContent = result.data.reason || 'Corte de validação aplicado com sucesso.';
-
-                        if (responseBox) {
-                            responseBox.classList.remove('hidden');
-                            responseBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
+                        const cardEl = appendFzTurn(threadFeed, message, result.data, 1);
+                        cardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         showToast(`Friendzone desarmada! Restam ${credits} créditos.`);
                     } else {
                         showToast('Erro ao processar. Tente novamente.');
                     }
                 } catch (e) {
+                    loadingCard.remove();
                     credits--;
                     syncGlobalCredits(credits);
 
-                    currentFzExchange = {
-                        herMessage: message,
+                    const fallbackData = {
                         script: '"Que bom que a gente concorda nisso. Fico aliviado, porque a última coisa que eu preciso agora é de mais uma complicação romântica na minha vida. Toca aqui, \'irmãzinha\'. ✋"',
                         reason: 'Concorda com o rótulo de forma sarcástica, rebaixa o status dela como mulher e inverte o papel: agora você que não quer nada sério com ela.'
                     };
+                    fzHistory = [{
+                        herMessage: message,
+                        ...fallbackData
+                    }];
 
-                    if (scriptEl) scriptEl.textContent = currentFzExchange.script;
-                    if (reasonEl) reasonEl.textContent = currentFzExchange.reason;
-                    if (responseBox) responseBox.classList.remove('hidden');
+                    const cardEl = appendFzTurn(threadFeed, message, fallbackData, 1);
+                    cardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     showToast(`Resposta gerada. Restam ${credits} créditos.`);
                 } finally {
                     btnInvert.disabled = false;
@@ -809,7 +883,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Continuação do Desarme (O que ela respondeu a isso?)
+        // Continuação do Desarme (Rodada 2, 3, etc. - SEMPRE DESCENDO PARA BAIXO)
         if (btnFollowup) {
             btnFollowup.addEventListener('click', async () => {
                 const followupText = followupInput ? followupInput.value.trim() : '';
@@ -830,14 +904,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 btnFollowup.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Desarmando Tréplica...</span>';
                 triggerHaptic(30);
 
-                // Empurra o turno atual para o feed de histórico
-                if (currentFzExchange) {
-                    fzHistory.push(currentFzExchange);
-                    if (threadFeed) {
-                        const historyCard = renderFzHistoryItem(currentFzExchange, fzHistory.length);
-                        threadFeed.appendChild(historyCard);
-                    }
-                }
+                if (followupInput) followupInput.value = '';
+
+                // Mostra card de carregamento na linha do tempo
+                const roundNumber = fzHistory.length + 1;
+                const loadingCard = createThreadLoadingCard(threadFeed, `Formulando tréplica implacável para a Rodada ${roundNumber}...`, true);
 
                 try {
                     const endpoint = window.location.protocol === 'file:' ? 'http://localhost:3000/api/friendzone' : '/api/friendzone';
@@ -851,38 +922,41 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                     const result = await res.json();
 
+                    loadingCard.remove();
+
                     if (result.success && result.data) {
                         credits--;
                         syncGlobalCredits(credits);
 
-                        currentFzExchange = {
+                        fzHistory.push({
                             herMessage: followupText,
                             script: result.data.script,
                             reason: result.data.reason
-                        };
+                        });
 
-                        if (turnTitle) turnTitle.textContent = `TRÉPLICA IMPLACÁVEL (RODADA ${fzHistory.length + 1})`;
-                        if (scriptEl) scriptEl.textContent = result.data.script || 'Tréplica pronta.';
-                        if (reasonEl) reasonEl.textContent = result.data.reason || 'Frame invertido com sucesso.';
-
-                        if (followupInput) followupInput.value = '';
-                        activeTurnCard?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        // Anexa a nova pergunta e a nova tréplica PARA BAIXO
+                        const newCard = appendFzTurn(threadFeed, followupText, result.data, roundNumber);
+                        newCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         showToast(`Tréplica liberada! Restam ${credits} créditos.`);
                     } else {
                         showToast('Erro ao continuar. Tente novamente.');
                     }
                 } catch (e) {
+                    loadingCard.remove();
                     credits--;
                     syncGlobalCredits(credits);
 
-                    currentFzExchange = {
-                        herMessage: followupText,
+                    const fallbackData = {
                         script: '"Ainda bem, meu padrão de exigência já é alto demais pra ter que lidar com seu drama kkk. Mas sua honestidade te rendeu 1 ponto."',
                         reason: 'Desqualifica a tentativa de rejeição dela, rindo da situação e mostrando que o seu sarrafo é mais alto do que o dela.'
                     };
+                    fzHistory.push({
+                        herMessage: followupText,
+                        ...fallbackData
+                    });
 
-                    if (scriptEl) scriptEl.textContent = currentFzExchange.script;
-                    if (reasonEl) reasonEl.textContent = currentFzExchange.reason;
+                    const newCard = appendFzTurn(threadFeed, followupText, fallbackData, roundNumber);
+                    newCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     showToast(`Tréplica gerada. Restam ${credits} créditos.`);
                 } finally {
                     btnFollowup.disabled = false;
@@ -891,24 +965,17 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Resetar histórico da Friendzone
+        // Resetar histórico da Friendzone (Iniciar Novo Desarme)
         if (btnReset) {
             btnReset.addEventListener('click', () => {
                 fzHistory = [];
-                currentFzExchange = null;
                 if (threadFeed) threadFeed.innerHTML = '';
                 if (responseBox) responseBox.classList.add('hidden');
+                if (initialInputContainer) initialInputContainer.classList.remove('hidden');
                 if (inputEl) inputEl.value = '';
                 if (followupInput) followupInput.value = '';
                 document.getElementById('view-friendzone')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 showToast('Novo desarme iniciado.');
-            });
-        }
-
-        if (btnCopy && scriptEl) {
-            btnCopy.addEventListener('click', () => {
-                navigator.clipboard.writeText(scriptEl.textContent.replace(/"/g, ''));
-                showToast('Resposta copiada! Mande para ela agora.');
             });
         }
     }
