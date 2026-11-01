@@ -1265,8 +1265,8 @@ html, body {
 .module-modal-card {
     position: relative;
     width: 100%;
-    max-width: 440px;
-    max-height: 85vh;
+    max-width: 580px;
+    max-height: 90vh;
     background: var(--bg-card);
     border: 1px solid var(--accent-gold);
     border-radius: var(--radius-lg);
@@ -3284,6 +3284,448 @@ html, body {
 .toast i {
     color: var(--accent-green);
     font-size: 14px;
+}
+
+/* ==========================================================================
+   E-BOOK & VIDEO COURSE ARSENAL CARDS
+   ========================================================================== */
+.ebook-card {
+    border-color: rgba(139, 92, 246, 0.4) !important;
+    background: radial-gradient(circle at 100% 0%, rgba(139, 92, 246, 0.12) 0%, rgba(17, 17, 22, 1) 75%) !important;
+}
+
+.ebook-card:hover {
+    border-color: rgba(167, 139, 250, 0.7) !important;
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.2) !important;
+}
+
+.ebook-badge {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%) !important;
+    color: #fff !important;
+}
+
+.ebook-icon {
+    background: rgba(139, 92, 246, 0.15) !important;
+    border-color: rgba(139, 92, 246, 0.35) !important;
+    color: #a78bfa !important;
+}
+
+.video-card {
+    border-color: rgba(239, 68, 68, 0.4) !important;
+    background: radial-gradient(circle at 100% 0%, rgba(239, 68, 68, 0.12) 0%, rgba(17, 17, 22, 1) 75%) !important;
+}
+
+.video-card:hover {
+    border-color: rgba(248, 113, 113, 0.7) !important;
+    box-shadow: 0 10px 30px rgba(239, 68, 68, 0.2) !important;
+}
+
+.video-badge {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+    color: #fff !important;
+}
+
+.video-icon {
+    background: rgba(239, 68, 68, 0.15) !important;
+    border-color: rgba(239, 68, 68, 0.35) !important;
+    color: #f87171 !important;
+}
+
+/* ==========================================================================
+   IN-APP E-BOOK READER COMPONENT
+   ========================================================================== */
+.reader-container {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.reader-header-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--bg-card-border);
+}
+
+.reader-format-tag {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: var(--accent-gold);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.reader-reading-time {
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.reader-chapter-nav {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-gold) transparent;
+}
+
+.reader-chapter-nav::-webkit-scrollbar {
+    height: 4px;
+}
+
+.reader-chapter-nav::-webkit-scrollbar-thumb {
+    background: var(--accent-gold);
+    border-radius: 4px;
+}
+
+.reader-tab-btn {
+    white-space: nowrap;
+    padding: 7px 12px;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--bg-card-border);
+    color: var(--text-muted);
+    font-family: var(--font-heading);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.reader-tab-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.reader-tab-btn.active {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(220, 38, 38, 0.2) 100%);
+    border-color: var(--accent-gold);
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+.reader-content-box {
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid var(--bg-card-border);
+    border-radius: var(--radius-md);
+    padding: 18px 16px;
+    color: #e2e8f0;
+    font-size: 14px;
+    line-height: 1.7;
+    max-height: 48vh;
+    overflow-y: auto;
+}
+
+.reader-content-box h3 {
+    font-family: var(--font-heading);
+    font-size: 17px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.reader-content-box h4 {
+    font-family: var(--font-heading);
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--accent-gold);
+    margin: 14px 0 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.reader-content-box p {
+    margin-bottom: 12px;
+    color: #cbd5e1;
+}
+
+.reader-content-box strong {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.reader-callout {
+    background: rgba(245, 158, 11, 0.08);
+    border-left: 3px solid var(--accent-gold);
+    border-radius: 4px;
+    padding: 10px 12px;
+    margin: 12px 0;
+    font-size: 13px;
+    color: #fef3c7;
+}
+
+.reader-callout.purple {
+    background: rgba(139, 92, 246, 0.08);
+    border-left-color: #a78bfa;
+    color: #ede9fe;
+}
+
+.reader-callout.red {
+    background: rgba(239, 68, 68, 0.08);
+    border-left-color: #f87171;
+    color: #fee2e2;
+}
+
+.reader-callout.green {
+    background: rgba(16, 185, 129, 0.08);
+    border-left-color: #34d399;
+    color: #d1fae5;
+}
+
+.reader-checklist {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 14px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.reader-checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+    color: #e2e8f0;
+}
+
+.reader-checklist li i {
+    color: var(--accent-green);
+    margin-top: 3px;
+    flex-shrink: 0;
+}
+
+.reader-footer-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 6px;
+}
+
+.reader-step-row {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-reader-nav {
+    flex: 1;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--bg-card-border);
+    color: #ffffff;
+    font-family: var(--font-heading);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-reader-nav:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-gold);
+}
+
+.btn-download-pdf-app {
+    width: 100%;
+    padding: 11px;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    color: #ffffff;
+    font-family: var(--font-heading);
+    font-size: 11.5px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    transition: all 0.2s ease;
+}
+
+.btn-download-pdf-app:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+}
+
+/* ==========================================================================
+   VIDEO COURSE KIWIFY VIEWER
+   ========================================================================== */
+.video-course-container {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.course-hero-banner {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(17, 17, 22, 0.9) 100%);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    text-align: center;
+}
+
+.course-hero-banner h4 {
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 6px;
+}
+
+.course-hero-banner p {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.course-modules-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 40vh;
+    overflow-y: auto;
+}
+
+.course-module-item {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--bg-card-border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+}
+
+.course-module-item:hover {
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+.module-item-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.module-item-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.module-item-title {
+    font-family: var(--font-heading);
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 2px;
+}
+
+.module-item-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.module-item-status {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--accent-green);
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    padding: 3px 8px;
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+}
+
+.btn-kiwify-member-cta {
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border: none;
+    color: #ffffff;
+    font-family: var(--font-heading);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-kiwify-member-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(239, 68, 68, 0.6);
+}
+
+.arsenal-dev-tools {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--bg-card-border);
+}
+
+.btn-dev-toggle-modules {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--bg-card-border);
+    color: var(--text-muted);
+    font-family: var(--font-heading);
+    font-size: 10.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-dev-toggle-modules:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-dev-toggle-modules.reset:hover {
+    color: #f87171;
+    border-color: rgba(239, 68, 68, 0.4);
 }
 
 .hidden {

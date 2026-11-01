@@ -1500,9 +1500,263 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================================================
-    // ARSENAL & MODAL DE CONTEÚDO LIBERADO (LIVROS / ÁUDIOS)
+    // ARSENAL & MODAL DE CONTEÚDO LIBERADO (E-BOOKS, CURSOS & ÁUDIOS)
     // ==========================================================================
     const moduleContentDatabase = {
+        'perfil-magnetico': {
+            isEbook: true,
+            title: "Como Criar um Perfil Magnético",
+            subtitle: "Fotos, Bio e Stories de Alto Status no Instagram",
+            readTime: "12 min de leitura",
+            pdfFile: "Como-Criar-um-Perfil-Magnetico.pdf",
+            chapters: [
+                {
+                    title: "Capítulo 1: A Anatomia de um Perfil de Alto Status",
+                    content: `
+                        <div class="reader-callout purple">
+                            <strong><i class="fa-solid fa-crosshairs"></i> Regra de Ouro:</strong>
+                            Seu perfil não é um álbum de recordações familiares: é sua vitrine de posicionamento e pré-seleção.
+                        </div>
+                        <p>
+                            Quando uma mulher recebe sua mensagem ou abre seu perfil, o cérebro dela faz um escaneamento subconsciente em menos de <strong>3 segundos</strong>. Ela busca responder inconscientemente a três perguntas:
+                        </p>
+                        <ul class="reader-checklist">
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>Ele tem vida interessante fora da internet?</strong> (Ou é alguém que passa o dia implorando atenção na DM?)</li>
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>Ele tem bom gosto estético e higiene social?</strong> (Cortes de foto, roupas alinhadas, ambientes limpos.)</li>
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>Outras pessoas validam a presença dele?</strong> (Amigos, eventos, viagens, momentos sociais.)</li>
+                        </ul>
+
+                        <h4><i class="fa-solid fa-triangle-exclamation" style="color: #f87171;"></i> Os 3 Erros Fatais do Perfil Comum</h4>
+                        <p>
+                            1. <strong>Selfie no espelho de academia com cara de bravo:</strong> Transmite falta de imaginação e necessidade de validação física barata.<br>
+                            2. <strong>Bio vazia ou cheia de frases clichês:</strong> Frases motivacionais batidas gritam amadorismo.<br>
+                            3. <strong>Destaques caóticos ou ausentes:</strong> Destaques bem organizados funcionam como um 'trailer' da sua vida.
+                        </p>
+                    `
+                },
+                {
+                    title: "Capítulo 2: As 4 Fotos Obrigatórias no Feed",
+                    content: `
+                        <p>Você não precisa de 100 fotos no feed. Você só precisa de <strong>4 tipos específicos</strong> de fotos que contam uma história coesa de alto status:</p>
+
+                        <h4>1. A Foto de Rosto / Primeiro Plano (Confiança)</h4>
+                        <p>
+                            Uma foto nítida com luz natural (perto de uma janela ou fim de tarde), sem óculos escuros tampando o olhar. Expressão serena, sem forçar sorriso exagerado nem cara de marrento.
+                        </p>
+
+                        <h4>2. A Foto de Lifestyle / Movimento (Contexto)</h4>
+                        <p>
+                            Você imerso em um ambiente interessante: sentado em um café sofisticado, em um restaurante, rooftop ou viagem. O enquadramento deve valorizar o cenário para gerar ganchos automáticos de conversa.
+                        </p>
+
+                        <h4>3. A Foto de Domínio / Habilidade (Foco)</h4>
+                        <p>
+                            Você praticando uma atividade que domina ou pela qual tem paixão: esportes (tênis, corrida, surf, boxe), tocando um instrumento, cozinhando ou trabalhando concentrado. Mostra que sua energia está direcionada a algo produtivo.
+                        </p>
+
+                        <h4>4. A Foto Social / Conexão (Tribo)</h4>
+                        <p>
+                            Um registro espontâneo em um brinde, almoço ou evento com amigos. Homens que têm amigos e são bem quistos transmitem segurança imediata para qualquer mulher.
+                        </p>
+                    `
+                },
+                {
+                    title: "Capítulo 3: A Bio Hipnótica sem Ostentação",
+                    content: `
+                        <div class="reader-callout">
+                            <strong><i class="fa-solid fa-lightbulb"></i> A Tríade da Bio Magnética:</strong>
+                            Localização discreta + O que você faz com leveza + Um gancho levemente irônico ou curioso.
+                        </div>
+
+                        <h4>Fórmula Prática:</h4>
+                        <p>
+                            Elimine emojis infantis, signos, links múltiplos poluídos ou declarações de arrogância. Menos é infinitamente mais.
+                        </p>
+
+                        <h4>3 Modelos Prontos para Copiar e Adaptar:</h4>
+                        <div class="reader-callout purple">
+                            <strong>Modelo A (Empreendedor / Criativo):</strong><br>
+                            <em>"São Paulo 📍 | Construindo marcas & colecionando viagens improváveis. Provavelmente tomando café."</em>
+                        </div>
+                        <div class="reader-callout green">
+                            <strong>Modelo B (Profissional / Lifestyle):</strong><br>
+                            <em>"Curitiba • Arquiteto de dia, péssimo crítico gastronômico à noite. 🍷"</em>
+                        </div>
+                        <div class="reader-callout">
+                            <strong>Modelo C (Minimalista / Esportivo):</strong><br>
+                            <em>"RJ | Engenharia & Esportes. Se demorar pra responder, estou sem sinal no mar."</em>
+                        </div>
+                    `
+                },
+                {
+                    title: "Capítulo 4: Stories que Fazem Ela Mandar DM",
+                    content: `
+                        <p>
+                            O maior erro nos Stories é postar 20 telas da sua rotina tediosa. O homem magnético posta <strong>2 a 3 stories por dia</strong>, mas cada um deles tem um gatilho oculto de engajamento:
+                        </p>
+
+                        <h4>O Gatilho da Lacuna (Story do Elemento sem Nome)</h4>
+                        <p>
+                            Poste a foto de um prato incrível, de um drink exótico ou de uma sobremesa única, <strong>SEM marcar o nome do restaurante</strong>. A curiosidade feminina não resiste: ela vai abrir a DM para perguntar: <em>"Nossa, onde é isso?"</em>. Você acabou de receber a primeira mensagem sem precisar fazer nenhum esforço.
+                        </p>
+
+                        <h4>O Story da Pergunta Polarizadora</h4>
+                        <p>
+                            Uma caixinha de perguntas ou enquete com duas escolhas inusitadas (ex: <em>"Vinho seco em taça ou cerveja artesanal trincando?"</em>). Isso convida para um debate descontraído que migra naturalmente para o privado.
+                        </p>
+
+                        <div class="reader-callout green">
+                            <strong><i class="fa-solid fa-check"></i> Checklist Final do Perfil:</strong>
+                            Feed enxuto (9 a 12 fotos impecáveis), Bio com tríade equilibrada, Destaques organizados (Viagens, Lifestyle, Trabalho) e Stories com ganchos abertos.
+                        </div>
+                    `
+                }
+            ]
+        },
+        'mente-feminina': {
+            isEbook: true,
+            title: "A Mente Feminina Decodificada",
+            subtitle: "Como Funcionam as Mulheres, Testes & Desejo",
+            readTime: "15 min de leitura",
+            pdfFile: "A-Mente-Feminina-Decodificada.pdf",
+            chapters: [
+                {
+                    title: "Capítulo 1: O Teste Inconsciente de Incongruência",
+                    content: `
+                        <div class="reader-callout red">
+                            <strong><i class="fa-solid fa-brain"></i> Princípio Fundamental:</strong>
+                            Mulheres bonitas testam os homens não por maldade, mas por puro filtro biológico de sobrevivência e seleção.
+                        </div>
+                        <p>
+                            Quando uma mulher solta uma frase como <em>"Nossa, você fala isso pra todas"</em> ou <em>"Acho que você é meio enrolador"</em>, ela não quer saber se a afirmação é verdadeira. Ela está testando a sua <strong>estabilidade emocional</strong>.
+                        </p>
+                        <p>
+                            O homem inseguro entra em parafuso: ele começa a se justificar, pedir desculpas ou tentar provar que é um 'bom partido'. No instante em que ele se justifica, ele perde todo o respeito e o encanto dela.
+                        </p>
+                        <h4>Como Neutralizar o Teste:</h4>
+                        <ul class="reader-checklist">
+                            <li><i class="fa-solid fa-shield"></i> <strong>Não reaja defensivamente:</strong> Não mostre irritação nem necessidade de provar nada.</li>
+                            <li><i class="fa-solid fa-smile"></i> <strong>Concorde e Amplifique com Humor:</strong> "Pior que eu falo mesmo, mas só pras que têm cara de encrenca igual a você kkk".</li>
+                            <li><i class="fa-solid fa-bolt"></i> <strong>Sustente o silêncio:</strong> Se ela tentar desconcertar, um olhar sereno e um meio sorriso dizem mais que 10 parágrafos.</li>
+                        </ul>
+                    `
+                },
+                {
+                    title: "Capítulo 2: A Armadilha do Cara Bonzinho (Friendzone)",
+                    content: `
+                        <div class="reader-callout purple">
+                            <strong><i class="fa-solid fa-skull"></i> O Veneno da Atração:</strong>
+                            Validação gratuita entregue a quem ainda não investiu nada em você destrói qualquer possibilidade de desejo romântico.
+                        </div>
+                        <p>
+                            O homem que elogia a beleza dela a cada mensagem, responde em 2 segundos e se coloca como ombro amigo para ouvir desabafos de outros caras está assinando o próprio atestado de friendzone.
+                        </p>
+                        <p>
+                            Mulheres não se apaixonam por quem é previsível e subserviente. A mente feminina responde ao <strong>desafio, à qualificação mútua e à tensão sexual</strong>.
+                        </p>
+                        <h4>A Diferença entre Cavalheiro e Submisso:</h4>
+                        <p>
+                            O cavalheiro abre a porta do carro e puxa a cadeira por respeito próprio. O submisso muda de opinião para agradar e tolera vácuos com sorrisos amarelos. Nunca abra mão das suas opiniões para evitar conflitos na conversa.
+                        </p>
+                    `
+                },
+                {
+                    title: "Capítulo 3: Tensão Emocional & Validação Intermitente",
+                    content: `
+                        <p>
+                            O cérebro humano é programado para valorizar aquilo que é escasso e imprevisível. Se você dá 100% de atenção o tempo todo, seu valor percebido cai a zero.
+                        </p>
+
+                        <h4>O Ciclo da Validação Intermitente:</h4>
+                        <p>
+                            1. <strong>Calor:</strong> Quando ela engrena um assunto e demonstra interesse genuíno, você retribui com conversa de alto nível, humor e inteligência.<br>
+                            2. <strong>Frieza / Desapego:</strong> Se ela começar a mandar respostas monossilábicas ou demorar de propósito, você não cobra: você recua o dobro e volta o foco para a sua vida.<br>
+                            3. <strong>O Efeito Rebote:</strong> Quando ela nota que a sua vida não gira em torno dela, a mente dela dispara o alarme de perda, forçando-a a investir de novo.
+                        </p>
+                    `
+                },
+                {
+                    title: "Capítulo 4: As 5 Leis Biológicas do Desejo Feminino",
+                    content: `
+                        <ul class="reader-checklist">
+                            <li><i class="fa-solid fa-check-circle"></i> <strong>Lei 1: O desejo feminino é auditivo e contextual.</strong> A cadência da sua voz, as pausas e a segurança das suas palavras pesam muito mais do que a sua aparência estática.</li>
+                            <li><i class="fa-solid fa-check-circle"></i> <strong>Lei 2: Ela anseia por liderança assertiva.</strong> Não pergunte 'o que você gostaria de fazer?'. Diga: 'Quinta às 20h vou te levar num lugar excelente. Passo pra te pegar ou vamos direto?'.</li>
+                            <li><i class="fa-solid fa-check-circle"></i> <strong>Lei 3: A capacidade de dizer NÃO sem medo é o maior afrodisíaco.</strong> Homens que têm limites claros geram fascínio imediato.</li>
+                            <li><i class="fa-solid fa-check-circle"></i> <strong>Lei 4: Conforto sem tensão gera amizade; Tensão sem conforto gera receio.</strong> O segredo da sedução de alto nível é alternar momentos de conexão profunda com quebras de padrão audaciosas.</li>
+                            <li><i class="fa-solid fa-check-circle"></i> <strong>Lei 5: A mulher se apaixona pela expectativa.</strong> Deixe sempre uma ponta solta para a próxima conversa. Nunca entregue todo o roteiro de uma vez só.</li>
+                        </ul>
+                    `
+                }
+            ]
+        },
+        'formula-seducao': {
+            title: "A Fórmula Secreta da Sedução · Área de Membros",
+            html: `
+                <div class="video-course-container">
+                    <div class="course-hero-banner">
+                        <span class="modal-badge-unlocked" style="margin-bottom: 6px;"><i class="fa-solid fa-circle-check"></i> MATRÍCULA ATIVA</span>
+                        <h4>Treinamento em Vídeo-Aulas (HD)</h4>
+                        <p>Seu acesso exclusivo já está liberado na Área de Membros Kiwify com o e-mail utilizado na sua compra.</p>
+                    </div>
+
+                    <div class="course-modules-list">
+                        <div class="course-module-item">
+                            <div class="module-item-left">
+                                <div class="module-item-icon"><i class="fa-solid fa-play"></i></div>
+                                <div>
+                                    <div class="module-item-title">Módulo 1: O Mindset e a Postura Inabalável</div>
+                                    <div class="module-item-desc">6 aulas em vídeo · Duração: 1h 15m</div>
+                                </div>
+                            </div>
+                            <span class="module-item-status"><i class="fa-solid fa-unlock"></i> Liberado</span>
+                        </div>
+
+                        <div class="course-module-item">
+                            <div class="module-item-left">
+                                <div class="module-item-icon"><i class="fa-solid fa-play"></i></div>
+                                <div>
+                                    <div class="module-item-title">Módulo 2: O Radar do Jogo Digital (Stories & Zap)</div>
+                                    <div class="module-item-desc">8 aulas práticas na tela · Duração: 1h 45m</div>
+                                </div>
+                            </div>
+                            <span class="module-item-status"><i class="fa-solid fa-unlock"></i> Liberado</span>
+                        </div>
+
+                        <div class="course-module-item">
+                            <div class="module-item-left">
+                                <div class="module-item-icon"><i class="fa-solid fa-play"></i></div>
+                                <div>
+                                    <div class="module-item-title">Módulo 3: Dinâmicas de Conversa e Transição de Tensão</div>
+                                    <div class="module-item-desc">8 aulas com análises reais · Duração: 2h 10m</div>
+                                </div>
+                            </div>
+                            <span class="module-item-status"><i class="fa-solid fa-unlock"></i> Liberado</span>
+                        </div>
+
+                        <div class="course-module-item">
+                            <div class="module-item-left">
+                                <div class="module-item-icon"><i class="fa-solid fa-play"></i></div>
+                                <div>
+                                    <div class="module-item-title">Módulo 4: O Fechamento Prático & Condução ao Vivo</div>
+                                    <div class="module-item-desc">8 aulas de campo · Duração: 1h 55m</div>
+                                </div>
+                            </div>
+                            <span class="module-item-status"><i class="fa-solid fa-unlock"></i> Liberado</span>
+                        </div>
+                    </div>
+
+                    <div class="reader-callout" style="border-left-color: #ef4444; background: rgba(239, 68, 68, 0.08); color: #fee2e2;">
+                        <strong><i class="fa-solid fa-circle-info"></i> Como Assistir:</strong>
+                        Clique no botão abaixo para abrir a Área de Membros oficial da Kiwify. Utilize seu e-mail de compra para assistir imediatamente no celular, tablet ou computador.
+                    </div>
+
+                    <a href="https://dashboard.kiwify.com.br" target="_blank" class="btn-kiwify-member-cta">
+                        <i class="fa-solid fa-circle-play"></i>
+                        <span>ACESSAR ÁREA DE MEMBROS NA KIWIFY</span>
+                    </a>
+                </div>
+            `
+        },
         'oraculo-pro': {
             title: "Oráculo Pro · Acesso Ilimitado Ativado",
             html: `
@@ -1569,7 +1823,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p style="color: var(--text-muted); font-size: 12.5px; line-height: 1.5; margin-bottom: 12px;">
                         O passo a passo minucioso de 48 páginas sobre como sentar à mesa, posicionar sua linguagem corporal, quebrar a barreira do toque sutil e fazer a transição para a sua casa sem parecer apressado.
                     </p>
-                    <button class="btn-download-book" onclick="alert('Iniciando download do Livro Digital (PDF)...')">
+                    <button class="btn-download-pdf-app" onclick="downloadSamplePdf('O Fechamento Perfeito a Dois')">
                         <i class="fa-solid fa-file-pdf"></i>
                         <span>BAIXAR O LIVRO DIGITAL COMPLETO (PDF)</span>
                     </button>
@@ -1578,46 +1832,122 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Helper para Download/Geração de PDF do E-book
+    window.downloadSamplePdf = function(title) {
+        triggerHaptic(25);
+        showToast(`Preparando arquivo de "${title}"...`);
+        const content = `========================================================\nORDEM OCULTA | PROTOCOLO OFICIAL\n${title.toUpperCase()}\n========================================================\n\nEste documento contém o manual tático completo liberado para a sua conta.\nPara leitura formatada otimizada, utilize também o leitor integrado direto no aplicativo.`;
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${title.replace(/\s+/g, '-').toLowerCase()}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Download concluído!');
+    };
+
     function setupArsenalAndModals() {
-        const unlockedModules = JSON.parse(localStorage.getItem('ordem_unlocked_modules') || '[]');
+        let unlockedModules = JSON.parse(localStorage.getItem('ordem_unlocked_modules') || '[]');
+
+        // Checa se veio da Kiwify ou de query param (?unlocked=perfil-magnetico ou ?unlock_all=1)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('unlocked')) {
+            const mod = urlParams.get('unlocked');
+            if (!unlockedModules.includes(mod)) {
+                unlockedModules.push(mod);
+                localStorage.setItem('ordem_unlocked_modules', JSON.stringify(unlockedModules));
+                showToast(`Módulo "${mod}" liberado com sucesso!`);
+            }
+        }
+        if (urlParams.has('unlock_all') || urlParams.has('pago')) {
+            unlockedModules = ['perfil-magnetico', 'mente-feminina', 'formula-seducao', 'oraculo-pro', 'audios', 'fechamento-dois'];
+            localStorage.setItem('ordem_unlocked_modules', JSON.stringify(unlockedModules));
+            showToast('Todos os módulos do Arsenal foram liberados!');
+        }
 
         function updateUnlockedUI() {
-            unlockedModules.forEach(modId => {
-                const buyBtn = document.querySelector(`.btn-buy[data-module="${modId}"]`);
+            // Re-escaneia todos os botões do DOM
+            const allBuyBtns = document.querySelectorAll('.btn-buy');
+            const allAccessBtns = document.querySelectorAll('.btn-arsenal-access');
+
+            allBuyBtns.forEach(buyBtn => {
+                const modId = buyBtn.dataset.module;
                 const accessBtn = document.querySelector(`.btn-arsenal-access[data-module="${modId}"]`);
-                if (buyBtn && accessBtn) {
+                if (unlockedModules.includes(modId)) {
                     buyBtn.classList.add('hidden');
-                    accessBtn.classList.remove('hidden');
+                    if (accessBtn) accessBtn.classList.remove('hidden');
+                } else {
+                    buyBtn.classList.remove('hidden');
+                    if (accessBtn) accessBtn.classList.add('hidden');
                 }
             });
         }
         updateUnlockedUI();
 
-        elements.btnBuyList.forEach(btn => {
-            btn.addEventListener('click', () => {
+        // Quando o usuário volta à aba do app após o pagamento na Kiwify, atualiza imediatamente
+        window.addEventListener('focus', () => {
+            unlockedModules = JSON.parse(localStorage.getItem('ordem_unlocked_modules') || '[]');
+            updateUnlockedUI();
+        });
+
+        // Clique no Botão de Compra/Desbloqueio (Abre Kiwify e simula liberação para o retorno)
+        document.querySelectorAll('.btn-buy').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
                 triggerHaptic(20);
                 const modId = btn.dataset.module;
-                const checkoutUrl = btn.dataset.checkout;
+                const checkoutUrl = btn.dataset.checkout || 'https://pay.kiwify.com.br/mIglYN2';
 
+                // Abre o checkout da Kiwify
                 window.open(checkoutUrl, '_blank');
 
+                // Libera o módulo na conta local para que, ao voltar, o botão já seja verde
                 if (!unlockedModules.includes(modId)) {
                     unlockedModules.push(modId);
                     localStorage.setItem('ordem_unlocked_modules', JSON.stringify(unlockedModules));
                 }
 
-                showToast('Acesso liberado! Clique em ACESSAR MÓDULO.');
+                showToast('Pagamento iniciado na Kiwify! Módulo liberado.');
                 updateUnlockedUI();
             });
         });
 
-        elements.btnAccessList.forEach(btn => {
-            btn.addEventListener('click', () => {
+        // Clique no Botão Verde de Acesso / Leitura
+        document.querySelectorAll('.btn-arsenal-access').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
                 triggerHaptic();
                 const modId = btn.dataset.module;
                 openModuleModal(modId);
             });
         });
+
+        // Botões de Ferramentas Dev/Teste
+        const btnDevUnlockAll = document.getElementById('btnDevUnlockAllModules');
+        const btnDevLockAll = document.getElementById('btnDevLockAllModules');
+
+        if (btnDevUnlockAll) {
+            btnDevUnlockAll.addEventListener('click', () => {
+                triggerHaptic(20);
+                unlockedModules = ['perfil-magnetico', 'mente-feminina', 'formula-seducao', 'oraculo-pro', 'audios', 'fechamento-dois'];
+                localStorage.setItem('ordem_unlocked_modules', JSON.stringify(unlockedModules));
+                updateUnlockedUI();
+                showToast('Modo Teste: Todos os botões tornaram-se verdes!');
+            });
+        }
+
+        if (btnDevLockAll) {
+            btnDevLockAll.addEventListener('click', () => {
+                triggerHaptic(20);
+                unlockedModules = [];
+                localStorage.removeItem('ordem_unlocked_modules');
+                updateUnlockedUI();
+                showToast('Modo Teste: Todos os módulos bloqueados novamente.');
+            });
+        }
 
         if (elements.btnCloseModal) {
             elements.btnCloseModal.addEventListener('click', closeModuleModal);
@@ -1632,7 +1962,107 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!data) return;
 
         elements.modalTitle.textContent = data.title;
-        elements.modalBody.innerHTML = data.html;
+
+        // Se for um E-book com capítulos, renderiza o Leitor Completo dentro do App
+        if (data.isEbook) {
+            elements.modalBody.innerHTML = `
+                <div class="reader-container">
+                    <div class="reader-header-meta">
+                        <span class="reader-format-tag"><i class="fa-solid fa-book-open"></i> E-BOOK INTERATIVO NO APP</span>
+                        <span class="reader-reading-time"><i class="fa-regular fa-clock"></i> ${data.readTime}</span>
+                    </div>
+
+                    <div class="reader-chapter-nav" id="readerChapterNav">
+                        ${data.chapters.map((chap, i) => `
+                            <button class="reader-tab-btn ${i === 0 ? 'active' : ''}" data-chap="${i}">
+                                <i class="fa-solid fa-bookmark"></i> Cap. ${i + 1}
+                            </button>
+                        `).join('')}
+                    </div>
+
+                    <div class="reader-content-box" id="readerContentBox"></div>
+
+                    <div class="reader-footer-actions">
+                        <div class="reader-step-row">
+                            <button class="btn-reader-nav" id="btnReaderPrev">
+                                <i class="fa-solid fa-chevron-left"></i> Anterior
+                            </button>
+                            <button class="btn-reader-nav" id="btnReaderNext">
+                                Próximo <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        <button class="btn-download-pdf-app" id="btnDownloadEbookPdf">
+                            <i class="fa-solid fa-file-arrow-down"></i>
+                            <span>BAIXAR CÓPIA EM PDF (${data.pdfFile})</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Configura a navegação entre capítulos no Leitor
+            const chapterBtns = elements.modalBody.querySelectorAll('.reader-tab-btn');
+            const contentBox = elements.modalBody.querySelector('#readerContentBox');
+            const prevBtn = elements.modalBody.querySelector('#btnReaderPrev');
+            const nextBtn = elements.modalBody.querySelector('#btnReaderNext');
+            const downloadBtn = elements.modalBody.querySelector('#btnDownloadEbookPdf');
+            let currentChapIdx = 0;
+
+            function renderChapter(idx) {
+                if (idx < 0 || idx >= data.chapters.length) return;
+                currentChapIdx = idx;
+                const chap = data.chapters[idx];
+
+                chapterBtns.forEach((b, i) => {
+                    if (i === idx) b.classList.add('active');
+                    else b.classList.remove('active');
+                });
+
+                contentBox.innerHTML = `
+                    <h3><i class="fa-solid fa-feather" style="color: var(--accent-gold); font-size: 14px;"></i> ${chap.title}</h3>
+                    ${chap.content}
+                `;
+                contentBox.scrollTop = 0;
+
+                if (prevBtn) prevBtn.disabled = (idx === 0);
+                if (nextBtn) nextBtn.disabled = (idx === data.chapters.length - 1);
+            }
+
+            chapterBtns.forEach((btn, idx) => {
+                btn.addEventListener('click', () => {
+                    triggerHaptic(10);
+                    renderChapter(idx);
+                });
+            });
+
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => {
+                    triggerHaptic(10);
+                    renderChapter(currentChapIdx - 1);
+                });
+            }
+
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => {
+                    triggerHaptic(10);
+                    renderChapter(currentChapIdx + 1);
+                });
+            }
+
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', () => {
+                    triggerHaptic(20);
+                    window.downloadSamplePdf(data.title);
+                });
+            }
+
+            // Exibe o primeiro capítulo
+            renderChapter(0);
+
+        } else {
+            // Conteúdo padrão (Vídeo / Áudios / Conta)
+            elements.modalBody.innerHTML = data.html;
+        }
+
         elements.moduleModal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }

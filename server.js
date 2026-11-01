@@ -431,6 +431,25 @@ FORMATO OBRIGATÓRIO DE SAÍDA (JSON PURO):
     }
 });
 
+// ENDPOINT DO WEBHOOK DA KIWIFY (PARA PROCESSAMENTO AUTOMÁTICO DE COMPRAS)
+app.post('/api/kiwify-webhook', (req, res) => {
+    try {
+        const payload = req.body;
+        console.log('[Kiwify Webhook] Evento recebido:', payload?.order_status || payload?.event || 'Payload recebido');
+        
+        // Registra aprovação de compra
+        if (payload?.order_status === 'paid' || payload?.status === 'paid' || payload?.order_status === 'approved') {
+            console.log(`[Kiwify Webhook] Pagamento Aprovado para: ${payload?.Customer?.email || payload?.email || 'Cliente'}`);
+            console.log(`[Kiwify Webhook] Produto: ${payload?.Product?.product_name || 'Módulo Arsenal'}`);
+        }
+
+        res.status(200).json({ success: true, message: 'Webhook processado com sucesso' });
+    } catch (err) {
+        console.error('[Kiwify Webhook] Erro:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Oráculo Server rodando em http://localhost:${PORT}`);
 });
