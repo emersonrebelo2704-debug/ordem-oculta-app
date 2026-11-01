@@ -819,6 +819,73 @@
                 </div>
 
                 <div class="arsenal-feed">
+                    <!-- Card 0: Comprar Mais Créditos (Recarga para Coach & Friendzone) -->
+                    <div class="arsenal-card featured credit-recharge-card" id="card-credit-recharge">
+                        <div class="arsenal-badge recharge-badge"><i class="fa-solid fa-bolt"></i> RECARGA DE EMERGÊNCIA</div>
+                        <div class="arsenal-header">
+                            <div class="arsenal-icon-box recharge-icon">
+                                <i class="fa-solid fa-battery-three-quarters"></i>
+                            </div>
+                            <div>
+                                <h3 class="arsenal-name">Comprar Mais Créditos</h3>
+                                <p class="arsenal-status">Perguntas extras para o Coach & Rota de Fuga</p>
+                            </div>
+                        </div>
+                        <p class="arsenal-desc">
+                            Precisa de respostas imediatas e não quer assinar o anual agora? Escolha um pacote de créditos avulsos para continuar sua conversa:
+                        </p>
+
+                        <!-- Seletor dos 3 Pacotes de Créditos -->
+                        <div class="credit-packages-selector">
+                            <!-- Pacote 1: 10 Créditos - R$ 9,90 -->
+                            <div class="credit-package-option" data-credits="10" data-price="9,90" data-checkout="https://pay.kiwify.com.br/mIglYN2">
+                                <div class="pack-radio-indicator"></div>
+                                <div class="pack-details">
+                                    <div class="pack-title-row">
+                                        <span class="pack-qty"><i class="fa-solid fa-bolt"></i> +10 Créditos</span>
+                                        <span class="pack-tag">BÁSICO</span>
+                                    </div>
+                                    <span class="pack-desc">R$ 0,99 por resposta</span>
+                                </div>
+                                <div class="pack-price">R$ 9,90</div>
+                            </div>
+
+                            <!-- Pacote 2: 15 Créditos - R$ 14,90 (Mais Vendido) -->
+                            <div class="credit-package-option active" data-credits="15" data-price="14,90" data-checkout="https://pay.kiwify.com.br/mIglYN2">
+                                <div class="pack-radio-indicator"></div>
+                                <div class="pack-details">
+                                    <div class="pack-title-row">
+                                        <span class="pack-qty"><i class="fa-solid fa-bolt"></i> +15 Créditos</span>
+                                        <span class="pack-tag tag-popular">MAIS VENDIDO</span>
+                                    </div>
+                                    <span class="pack-desc">Recarga ideal para o fim de semana</span>
+                                </div>
+                                <div class="pack-price">R$ 14,90</div>
+                            </div>
+
+                            <!-- Pacote 3: 20 Créditos - R$ 19,90 (Melhor Valor) -->
+                            <div class="credit-package-option" data-credits="20" data-price="19,90" data-checkout="https://pay.kiwify.com.br/mIglYN2">
+                                <div class="pack-radio-indicator"></div>
+                                <div class="pack-details">
+                                    <div class="pack-title-row">
+                                        <span class="pack-qty"><i class="fa-solid fa-bolt"></i> +20 Créditos</span>
+                                        <span class="pack-tag tag-best-val">MELHOR VALOR</span>
+                                    </div>
+                                    <span class="pack-desc">Cota máxima com maior economia</span>
+                                </div>
+                                <div class="pack-price">R$ 19,90</div>
+                            </div>
+                        </div>
+
+                        <!-- Botão CTA de Compra de Créditos -->
+                        <div class="recharge-cta-row">
+                            <a href="https://pay.kiwify.com.br/mIglYN2" target="_blank" class="btn-buy-credits" id="btnBuyCredits">
+                                <span>Comprar 15 Créditos · R$ 14,90</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+
                     <!-- Upsell 1 -->
                     <div class="arsenal-card featured" id="card-oraculo-pro">
                         <div class="arsenal-badge">OPERAÇÃO ALTA PRIORIDADE</div>
@@ -964,6 +1031,11 @@
                             <button class="btn-lock-view-plans" id="btnLockViewPlans">
                                 <span>Ver todas as opções de planos</span>
                                 <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+
+                            <button class="btn-lock-recharge" id="btnLockRecharge">
+                                <i class="fa-solid fa-battery-three-quarters"></i>
+                                <span>Ou compre créditos avulsos a partir de R$ 9,90 no Arsenal</span>
                             </button>
                         </div>
                     </div>

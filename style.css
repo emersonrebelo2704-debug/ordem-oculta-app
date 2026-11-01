@@ -2962,6 +2962,181 @@ html, body {
     color: #ffffff;
 }
 
+.btn-lock-recharge {
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    border-radius: var(--radius-md);
+    padding: 11px 12px;
+    color: #34d399;
+    font-family: var(--font-heading);
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-lock-recharge:hover {
+    background: rgba(16, 185, 129, 0.18);
+    border-color: #34d399;
+    color: #ffffff;
+}
+
+/* ==========================================================================
+   CREDIT RECHARGE CARD & PACKAGES SELECTOR (ARSENAL UPSELL)
+   ========================================================================== */
+.credit-recharge-card {
+    border-color: rgba(16, 185, 129, 0.45) !important;
+    background: radial-gradient(circle at 100% 0%, rgba(16, 185, 129, 0.12) 0%, rgba(17, 17, 22, 1) 75%) !important;
+    box-shadow: 0 8px 30px rgba(16, 185, 129, 0.15) !important;
+}
+
+.recharge-badge {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+}
+
+.recharge-icon {
+    background: rgba(16, 185, 129, 0.15) !important;
+    border-color: rgba(16, 185, 129, 0.35) !important;
+    color: #34d399 !important;
+}
+
+.credit-packages-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.credit-package-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--bg-card-border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.credit-package-option:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.credit-package-option.active {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: #10b981;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+}
+
+.pack-radio-indicator {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--text-dim);
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.credit-package-option.active .pack-radio-indicator {
+    border-color: #10b981;
+    background: #10b981;
+    box-shadow: inset 0 0 0 3px #111116;
+}
+
+.pack-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.pack-title-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pack-qty {
+    font-family: var(--font-heading);
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.credit-package-option.active .pack-qty {
+    color: #34d399;
+}
+
+.pack-tag {
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    padding: 1px 6px;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-muted);
+}
+
+.tag-popular {
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    color: #34d399;
+}
+
+.tag-best-val {
+    background: rgba(245, 158, 11, 0.2);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: var(--accent-gold);
+}
+
+.pack-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+}
+
+.pack-price {
+    font-family: var(--font-heading);
+    font-size: 15px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.credit-package-option.active .pack-price {
+    color: #34d399;
+}
+
+.btn-buy-credits {
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #ffffff;
+    font-family: var(--font-heading);
+    font-size: 13.5px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+    transition: all 0.2s ease;
+}
+
+.btn-buy-credits:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+}
+
 .history-empty {
     text-align: center;
     padding: 40px 20px;

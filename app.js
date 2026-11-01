@@ -219,6 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setupClipboardPaste();
         setupPlansTab();
         setupArsenalAndModals();
+        setupCreditRecharge();
         setupCopyButtons();
         updatePhaseBanner('auto');
         updateSubmodeUI();
@@ -401,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return responseCard;
     }
 
-    // Setup do Coach de Emergência (Linha do Tempo 100% Sequencial De Cima Para Baixo)
+    // Setup do Coach de Emergência (Linha do Tempo 100% Sequencial De Cima Para Baixo & Persistência)
     function setupCoachEmergency() {
         const initialInputContainer = document.getElementById('coachInitialInputContainer');
         const situationInput = document.getElementById('coachSituationInput');
@@ -422,6 +423,30 @@ document.addEventListener('DOMContentLoaded', () => {
         let coachHistory = [];
 
         syncGlobalCredits(getGlobalCredits());
+
+        // Restaura histórico persistido do Coach no localStorage
+        function restoreCoachHistory() {
+            try {
+                const saved = localStorage.getItem('ordem_coach_history');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        coachHistory = parsed;
+                        if (initialInputContainer) initialInputContainer.classList.add('hidden');
+                        if (responseContainer) responseContainer.classList.remove('hidden');
+                        if (coachThreadFeed) {
+                            coachThreadFeed.innerHTML = '';
+                            coachHistory.forEach(item => {
+                                appendCoachTurn(coachThreadFeed, item.userText, item.botData, item.round);
+                            });
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Erro ao restaurar histórico do coach:', err);
+            }
+        }
+        restoreCoachHistory();
 
         function showPaywallLock() {
             triggerHaptic(40);
@@ -487,11 +512,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         syncGlobalCredits(credits);
 
                         coachHistory = [{
-                            situation,
-                            diagnosis: result.data.diagnosis,
-                            script: result.data.script,
-                            actionGuide: result.data.actionGuide
+                            userText: situation,
+                            botData: result.data,
+                            round: 1
                         }];
+                        localStorage.setItem('ordem_coach_history', JSON.stringify(coachHistory));
 
                         const cardEl = appendCoachTurn(coachThreadFeed, situation, result.data, 1);
                         cardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -509,9 +534,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         actionGuide: "Aguarde ela responder espontaneamente sem mandar nenhuma mensagem adicional."
                     };
                     coachHistory = [{
-                        situation,
-                        ...fallbackData
+                        userText: situation,
+                        botData: fallbackData,
+                        round: 1
                     }];
+                    localStorage.setItem('ordem_coach_history', JSON.stringify(coachHistory));
+
                     const cardEl = appendCoachTurn(coachThreadFeed, situation, fallbackData, 1);
                     cardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     showToast(`Parecer gerado. Restam ${credits} créditos.`);
@@ -548,6 +576,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const roundNumber = coachHistory.length + 1;
                 const loadingCard = createThreadLoadingCard(coachThreadFeed, `Coach formulando o próximo passo da Etapa ${roundNumber}...`);
 
+                // Formata histórico para o backend
+                const historyPayload = coachHistory.map(item => ({
+                    situation: item.userText,
+                    diagnosis: item.botData ? item.botData.diagnosis : '',
+                    script: item.botData ? item.botData.script : ''
+                }));
+
                 try {
                     const endpoint = window.location.protocol === 'file:' ? 'http://localhost:3000/api/coach' : '/api/coach';
                     const res = await fetch(endpoint, {
@@ -555,7 +590,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             situation: followupText,
-                            history: coachHistory
+                            history: historyPayload
                         })
                     });
                     const result = await res.json();
@@ -567,11 +602,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         syncGlobalCredits(credits);
 
                         coachHistory.push({
-                            situation: followupText,
-                            diagnosis: result.data.diagnosis,
-                            script: result.data.script,
-                            actionGuide: result.data.actionGuide
+                            userText: followupText,
+                            botData: result.data,
+                            round: roundNumber
                         });
+                        localStorage.setItem('ordem_coach_history', JSON.stringify(coachHistory));
 
                         // Anexa a nova pergunta e a nova resposta PARA BAIXO
                         const newCard = appendCoachTurn(coachThreadFeed, followupText, result.data, roundNumber);
@@ -590,9 +625,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         actionGuide: "Não mande áudios e demore o dobro do tempo dela para visualizar."
                     };
                     coachHistory.push({
-                        situation: followupText,
-                        ...fallbackData
+                        userText: followupText,
+                        botData: fallbackData,
+                        round: roundNumber
                     });
+                    localStorage.setItem('ordem_coach_history', JSON.stringify(coachHistory));
+
                     const newCard = appendCoachTurn(coachThreadFeed, followupText, fallbackData, roundNumber);
                     newCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     showToast(`Conselho gerado. Restam ${credits} créditos.`);
@@ -606,6 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Resetar histórico do Coach (Iniciar Novo Caso)
         if (btnResetCoach) {
             btnResetCoach.addEventListener('click', () => {
+                localStorage.removeItem('ordem_coach_history');
                 coachHistory = [];
                 if (coachThreadFeed) coachThreadFeed.innerHTML = '';
                 if (responseContainer) responseContainer.classList.add('hidden');
@@ -804,6 +843,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let fzHistory = [];
 
+        // Restaura histórico persistido da Friendzone no localStorage
+        function restoreFzHistory() {
+            try {
+                const saved = localStorage.getItem('ordem_fz_history');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        fzHistory = parsed;
+                        if (initialInputContainer) initialInputContainer.classList.add('hidden');
+                        if (responseBox) responseBox.classList.remove('hidden');
+                        if (threadFeed) {
+                            threadFeed.innerHTML = '';
+                            fzHistory.forEach(item => {
+                                appendFzTurn(threadFeed, item.herMessage, item, item.round || 1);
+                            });
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Erro ao restaurar histórico da friendzone:', err);
+            }
+        }
+        restoreFzHistory();
+
         // Primeiro desarme (Rodada 1)
         if (btnInvert) {
             btnInvert.addEventListener('click', async () => {
@@ -850,8 +913,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         fzHistory = [{
                             herMessage: message,
                             script: result.data.script,
-                            reason: result.data.reason
+                            reason: result.data.reason,
+                            round: 1
                         }];
+                        localStorage.setItem('ordem_fz_history', JSON.stringify(fzHistory));
 
                         const cardEl = appendFzTurn(threadFeed, message, result.data, 1);
                         cardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -870,8 +935,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     };
                     fzHistory = [{
                         herMessage: message,
-                        ...fallbackData
+                        script: fallbackData.script,
+                        reason: fallbackData.reason,
+                        round: 1
                     }];
+                    localStorage.setItem('ordem_fz_history', JSON.stringify(fzHistory));
 
                     const cardEl = appendFzTurn(threadFeed, message, fallbackData, 1);
                     cardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -931,8 +999,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         fzHistory.push({
                             herMessage: followupText,
                             script: result.data.script,
-                            reason: result.data.reason
+                            reason: result.data.reason,
+                            round: roundNumber
                         });
+                        localStorage.setItem('ordem_fz_history', JSON.stringify(fzHistory));
 
                         // Anexa a nova pergunta e a nova tréplica PARA BAIXO
                         const newCard = appendFzTurn(threadFeed, followupText, result.data, roundNumber);
@@ -952,8 +1022,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     };
                     fzHistory.push({
                         herMessage: followupText,
-                        ...fallbackData
+                        script: fallbackData.script,
+                        reason: fallbackData.reason,
+                        round: roundNumber
                     });
+                    localStorage.setItem('ordem_fz_history', JSON.stringify(fzHistory));
 
                     const newCard = appendFzTurn(threadFeed, followupText, fallbackData, roundNumber);
                     newCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -968,6 +1041,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Resetar histórico da Friendzone (Iniciar Novo Desarme)
         if (btnReset) {
             btnReset.addEventListener('click', () => {
+                localStorage.removeItem('ordem_fz_history');
                 fzHistory = [];
                 if (threadFeed) threadFeed.innerHTML = '';
                 if (responseBox) responseBox.classList.add('hidden');
@@ -1533,6 +1607,51 @@ document.addEventListener('DOMContentLoaded', () => {
         triggerHaptic(15);
         elements.moduleModal.classList.add('hidden');
         document.body.style.overflow = '';
+    }
+
+    // ==========================================================================
+    // RECARGA DE CRÉDITOS AVULSOS (ARSENAL)
+    // ==========================================================================
+    function setupCreditRecharge() {
+        const rechargeCard = document.getElementById('card-credit-recharge');
+        if (!rechargeCard) return;
+
+        const packageOptions = rechargeCard.querySelectorAll('.credit-package-option');
+        const btnBuy = document.getElementById('btnBuyCredits');
+
+        packageOptions.forEach(opt => {
+            opt.addEventListener('click', () => {
+                triggerHaptic(20);
+                packageOptions.forEach(o => o.classList.remove('active'));
+                opt.classList.add('active');
+
+                const credits = opt.dataset.credits || '15';
+                const price = opt.dataset.price || '14,90';
+                const checkout = opt.dataset.checkout || 'https://pay.kiwify.com.br/mIglYN2';
+
+                if (btnBuy) {
+                    btnBuy.href = checkout;
+                    btnBuy.innerHTML = `<span>Comprar ${credits} Créditos · R$ ${price}</span><i class="fa-solid fa-arrow-right"></i>`;
+                }
+            });
+        });
+
+        // Atalho do modal de bloqueio (Paywall) direto para o card de recarga no Arsenal
+        const btnLockRecharge = document.getElementById('btnLockRecharge');
+        if (btnLockRecharge) {
+            btnLockRecharge.addEventListener('click', () => {
+                const paywallModal = document.getElementById('paywallLockModal');
+                if (paywallModal) paywallModal.classList.add('hidden');
+
+                const arsenalNavBtn = document.querySelector('.nav-item[data-tab="tab-arsenal"]');
+                if (arsenalNavBtn) {
+                    arsenalNavBtn.click();
+                    setTimeout(() => {
+                        rechargeCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 150);
+                }
+            });
+        }
     }
 
     // Botões de Copiar com 1 Clique
