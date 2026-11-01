@@ -488,13 +488,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 elements.navItems.forEach(n => n.classList.remove('active'));
                 item.classList.add('active');
 
-                elements.tabPanes.forEach(pane => {
+                // Garante que todas as abas principais alternem corretamente
+                const allTabPanes = document.querySelectorAll('.tab-pane');
+                allTabPanes.forEach(pane => {
                     if (pane.id === targetTab) {
                         pane.classList.add('active');
                     } else {
                         pane.classList.remove('active');
                     }
                 });
+
+                // Se clicou na aba Início (tab-scanner), volta a exibir o Hub com os 3 cards
+                if (targetTab === 'tab-scanner') {
+                    const viewHub = document.getElementById('view-hub');
+                    const toolViews = [viewHub, document.getElementById('view-oraculo'), document.getElementById('view-coach'), document.getElementById('view-cantadas')];
+                    toolViews.forEach(v => { if (v) v.classList.add('hidden'); });
+                    if (viewHub) viewHub.classList.remove('hidden');
+                }
 
                 state.activeTab = targetTab;
                 window.scrollTo({ top: 0, behavior: 'smooth' });

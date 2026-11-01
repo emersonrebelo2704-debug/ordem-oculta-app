@@ -40,91 +40,91 @@
         <!-- Main Content Area (Tabs) -->
         <main class="app-content">
             <!-- ============================================================
-                 VIEW 1: HOME COM OS 3 CARDS DE FERRAMENTAS (Padrão PuxeAssunto)
+                 TAB 1: INÍCIO (HUB DE FERRAMENTAS + SUB-TELAS)
                  ============================================================ -->
-            <section id="view-hub" class="hub-container">
-                <div class="hub-header-tabs">
-                    <button class="hub-tab-btn active" data-hub-tab="tools">Ferramentas</button>
-                    <button class="hub-tab-btn" data-hub-tab="history">Histórico</button>
-                </div>
+            <section id="tab-scanner" class="tab-pane active">
+                <!-- VIEW 1: HOME COM OS 3 CARDS DE FERRAMENTAS (Padrão PuxeAssunto) -->
+                <div id="view-hub" class="hub-container">
+                    <div class="hub-header-tabs">
+                        <button class="hub-tab-btn active" data-hub-tab="tools">Ferramentas</button>
+                        <button class="hub-tab-btn" data-hub-tab="history">Histórico</button>
+                    </div>
 
-                <div class="hub-tools-list" id="hubToolsList">
-                    <!-- Card 1: Sugestão de Respostas / O Oráculo -->
-                    <div class="hub-tool-card card-oraculo" data-action="open-oraculo">
-                        <div class="tool-card-left">
-                            <div class="tool-mascot mascot-oraculo">
-                                <i class="fa-solid fa-heart-pulse"></i>
-                                <span class="mascot-bubble">oi, sumido kkk<br>saudades...</span>
+                    <div class="hub-tools-list" id="hubToolsList">
+                        <!-- Card 1: Sugestão de Respostas / O Oráculo -->
+                        <div class="hub-tool-card card-oraculo" data-action="open-oraculo">
+                            <div class="tool-card-left">
+                                <div class="tool-mascot mascot-oraculo">
+                                    <i class="fa-solid fa-heart-pulse"></i>
+                                    <span class="mascot-bubble">oi, sumido kkk<br>saudades...</span>
+                                </div>
+                            </div>
+                            <div class="tool-card-body">
+                                <h3 class="tool-card-title">Sugestão de Respostas</h3>
+                                <p class="tool-card-desc">Envie um print, receba uma análise profunda e sugestões de respostas magnéticas.</p>
+                                <button class="btn-tool-action btn-red" data-action="open-oraculo">
+                                    <span>Enviar print</span>
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
                             </div>
                         </div>
-                        <div class="tool-card-body">
-                            <h3 class="tool-card-title">Sugestão de Respostas</h3>
-                            <p class="tool-card-desc">Envie um print, receba uma análise profunda e sugestões de respostas magnéticas.</p>
-                            <button class="btn-tool-action btn-red" data-action="open-oraculo">
-                                <span>Enviar print</span>
-                                <i class="fa-solid fa-arrow-right"></i>
-                            </button>
+
+                        <!-- Card 2: Descrever Situação (Coach de Emergência com Trava de Créditos) -->
+                        <div class="hub-tool-card card-coach" data-action="open-coach">
+                            <div class="tool-card-left">
+                                <div class="tool-mascot mascot-coach">
+                                    <i class="fa-solid fa-brain"></i>
+                                </div>
+                            </div>
+                            <div class="tool-card-body">
+                                <div class="tool-badge-row">
+                                    <span class="badge-hot">COACH DE EMERGÊNCIA</span>
+                                </div>
+                                <h3 class="tool-card-title">Descrever Situação</h3>
+                                <p class="tool-card-desc">Conte o que está rolando e converse com a IA treinada até descobrir o que mandar.</p>
+                                <button class="btn-tool-action btn-purple" data-action="open-coach">
+                                    <span>Contar situação</span>
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: Gerador de Cantadas & Abridores Rápidos -->
+                        <div class="hub-tool-card card-cantadas" data-action="open-cantadas">
+                            <div class="tool-card-left">
+                                <div class="tool-mascot mascot-cantadas">
+                                    <i class="fa-solid fa-fire-flame-curved"></i>
+                                </div>
+                            </div>
+                            <div class="tool-card-body">
+                                <h3 class="tool-card-title">Gerador de Cantadas</h3>
+                                <p class="tool-card-desc">Gere frases criativas, provocadoras, enigmáticas ou engraçadas para fotos e stories.</p>
+                                <button class="btn-tool-action btn-amber" data-action="open-cantadas">
+                                    <span>Gerar cantadas</span>
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Card 2: Descrever Situação (Coach de Emergência com Trava de Créditos) -->
-                    <div class="hub-tool-card card-coach" data-action="open-coach">
-                        <div class="tool-card-left">
-                            <div class="tool-mascot mascot-coach">
-                                <i class="fa-solid fa-brain"></i>
-                            </div>
-                        </div>
-                        <div class="tool-card-body">
-                            <div class="tool-badge-row">
-                                <span class="badge-hot">COACH DE EMERGÊNCIA</span>
-                            </div>
-                            <h3 class="tool-card-title">Descrever Situação</h3>
-                            <p class="tool-card-desc">Conte o que está rolando e converse com a IA treinada até descobrir o que mandar.</p>
-                            <button class="btn-tool-action btn-purple" data-action="open-coach">
-                                <span>Contar situação</span>
-                                <i class="fa-solid fa-arrow-right"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Card 3: Gerador de Cantadas & Abridores Rápidos -->
-                    <div class="hub-tool-card card-cantadas" data-action="open-cantadas">
-                        <div class="tool-card-left">
-                            <div class="tool-mascot mascot-cantadas">
-                                <i class="fa-solid fa-fire-flame-curved"></i>
-                            </div>
-                        </div>
-                        <div class="tool-card-body">
-                            <h3 class="tool-card-title">Gerador de Cantadas</h3>
-                            <p class="tool-card-desc">Gere frases criativas, provocadoras, enigmáticas ou engraçadas para fotos e stories.</p>
-                            <button class="btn-tool-action btn-amber" data-action="open-cantadas">
-                                <span>Gerar cantadas</span>
-                                <i class="fa-solid fa-arrow-right"></i>
-                            </button>
+                    <!-- Histórico Tab (Vazio inicial) -->
+                    <div class="hub-history-container hidden" id="hubHistoryList">
+                        <div class="history-empty">
+                            <i class="fa-regular fa-folder-open"></i>
+                            <p>Nenhuma análise salva no histórico recente.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Histórico Tab (Vazio inicial) -->
-                <div class="hub-history-container hidden" id="hubHistoryList">
-                    <div class="history-empty">
-                        <i class="fa-regular fa-folder-open"></i>
-                        <p>Nenhuma análise salva no histórico recente.</p>
+                <!-- VIEW 2: O ORÁCULO (SCANNER DE PRINTS E AUTO-DIAGNÓSTICO) -->
+                <div id="view-oraculo" class="tool-view-pane hidden">
+                    <div class="view-back-bar">
+                        <button class="btn-back-hub" data-action="back-hub">
+                            <i class="fa-solid fa-arrow-left"></i>
+                            <span>Voltar às Ferramentas</span>
+                        </button>
+                        <span class="view-tag-current">O ORÁCULO</span>
                     </div>
-                </div>
-            </section>
-
-            <!-- ============================================================
-                 VIEW 2: O ORÁCULO (SCANNER DE PRINTS E AUTO-DIAGNÓSTICO)
-                 ============================================================ -->
-            <section id="view-oraculo" class="tool-view-pane hidden">
-                <div class="view-back-bar">
-                    <button class="btn-back-hub" data-action="back-hub">
-                        <i class="fa-solid fa-arrow-left"></i>
-                        <span>Voltar às Ferramentas</span>
-                    </button>
-                    <span class="view-tag-current">O ORÁCULO</span>
-                </div>
                 
                 <div class="scanner-hero">
                     <div class="badge-phase">
@@ -395,12 +395,12 @@
                         </div>
                     </div>
                 </div>
-            </section>
+            </div>
 
             <!-- ============================================================
                  VIEW 3: DESCREVER SITUAÇÃO (O COACH TÁTICO COM TRAVA DE CRÉDITOS)
                  ============================================================ -->
-            <section id="view-coach" class="tool-view-pane hidden">
+            <div id="view-coach" class="tool-view-pane hidden">
                 <div class="view-back-bar">
                     <button class="btn-back-hub" data-action="back-hub">
                         <i class="fa-solid fa-arrow-left"></i>
@@ -466,12 +466,12 @@
                         <p class="guide-desc" id="coachActionGuide">...</p>
                     </div>
                 </div>
-            </section>
+            </div>
 
             <!-- ============================================================
                  VIEW 4: GERADOR DE CANTADAS & ABRIDORES
                  ============================================================ -->
-            <section id="view-cantadas" class="tool-view-pane hidden">
+            <div id="view-cantadas" class="tool-view-pane hidden">
                 <div class="view-back-bar">
                     <button class="btn-back-hub" data-action="back-hub">
                         <i class="fa-solid fa-arrow-left"></i>
@@ -525,6 +525,7 @@
                     <i class="fa-solid fa-arrows-rotate"></i>
                     <span>Gerar Outras Opções</span>
                 </button>
+            </div>
             </section>
 
             <!-- ============================================================
@@ -545,7 +546,7 @@
                         </div>
                         <div class="benefit-text">
                             <strong>Respostas e Análises ILIMITADAS</strong>
-                            <span>Sem limite diário de prints ou mensagens.</span>
+                            <span>Sem limite diário de prints ou conversas.</span>
                         </div>
                     </div>
 
@@ -554,8 +555,8 @@
                             <i class="fa-solid fa-brain"></i>
                         </div>
                         <div class="benefit-text">
-                            <strong>Coach Tático 24h sem travas</strong>
-                            <span>Descreva qualquer situação de emergência e receba a jogada exata.</span>
+                            <strong>Coach de Emergência (Renovação Mensal)</strong>
+                            <span>Até 40 análises por mês no PRO para reverter vácuos e situações críticas.</span>
                         </div>
                     </div>
 
@@ -590,9 +591,9 @@
                                 <div class="plan-title-row">
                                     <span class="plan-name">Plano PRO / Anual</span>
                                     <span class="plan-tag tag-best">MELHOR OFERTA</span>
-                                    <span class="plan-tag tag-discount">ILIMITADO</span>
+                                    <span class="plan-tag tag-discount">40 CRÉDITOS / MÊS</span>
                                 </div>
-                                <span class="plan-billing-desc">R$ 197,00 cobrado uma vez por ano</span>
+                                <span class="plan-billing-desc">R$ 197,00 cobrado uma vez por ano · 40 análises/mês</span>
                             </div>
                         </div>
                         <div class="plan-price-box">
@@ -608,9 +609,9 @@
                             <div class="plan-info">
                                 <div class="plan-title-row">
                                     <span class="plan-name">Trimestral</span>
-                                    <span class="plan-tag tag-credits">30 CRÉDITOS</span>
+                                    <span class="plan-tag tag-credits">20 CRÉDITOS / MÊS</span>
                                 </div>
-                                <span class="plan-billing-desc">R$ 127,00 cobrado a cada 3 meses</span>
+                                <span class="plan-billing-desc">R$ 127,00 a cada 3 meses · 20 análises/mês</span>
                             </div>
                         </div>
                         <div class="plan-price-box">
@@ -626,9 +627,9 @@
                             <div class="plan-info">
                                 <div class="plan-title-row">
                                     <span class="plan-name">Mensal Base</span>
-                                    <span class="plan-tag tag-basic">5 CRÉDITOS</span>
+                                    <span class="plan-tag tag-basic">5 CRÉDITOS / MÊS</span>
                                 </div>
-                                <span class="plan-billing-desc">R$ 47,00 cobrado todo mês</span>
+                                <span class="plan-billing-desc">R$ 47,00 cobrado todo mês · 5 análises/mês</span>
                             </div>
                         </div>
                         <div class="plan-price-box">
