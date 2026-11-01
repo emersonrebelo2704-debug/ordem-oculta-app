@@ -307,18 +307,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Setup do Coach de Emergência (com Sistema de Créditos & Paywall Lock)
+    // Helper Global para Sincronização de Créditos
+    function getGlobalCredits() {
+        return parseInt(localStorage.getItem('ordem_user_credits') || '5', 10);
+    }
+
+    function syncGlobalCredits(newCount) {
+        localStorage.setItem('ordem_user_credits', newCount.toString());
+        document.querySelectorAll('#userCreditsCount, #coachCreditsLeft, #fzCreditsLeft, .fz-credits-count, .coach-credits-count, .credits-count-live').forEach(el => {
+            el.textContent = newCount;
+        });
+    }
+
+    // Setup do Coach de Emergência (com Sistema de Créditos, Continuação em Loop & Paywall Lock)
     function setupCoachEmergency() {
-        let credits = parseInt(localStorage.getItem('ordem_user_credits') || '5', 10);
-        const creditCountEl = document.getElementById('userCreditsCount');
-        const coachCreditsLeftEl = document.getElementById('coachCreditsLeft');
         const situationInput = document.getElementById('coachSituationInput');
         const btnAskCoach = document.getElementById('btnAskCoach');
         const responseContainer = document.getElementById('coachResponseContainer');
+        const coachThreadFeed = document.getElementById('coachThreadFeed');
+        const coachTurnTitle = document.getElementById('coachTurnTitle');
         const diagnosisTextEl = document.getElementById('coachDiagnosisText');
         const scriptTextEl = document.getElementById('coachScriptText');
         const actionGuideEl = document.getElementById('coachActionGuide');
         const btnCopyCoach = document.getElementById('btnCopyCoach');
+        const coachFollowupInput = document.getElementById('coachFollowupInput');
+        const btnCoachFollowup = document.getElementById('btnCoachFollowup');
+        const btnResetCoach = document.getElementById('btnResetCoachThread');
 
         // Modal de Bloqueio (Paywall)
         const paywallLockModal = document.getElementById('paywallLockModal');
@@ -326,12 +340,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const btnCloseLockModal = document.getElementById('btnCloseLockModal');
         const btnLockViewPlans = document.getElementById('btnLockViewPlans');
 
-        function updateCreditsDisplay() {
-            if (creditCountEl) creditCountEl.textContent = credits;
-            if (coachCreditsLeftEl) coachCreditsLeftEl.textContent = credits;
-            localStorage.setItem('ordem_user_credits', credits.toString());
-        }
-        updateCreditsDisplay();
+        let coachHistory = [];
+        let currentCoachExchange = null;
+
+        syncGlobalCredits(getGlobalCredits());
 
         function showPaywallLock() {
             triggerHaptic(40);
@@ -348,12 +360,37 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btnLockViewPlans) {
             btnLockViewPlans.addEventListener('click', () => {
                 hidePaywallLock();
-                // Vai direto para a aba de Planos
                 const plansNavBtn = document.querySelector('.nav-item[data-tab="tab-protocolos"]');
                 if (plansNavBtn) plansNavBtn.click();
             });
         }
 
+        function renderCoachHistoryItem(item, round) {
+            const div = document.createElement('div');
+            div.className = 'thread-turn-item';
+            div.innerHTML = `
+                <div class="thread-turn-header">
+                    <span class="thread-turn-badge"><i class="fa-solid fa-circle-check"></i> ETAPA ${round}</span>
+                    <span class="desf-rate">CONSELHO ANTERIOR</span>
+                </div>
+                <div class="thread-user-quote"><strong>Cenário:</strong> "${item.situation}"</div>
+                <div class="thread-bot-reply">"${item.script}"</div>
+                <div class="thread-turn-footer">
+                    <span class="thread-turn-reason">${item.diagnosis || ''}</span>
+                    <button class="btn-copy-small" data-copy="${item.script.replace(/"/g, '&quot;')}"><i class="fa-regular fa-copy"></i> Copiar</button>
+                </div>
+            `;
+            const copyBtn = div.querySelector('.btn-copy-small');
+            if (copyBtn) {
+                copyBtn.addEventListener('click', () => {
+                    navigator.clipboard.writeText(item.script.replace(/"/g, ''));
+                    showToast('Resposta copiada!');
+                });
+            }
+            return div;
+        }
+
+        // Primeiro envio do Coach
         if (btnAskCoach) {
             btnAskCoach.addEventListener('click', async () => {
                 const situation = situationInput ? situationInput.value.trim() : '';
@@ -363,7 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                // TRAVA DE CRÉDITOS (SE CHEGAR A ZERO)
+                let credits = getGlobalCredits();
                 if (credits <= 0) {
                     showPaywallLock();
                     return;
@@ -378,14 +415,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     const res = await fetch(endpoint, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ situation })
+                        body: JSON.stringify({ situation, history: [] })
                     });
                     const result = await res.json();
 
                     if (result.success && result.data) {
                         credits--;
-                        updateCreditsDisplay();
+                        syncGlobalCredits(credits);
 
+                        coachHistory = [];
+                        if (coachThreadFeed) coachThreadFeed.innerHTML = '';
+                        currentCoachExchange = {
+                            situation,
+                            diagnosis: result.data.diagnosis,
+                            script: result.data.script,
+                            actionGuide: result.data.actionGuide
+                        };
+
+                        if (coachTurnTitle) coachTurnTitle.textContent = 'PARECER DO COACH (ETAPA 1)';
                         if (diagnosisTextEl) diagnosisTextEl.textContent = result.data.diagnosis || 'Análise da dinâmica traçada.';
                         if (scriptTextEl) scriptTextEl.textContent = result.data.script || 'Envie a resposta de contra-ataque.';
                         if (actionGuideEl) actionGuideEl.textContent = result.data.actionGuide || 'Mantenha a postura recomendada.';
@@ -399,12 +446,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         showToast('Erro ao consultar o Coach. Tente novamente.');
                     }
                 } catch (e) {
-                    // Fallback se estiver offline
                     credits--;
-                    updateCreditsDisplay();
-                    if (diagnosisTextEl) diagnosisTextEl.textContent = "Ela está testando o seu nível de apego e segurança. Quanto mais rápido você cobrar resposta, mais baixo fica o seu valor.";
-                    if (scriptTextEl) scriptTextEl.textContent = '"Pelo visto o dia aí tá corrido. Me avisa quando desocupar pra gente continuar o papo."';
-                    if (actionGuideEl) actionGuideEl.textContent = "Aguarde ela responder espontaneamente sem mandar nenhuma mensagem adicional.";
+                    syncGlobalCredits(credits);
+                    currentCoachExchange = {
+                        situation,
+                        diagnosis: "Ela está testando o seu nível de apego e segurança. Quanto mais rápido você cobrar resposta, mais baixo fica o seu valor.",
+                        script: '"Pelo visto o dia aí tá corrido. Me avisa quando desocupar pra gente continuar o papo."',
+                        actionGuide: "Aguarde ela responder espontaneamente sem mandar nenhuma mensagem adicional."
+                    };
+                    if (diagnosisTextEl) diagnosisTextEl.textContent = currentCoachExchange.diagnosis;
+                    if (scriptTextEl) scriptTextEl.textContent = currentCoachExchange.script;
+                    if (actionGuideEl) actionGuideEl.textContent = currentCoachExchange.actionGuide;
                     if (responseContainer) responseContainer.classList.remove('hidden');
                     showToast(`Parecer gerado. Restam ${credits} créditos.`);
                 } finally {
@@ -414,9 +466,106 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        // CONTINUAÇÃO DO COACH (O QUE ELA RESPONDEU / O QUE ACONTECEU AGORA?)
+        if (btnCoachFollowup) {
+            btnCoachFollowup.addEventListener('click', async () => {
+                const followupText = coachFollowupInput ? coachFollowupInput.value.trim() : '';
+
+                if (!followupText) {
+                    showToast('Descreva a reação dela ou o que aconteceu para continuar.');
+                    return;
+                }
+
+                let credits = getGlobalCredits();
+                if (credits <= 0) {
+                    showPaywallLock();
+                    return;
+                }
+
+                btnCoachFollowup.disabled = true;
+                btnCoachFollowup.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Atualizando Estratégia...</span>';
+                triggerHaptic(30);
+
+                // Empurra o turno atual para o feed de histórico
+                if (currentCoachExchange) {
+                    coachHistory.push(currentCoachExchange);
+                    if (coachThreadFeed) {
+                        const historyCard = renderCoachHistoryItem(currentCoachExchange, coachHistory.length);
+                        coachThreadFeed.appendChild(historyCard);
+                    }
+                }
+
+                try {
+                    const endpoint = window.location.protocol === 'file:' ? 'http://localhost:3000/api/coach' : '/api/coach';
+                    const res = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            situation: followupText,
+                            history: coachHistory
+                        })
+                    });
+                    const result = await res.json();
+
+                    if (result.success && result.data) {
+                        credits--;
+                        syncGlobalCredits(credits);
+
+                        currentCoachExchange = {
+                            situation: followupText,
+                            diagnosis: result.data.diagnosis,
+                            script: result.data.script,
+                            actionGuide: result.data.actionGuide
+                        };
+
+                        if (coachTurnTitle) coachTurnTitle.textContent = `PRÓXIMO PASSO (ETAPA ${coachHistory.length + 1})`;
+                        if (diagnosisTextEl) diagnosisTextEl.textContent = result.data.diagnosis || 'Nova dinâmica diagnosticada.';
+                        if (scriptTextEl) scriptTextEl.textContent = result.data.script || 'Próxima resposta tática pronta.';
+                        if (actionGuideEl) actionGuideEl.textContent = result.data.actionGuide || 'Postura ajustada.';
+
+                        if (coachFollowupInput) coachFollowupInput.value = '';
+                        document.getElementById('coachActiveTurn')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        showToast(`Próximo passo liberado! Restam ${credits} créditos.`);
+                    } else {
+                        showToast('Erro ao continuar. Tente novamente.');
+                    }
+                } catch (e) {
+                    credits--;
+                    syncGlobalCredits(credits);
+                    currentCoachExchange = {
+                        situation: followupText,
+                        diagnosis: "Ela continuou medindo sua reação. A chave agora é desapego total com postura relaxada.",
+                        script: '"De boa, sem estresse. Segue seu ritmo aí."',
+                        actionGuide: "Não mande áudios e demore o dobro do tempo dela para visualizar."
+                    };
+                    if (diagnosisTextEl) diagnosisTextEl.textContent = currentCoachExchange.diagnosis;
+                    if (scriptTextEl) scriptTextEl.textContent = currentCoachExchange.script;
+                    if (actionGuideEl) actionGuideEl.textContent = currentCoachExchange.actionGuide;
+                    showToast(`Conselho gerado. Restam ${credits} créditos.`);
+                } finally {
+                    btnCoachFollowup.disabled = false;
+                    btnCoachFollowup.innerHTML = '<span>Pedir Próximo Passo</span><i class="fa-solid fa-arrow-right"></i>';
+                }
+            });
+        }
+
+        // Resetar histórico do Coach
+        if (btnResetCoach) {
+            btnResetCoach.addEventListener('click', () => {
+                coachHistory = [];
+                currentCoachExchange = null;
+                if (coachThreadFeed) coachThreadFeed.innerHTML = '';
+                if (responseContainer) responseContainer.classList.add('hidden');
+                if (situationInput) situationInput.value = '';
+                if (coachFollowupInput) coachFollowupInput.value = '';
+                document.getElementById('view-coach')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                showToast('Novo caso iniciado.');
+            });
+        }
+
         if (btnCopyCoach && scriptTextEl) {
             btnCopyCoach.addEventListener('click', () => {
-                navigator.clipboard.writeText(scriptTextEl.textContent);
+                navigator.clipboard.writeText(scriptTextEl.textContent.replace(/"/g, ''));
                 showToast('Resposta do Coach copiada!');
             });
         }
@@ -542,32 +691,60 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Setup de "A Rota de Fuga" (Anti-Friendzone)
+    // Setup de "A Rota de Fuga" (Anti-Friendzone com Continuação em Sequência)
     function setupFriendzoneEscape() {
         const inputEl = document.getElementById('fzMessageInput');
         const btnInvert = document.getElementById('btnInvertGame');
         const responseBox = document.getElementById('fzResponseContainer');
+        const threadFeed = document.getElementById('fzThreadFeed');
+        const activeTurnCard = document.getElementById('fzActiveTurn');
+        const turnTitle = document.getElementById('fzTurnTitle');
         const scriptEl = document.getElementById('fzScriptText');
         const reasonEl = document.getElementById('fzReasonText');
         const btnCopy = document.getElementById('btnCopyFz');
-        const fzCreditsEl = document.getElementById('fzCreditsLeft');
+        const followupInput = document.getElementById('fzFollowupInput');
+        const btnFollowup = document.getElementById('btnInvertFollowup');
+        const btnReset = document.getElementById('btnResetFzThread');
 
-        function updateFzCredits() {
-            const current = localStorage.getItem('ordem_user_credits') || '5';
-            if (fzCreditsEl) fzCreditsEl.textContent = current;
+        let fzHistory = [];
+        let currentFzExchange = null;
+
+        function renderFzHistoryItem(item, round) {
+            const div = document.createElement('div');
+            div.className = 'thread-turn-item fz-turn';
+            div.innerHTML = `
+                <div class="thread-turn-header">
+                    <span class="thread-turn-badge"><i class="fa-solid fa-shield-halved"></i> RODADA ${round}</span>
+                    <span class="desf-rate">DESARME APLICADO</span>
+                </div>
+                <div class="thread-user-quote"><strong>Ela mandou:</strong> "${item.herMessage}"</div>
+                <div class="thread-bot-reply">"${item.script}"</div>
+                <div class="thread-turn-footer">
+                    <span class="thread-turn-reason">${item.reason || ''}</span>
+                    <button class="btn-copy-small"><i class="fa-regular fa-copy"></i> Copiar</button>
+                </div>
+            `;
+            const copyBtn = div.querySelector('.btn-copy-small');
+            if (copyBtn) {
+                copyBtn.addEventListener('click', () => {
+                    navigator.clipboard.writeText(item.script.replace(/"/g, ''));
+                    showToast('Resposta copiada!');
+                });
+            }
+            return div;
         }
-        updateFzCredits();
 
+        // Primeiro desarme (Abertura do protocolo)
         if (btnInvert) {
             btnInvert.addEventListener('click', async () => {
                 const message = inputEl ? inputEl.value.trim() : '';
 
                 if (!message) {
-                    showToast('Cole a mensagem que ela mandou antes de inverter o jogo.');
+                    showToast('Cole a frase onde ela te colocou de amigo antes de continuar.');
                     return;
                 }
 
-                let credits = parseInt(localStorage.getItem('ordem_user_credits') || '5', 10);
+                let credits = getGlobalCredits();
                 if (credits <= 0) {
                     const paywallModal = document.getElementById('paywallLockModal');
                     if (paywallModal) paywallModal.classList.remove('hidden');
@@ -583,19 +760,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     const res = await fetch(endpoint, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ message })
+                        body: JSON.stringify({ message, history: [] })
                     });
                     const result = await res.json();
 
                     if (result.success && result.data) {
                         credits--;
-                        localStorage.setItem('ordem_user_credits', credits.toString());
-                        const userCred = document.getElementById('userCreditsCount');
-                        const coachCred = document.getElementById('coachCreditsLeft');
-                        if (userCred) userCred.textContent = credits;
-                        if (coachCred) coachCred.textContent = credits;
-                        updateFzCredits();
+                        syncGlobalCredits(credits);
 
+                        fzHistory = [];
+                        if (threadFeed) threadFeed.innerHTML = '';
+                        currentFzExchange = {
+                            herMessage: message,
+                            script: result.data.script,
+                            reason: result.data.reason
+                        };
+
+                        if (turnTitle) turnTitle.textContent = 'RESPOSTA DE DESQUALIFICAÇÃO (RODADA 1)';
                         if (scriptEl) scriptEl.textContent = result.data.script || 'Resposta pronta.';
                         if (reasonEl) reasonEl.textContent = result.data.reason || 'Corte de validação aplicado com sucesso.';
 
@@ -609,17 +790,118 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 } catch (e) {
                     credits--;
-                    localStorage.setItem('ordem_user_credits', credits.toString());
-                    updateFzCredits();
+                    syncGlobalCredits(credits);
 
-                    if (scriptEl) scriptEl.textContent = '"Que bom que a gente concorda nisso. Fico aliviado, porque a última coisa que eu preciso agora é de mais uma complicação romântica na minha vida. Toca aqui, \'irmãzinha\'. ✋"';
-                    if (reasonEl) reasonEl.textContent = 'Concorda com o rótulo de forma sarcástica, rebaixa o status dela como mulher e inverte o papel: agora você que não quer nada sério com ela.';
+                    currentFzExchange = {
+                        herMessage: message,
+                        script: '"Que bom que a gente concorda nisso. Fico aliviado, porque a última coisa que eu preciso agora é de mais uma complicação romântica na minha vida. Toca aqui, \'irmãzinha\'. ✋"',
+                        reason: 'Concorda com o rótulo de forma sarcástica, rebaixa o status dela como mulher e inverte o papel: agora você que não quer nada sério com ela.'
+                    };
+
+                    if (scriptEl) scriptEl.textContent = currentFzExchange.script;
+                    if (reasonEl) reasonEl.textContent = currentFzExchange.reason;
                     if (responseBox) responseBox.classList.remove('hidden');
                     showToast(`Resposta gerada. Restam ${credits} créditos.`);
                 } finally {
                     btnInvert.disabled = false;
                     btnInvert.innerHTML = '<span>Inverter o Jogo</span><i class="fa-solid fa-rotate"></i>';
                 }
+            });
+        }
+
+        // Continuação do Desarme (O que ela respondeu a isso?)
+        if (btnFollowup) {
+            btnFollowup.addEventListener('click', async () => {
+                const followupText = followupInput ? followupInput.value.trim() : '';
+
+                if (!followupText) {
+                    showToast('Cole o que ela respondeu para desarmar a réplica.');
+                    return;
+                }
+
+                let credits = getGlobalCredits();
+                if (credits <= 0) {
+                    const paywallModal = document.getElementById('paywallLockModal');
+                    if (paywallModal) paywallModal.classList.remove('hidden');
+                    return;
+                }
+
+                btnFollowup.disabled = true;
+                btnFollowup.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Desarmando Tréplica...</span>';
+                triggerHaptic(30);
+
+                // Empurra o turno atual para o feed de histórico
+                if (currentFzExchange) {
+                    fzHistory.push(currentFzExchange);
+                    if (threadFeed) {
+                        const historyCard = renderFzHistoryItem(currentFzExchange, fzHistory.length);
+                        threadFeed.appendChild(historyCard);
+                    }
+                }
+
+                try {
+                    const endpoint = window.location.protocol === 'file:' ? 'http://localhost:3000/api/friendzone' : '/api/friendzone';
+                    const res = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            message: followupText,
+                            history: fzHistory
+                        })
+                    });
+                    const result = await res.json();
+
+                    if (result.success && result.data) {
+                        credits--;
+                        syncGlobalCredits(credits);
+
+                        currentFzExchange = {
+                            herMessage: followupText,
+                            script: result.data.script,
+                            reason: result.data.reason
+                        };
+
+                        if (turnTitle) turnTitle.textContent = `TRÉPLICA IMPLACÁVEL (RODADA ${fzHistory.length + 1})`;
+                        if (scriptEl) scriptEl.textContent = result.data.script || 'Tréplica pronta.';
+                        if (reasonEl) reasonEl.textContent = result.data.reason || 'Frame invertido com sucesso.';
+
+                        if (followupInput) followupInput.value = '';
+                        activeTurnCard?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        showToast(`Tréplica liberada! Restam ${credits} créditos.`);
+                    } else {
+                        showToast('Erro ao continuar. Tente novamente.');
+                    }
+                } catch (e) {
+                    credits--;
+                    syncGlobalCredits(credits);
+
+                    currentFzExchange = {
+                        herMessage: followupText,
+                        script: '"Ainda bem, meu padrão de exigência já é alto demais pra ter que lidar com seu drama kkk. Mas sua honestidade te rendeu 1 ponto."',
+                        reason: 'Desqualifica a tentativa de rejeição dela, rindo da situação e mostrando que o seu sarrafo é mais alto do que o dela.'
+                    };
+
+                    if (scriptEl) scriptEl.textContent = currentFzExchange.script;
+                    if (reasonEl) reasonEl.textContent = currentFzExchange.reason;
+                    showToast(`Tréplica gerada. Restam ${credits} créditos.`);
+                } finally {
+                    btnFollowup.disabled = false;
+                    btnFollowup.innerHTML = '<span>Desarmar Nova Resposta</span><i class="fa-solid fa-arrow-right"></i>';
+                }
+            });
+        }
+
+        // Resetar histórico da Friendzone
+        if (btnReset) {
+            btnReset.addEventListener('click', () => {
+                fzHistory = [];
+                currentFzExchange = null;
+                if (threadFeed) threadFeed.innerHTML = '';
+                if (responseBox) responseBox.classList.add('hidden');
+                if (inputEl) inputEl.value = '';
+                if (followupInput) followupInput.value = '';
+                document.getElementById('view-friendzone')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                showToast('Novo desarme iniciado.');
             });
         }
 

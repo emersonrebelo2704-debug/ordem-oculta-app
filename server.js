@@ -168,19 +168,28 @@ SAÍDA EM FORMATO JSON PURO (SEM CRASES DE MARKDOWN):
     }
 });
 
-// ENDPOINT DO COACH DE EMERGÊNCIA (DESCREVER SITUAÇÃO)
+// ENDPOINT DO COACH DE EMERGÊNCIA (DESCREVER SITUAÇÃO & CONTINUAÇÃO)
 app.post('/api/coach', async (req, res) => {
     try {
-        const { situation } = req.body;
+        const { situation, history = [] } = req.body;
 
         if (!situation || situation.trim().length === 0) {
             return res.status(400).json({ success: false, error: 'Situação não fornecida' });
         }
 
+        let historyPrompt = '';
+        if (Array.isArray(history) && history.length > 0) {
+            historyPrompt = `\nHISTÓRICO DAS INTERAÇÕES ANTERIORES DO COACH COM O USUÁRIO:\n` + history.map((item, idx) => {
+                return `[ETAPA ${idx + 1}]\n- Cenário do usuário: "${item.situation}"\n- Diagnóstico dado: "${item.diagnosis || ''}"\n- Script que ele mandou: "${item.script || ''}"`;
+            }).join('\n') + `\n\nATUALIZAÇÃO ATUAL DO USUÁRIO (O QUE ACONTECEU AGORA / O QUE ELA RESPONDEU):\n"${situation}"\n`;
+        }
+
         const systemPrompt = `
 VOCÊ É O COACH TÁTICO DE EMERGÊNCIA DA "ORDEM OCULTA": O MAIOR ESTRATEGISTA EM DINÂMICA SOCIAL E CONVERSAS DO PAÍS.
-O usuário está em uma situação crítica/tensa com uma mulher (vácuo, teste de desinteresse, dúvida do que mandar).
-Sua missão é dar um DIAGNÓSTICO FRIO, DESPROPOrcionalMENTE PRECISO e fornecer a RESPOSTA CIRÚRGICA exata para ele virar o jogo agora.
+O usuário está em uma situação crítica/tensa com uma mulher (vácuo, teste de desinteresse, réplica inesperada, dúvida do que mandar).
+${historyPrompt ? 'O usuário já recebeu conselhos anteriores e agora está atualizando o desdobramento da conversa com ela. Mantenha a coerência tática e avance para o próximo movimento.' : 'Analise o cenário inicial e entregue a estratégia de abertura/reversão.'}
+
+Sua missão é dar um DIAGNÓSTICO FRIO, DESPROPORCIONALMENTE PRECISO e fornecer a RESPOSTA CIRÚRGICA exata para ele virar o jogo agora.
 
 FORMATO OBRIGATÓRIO DE SAÍDA (JSON PURO):
 {
@@ -191,12 +200,14 @@ FORMATO OBRIGATÓRIO DE SAÍDA (JSON PURO):
         `;
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${GEMINI_API_KEY}`;
+        const userContentText = historyPrompt || `SITUAÇÃO DO USUÁRIO:\n"${situation}"`;
+
         const payload = {
             contents: [
                 {
                     parts: [
                         { text: systemPrompt },
-                        { text: `SITUAÇÃO DO USUÁRIO:\n"${situation}"` }
+                        { text: userContentText }
                     ]
                 }
             ],
@@ -337,38 +348,51 @@ FORMATO OBRIGATÓRIO DE SAÍDA (JSON PURO):
     }
 });
 
-// ENDPOINT DA ROTA DE FUGA (ANTI-FRIENDZONE)
+// ENDPOINT DA ROTA DE FUGA (ANTI-FRIENDZONE & TRÉPLICAS EM SEQUÊNCIA)
 app.post('/api/friendzone', async (req, res) => {
     try {
-        const { message } = req.body;
+        const { message, history = [] } = req.body;
 
         if (!message || message.trim().length === 0) {
             return res.status(400).json({ success: false, error: 'Mensagem não fornecida' });
         }
 
+        let historyPrompt = '';
+        if (Array.isArray(history) && history.length > 0) {
+            historyPrompt = `\nHISTÓRICO DAS RESPOSTAS ANTERIORES NESSA MESMA CONVERSA:\n` + history.map((item, idx) => {
+                return `[RODADA ${idx + 1}]\n- Frase/Rebateda dela: "${item.herMessage || item.message}"\n- Desarme do usuário: "${item.script || item.tacticalReply}"`;
+            }).join('\n') + `\n\nAGORA, ELA ACABOU DE REBATER OU RESPONDER COM A SEGUINTE FRASE:\n"${message}"\n`;
+        }
+
         const systemPrompt = `
 VOCÊ É UM ESTRATEGISTA DE INTELIGÊNCIA SOCIAL IMPLACÁVEL E ESPECIALISTA EM DESARME DE FRIENDZONE DA "ORDEM OCULTA".
-O usuário está preso na 'Friendzone' e vai enviar a frase exata que a mulher disse para colocá-lo nessa posição (ex: chamou de 'fofo', 'amigo', 'irmão' ou desabafou sobre outro homem).
+O usuário está aplicando o protocolo Anti-Friendzone e precisa desarmar a mulher imediatamente.
+${historyPrompt ? 'O usuário já mandou uma resposta anterior e ELA REBATEU (fez joguinho, desdém, tentou se defender ou disse que nunca ficaria com ele). Sua missão é entregar a TRÉPLICA DE XEQUE-MATE.' : 'O usuário acabou de ser jogado na Friendzone (ela chamou de amigo, fofo, irmão ou desabafou de outro cara).'}
 
 SUA MISSÃO:
-Criar uma resposta curta de desqualificação e quebra imediata de padrão.
-A resposta NÃO pode demonstrar raiva, ciúmes, mágoa ou carência.
-Ela deve ser levemente sarcástica, estabelecendo limites claros de que o usuário é um homem de alto valor e NÃO é o 'amigo fofoqueiro' ou o ombro amigo dela.
+Criar uma resposta curta de desqualificação, inversão de frame e quebra imediata de padrão.
+Regras inegociáveis:
+1. NUNCA demonstrar mágoa, raiva, afobação, ciúmes ou carência.
+2. NUNCA se justificar ou tentar provar que é um homem interessante.
+3. Usar humor sarcástico de alto status, tratando a resposta dela como algo fofo, previsível ou irrelevante (desapego cirúrgico).
+4. Se ela disser algo como "eu nunca ficaria com você", vire o jogo mostrando que foi você que nunca a considerou romanticamente e que ela não preenche seus requisitos.
 
 FORMATO OBRIGATÓRIO DE SAÍDA (JSON PURO):
 {
   "script": "A resposta exata sarcástica e confiante que ele deve copiar e colar.",
-  "reason": "Explicação psicológica curta de como isso corta a validação e faz a mulher entrar em parafuso ao perder o controle."
+  "reason": "Explicação psicológica curta de como isso quebra a postura defensiva dela e inverte o poder na conversa."
 }
         `;
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${GEMINI_API_KEY}`;
+        const userContentText = historyPrompt || `FRASE DA MULHER COLOCANDO NA FRIENDZONE:\n"${message}"`;
+
         const payload = {
             contents: [
                 {
                     parts: [
                         { text: systemPrompt },
-                        { text: `FRASE DA MULHER COLOCANDO NA FRIENDZONE:\n"${message}"` }
+                        { text: userContentText }
                     ]
                 }
             ],

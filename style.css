@@ -2480,6 +2480,190 @@ html, body {
     margin-bottom: 3px;
 }
 
+/* ==========================================================================
+   TACTICAL THREAD FEED & CONTINUATION BOXES (ENGAGEMENT & CREDIT ACCELERATION)
+   ========================================================================== */
+.tactical-thread-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.thread-turn-item {
+    background: rgba(10, 10, 14, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    position: relative;
+    border-left: 3px solid var(--accent-purple);
+}
+
+.thread-turn-item.fz-turn {
+    border-left-color: #ec4899;
+}
+
+.thread-turn-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+}
+
+.thread-turn-badge {
+    color: var(--accent-gold);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.thread-turn-item.fz-turn .thread-turn-badge {
+    color: #f472b6;
+}
+
+.thread-user-quote {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    font-style: italic;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    margin-bottom: 8px;
+    border-left: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+.thread-bot-reply {
+    font-family: var(--font-heading);
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.4;
+    margin-bottom: 6px;
+}
+
+.thread-turn-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.thread-turn-reason {
+    font-size: 10.5px;
+    color: var(--text-dim);
+    line-height: 1.3;
+}
+
+/* Dynamic Continuation Box */
+.continuation-box {
+    margin-top: 16px;
+    background: linear-gradient(135deg, rgba(23, 23, 34, 0.98) 0%, rgba(15, 15, 22, 0.98) 100%);
+    border: 1px solid rgba(168, 85, 247, 0.35);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    animation: fadeInTab 0.35s ease-out;
+}
+
+.continuation-box.fz-continue {
+    border-color: rgba(236, 72, 153, 0.4);
+    box-shadow: 0 8px 30px rgba(236, 72, 153, 0.15);
+}
+
+.continuation-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.continuation-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-heading);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: #c084fc;
+}
+
+.fz-badge-glow {
+    color: #f472b6 !important;
+}
+
+.continuation-pulse {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #10b981;
+}
+
+.fz-pulse {
+    color: #f472b6 !important;
+}
+
+.pulse-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981;
+    animation: statusPulse 1.2s infinite ease-in-out;
+}
+
+.pulse-dot.fz-dot {
+    background: #ec4899;
+    box-shadow: 0 0 8px #ec4899;
+}
+
+.continuation-hint {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    line-height: 1.4;
+    margin-bottom: 10px;
+}
+
+.followup-textarea {
+    min-height: 75px !important;
+    font-size: 13px !important;
+    padding: 10px 12px !important;
+}
+
+.thread-reset-row {
+    margin-top: 14px;
+    text-align: center;
+}
+
+.btn-reset-thread {
+    background: none;
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-full);
+    color: var(--text-dim);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 14px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-reset-thread:hover {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.04);
+}
+
 /* Cantadas Styles */
 .cantadas-hero {
     text-align: center;

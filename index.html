@@ -462,31 +462,72 @@
 
                 <!-- Coach Response Box (Aparece após o envio) -->
                 <div class="coach-response-container hidden" id="coachResponseContainer">
-                    <div class="coach-response-header">
-                        <div class="coach-header-left">
-                            <span class="coach-status-dot"></span>
-                            <span class="coach-name">PARECER DO COACH</span>
+                    <div id="coachThreadFeed" class="tactical-thread-feed"></div>
+
+                    <!-- Resposta Ativa do Coach -->
+                    <div class="coach-turn-card" id="coachActiveTurn">
+                        <div class="coach-response-header">
+                            <div class="coach-header-left">
+                                <span class="coach-status-dot"></span>
+                                <span class="coach-name" id="coachTurnTitle">PARECER DO COACH</span>
+                            </div>
+                            <span class="coach-badge-tactic">DIAGNÓSTICO FRIO</span>
                         </div>
-                        <span class="coach-badge-tactic">DIAGNÓSTICO FRIO</span>
+
+                        <div class="coach-diagnosis-box">
+                            <div class="coach-diagnosis-title"><i class="fa-solid fa-crosshairs"></i> O QUE ESTÁ ACONTECENDO:</div>
+                            <p class="coach-diagnosis-text" id="coachDiagnosisText">...</p>
+                        </div>
+
+                        <div class="coach-script-box">
+                            <div class="coach-script-title"><i class="fa-solid fa-quote-left"></i> SUA PRÓXIMA MENSAGEM:</div>
+                            <p class="coach-script-text" id="coachScriptText">...</p>
+                            <button class="btn-copy-coach" id="btnCopyCoach">
+                                <i class="fa-regular fa-copy"></i>
+                                <span>Copiar Resposta</span>
+                            </button>
+                        </div>
+
+                        <div class="coach-action-guide">
+                            <div class="guide-title"><i class="fa-solid fa-lightbulb"></i> ATITUDE RECOMENDADA:</div>
+                            <p class="guide-desc" id="coachActionGuide">...</p>
+                        </div>
                     </div>
 
-                    <div class="coach-diagnosis-box">
-                        <div class="coach-diagnosis-title"><i class="fa-solid fa-crosshairs"></i> O QUE ESTÁ ACONTECENDO:</div>
-                        <p class="coach-diagnosis-text" id="coachDiagnosisText">...</p>
+                    <!-- CAIXINHA DE CONTINUAÇÃO DO COACH -->
+                    <div class="continuation-box" id="coachContinuationBox">
+                        <div class="continuation-header">
+                            <div class="continuation-badge">
+                                <i class="fa-solid fa-comments"></i>
+                                <span>CONTINUAR CONSULTORIA</span>
+                            </div>
+                            <span class="continuation-pulse"><span class="pulse-dot"></span> Aguardando desdobramento</span>
+                        </div>
+                        <div class="continuation-body">
+                            <label class="coach-label" for="coachFollowupInput">
+                                <i class="fa-solid fa-reply"></i> O QUE ELA RESPONDEU / O QUE ACONTECEU AGORA?
+                            </label>
+                            <p class="continuation-hint">
+                                Mandou a frase e ela respondeu? Descreva a reação dela para o Coach traçar o próximo passo:
+                            </p>
+                            <textarea id="coachFollowupInput" class="coach-textarea followup-textarea" placeholder="Ex: 'Mandei a frase e ela respondeu 10 minutos depois dizendo: ... O que eu mando agora?'"></textarea>
+                            <div class="coach-action-row">
+                                <span class="coach-credits-notice">
+                                    <i class="fa-solid fa-bolt"></i> Custa 1 crédito · Restam: <strong class="coach-credits-count">5</strong>
+                                </span>
+                                <button class="btn-ask-coach" id="btnCoachFollowup">
+                                    <span>Pedir Próximo Passo</span>
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="coach-script-box">
-                        <div class="coach-script-title"><i class="fa-solid fa-quote-left"></i> SUA PRÓXIMA MENSAGEM:</div>
-                        <p class="coach-script-text" id="coachScriptText">...</p>
-                        <button class="btn-copy-coach" id="btnCopyCoach">
-                            <i class="fa-regular fa-copy"></i>
-                            <span>Copiar Resposta</span>
+                    <div class="thread-reset-row">
+                        <button class="btn-reset-thread" id="btnResetCoachThread">
+                            <i class="fa-solid fa-arrow-rotate-left"></i>
+                            <span>Iniciar Novo Caso com Outra Situação</span>
                         </button>
-                    </div>
-
-                    <div class="coach-action-guide">
-                        <div class="guide-title"><i class="fa-solid fa-lightbulb"></i> ATITUDE RECOMENDADA:</div>
-                        <p class="guide-desc" id="coachActionGuide">...</p>
                     </div>
                 </div>
             </div>
@@ -629,28 +670,69 @@
                     </div>
                 </div>
 
-                <!-- Response Box -->
+                <!-- Response Box & Live Continuation Feed -->
                 <div class="coach-response-container fz-box hidden" id="fzResponseContainer">
-                    <div class="coach-response-header">
-                        <div class="coach-header-left">
-                            <span class="coach-status-dot fz-dot"></span>
-                            <span class="coach-name">RESPOSTA DE DESQUALIFICAÇÃO</span>
+                    <div id="fzThreadFeed" class="tactical-thread-feed"></div>
+
+                    <!-- Resposta Ativa da Rota de Fuga -->
+                    <div class="coach-turn-card" id="fzActiveTurn">
+                        <div class="coach-response-header">
+                            <div class="coach-header-left">
+                                <span class="coach-status-dot fz-dot"></span>
+                                <span class="coach-name" id="fzTurnTitle">RESPOSTA DE DESQUALIFICAÇÃO</span>
+                            </div>
+                            <span class="coach-badge-tactic fz-badge">CORTE DE FRAME</span>
                         </div>
-                        <span class="coach-badge-tactic fz-badge">CORTE DE FRAME</span>
+
+                        <div class="coach-script-box fz-script">
+                            <div class="coach-script-title"><i class="fa-solid fa-fire"></i> COPIE E MANDE EXATAMENTE ISTO:</div>
+                            <p class="coach-script-text" id="fzScriptText">...</p>
+                            <button class="btn-copy-coach" id="btnCopyFz">
+                                <i class="fa-regular fa-copy"></i>
+                                <span>Copiar Resposta</span>
+                            </button>
+                        </div>
+
+                        <div class="coach-action-guide">
+                            <div class="guide-title"><i class="fa-solid fa-brain"></i> POR QUE ESSA RESPOSTA ENLOUQUECE ELA:</div>
+                            <p class="guide-desc" id="fzReasonText">...</p>
+                        </div>
                     </div>
 
-                    <div class="coach-script-box fz-script">
-                        <div class="coach-script-title"><i class="fa-solid fa-fire"></i> COPIE E MANDE EXATAMENTE ISTO:</div>
-                        <p class="coach-script-text" id="fzScriptText">...</p>
-                        <button class="btn-copy-coach" id="btnCopyFz">
-                            <i class="fa-regular fa-copy"></i>
-                            <span>Copiar Resposta</span>
+                    <!-- CAIXINHA DE CONTINUAÇÃO DA FRIENDZONE (O QUE ELA RESPONDEU?) -->
+                    <div class="continuation-box fz-continue" id="fzContinuationBox">
+                        <div class="continuation-header">
+                            <div class="continuation-badge fz-badge-glow">
+                                <i class="fa-solid fa-comments"></i>
+                                <span>CONTINUAR O DESARME</span>
+                            </div>
+                            <span class="continuation-pulse fz-pulse"><span class="pulse-dot fz-dot"></span> Aguardando o que ela respondeu</span>
+                        </div>
+                        <div class="continuation-body">
+                            <label class="coach-label fz-color" for="fzFollowupInput">
+                                <i class="fa-solid fa-reply"></i> O QUE ELA RESPONDEU DEPOIS DISSO?
+                            </label>
+                            <p class="continuation-hint">
+                                Mandou a resposta e ela rebateu, desdenhou, deu desculpa ou fez mais joguinho? Cole a tréplica dela aqui:
+                            </p>
+                            <textarea id="fzFollowupInput" class="coach-textarea fz-textarea followup-textarea" placeholder="Ex: 'Nossa nada a ver kkk mas eu nunca ficaria com você porque você não é a pessoa que eu imagino comigo'"></textarea>
+                            <div class="coach-action-row">
+                                <span class="coach-credits-notice">
+                                    <i class="fa-solid fa-bolt"></i> Custa 1 crédito · Restam: <strong class="fz-credits-count">5</strong>
+                                </span>
+                                <button class="btn-ask-coach btn-fz-action" id="btnInvertFollowup">
+                                    <span>Desarmar Nova Resposta</span>
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="thread-reset-row">
+                        <button class="btn-reset-thread" id="btnResetFzThread">
+                            <i class="fa-solid fa-arrow-rotate-left"></i>
+                            <span>Iniciar Novo Desarme com Outra Frase</span>
                         </button>
-                    </div>
-
-                    <div class="coach-action-guide">
-                        <div class="guide-title"><i class="fa-solid fa-brain"></i> POR QUE ESSA RESPOSTA ENLOUQUECE ELA:</div>
-                        <p class="guide-desc" id="fzReasonText">...</p>
                     </div>
                 </div>
             </div>
