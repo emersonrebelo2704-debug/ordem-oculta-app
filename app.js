@@ -246,6 +246,87 @@ document.addEventListener('DOMContentLoaded', () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // Renderiza o histórico consolidado na aba "Histórico" do Hub
+        function renderHubHistory() {
+            if (!historyList) return;
+            let items = [];
+            try {
+                items = JSON.parse(localStorage.getItem('ordem_activity_history') || '[]');
+            } catch (e) {
+                items = [];
+            }
+
+            if (!Array.isArray(items) || items.length === 0) {
+                historyList.innerHTML = `
+                    <div class="history-empty">
+                        <i class="fa-regular fa-folder-open"></i>
+                        <p>Nenhuma análise salva no histórico recente.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding:0 4px;">
+                    <span style="font-size:12px; color:#94a3b8; font-weight:700; letter-spacing:0.5px;">ÚLTIMAS CONSULTAS SALVAS (${items.length})</span>
+                    <button id="btnClearHubHistory" style="background:none; border:none; color:#ef4444; font-size:12px; font-weight:700; cursor:pointer;">
+                        <i class="fa-solid fa-trash-can"></i> Limpar
+                    </button>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+            `;
+
+            items.forEach((item) => {
+                html += `
+                    <div class="hub-history-card" data-target-view="${item.viewId || 'view-coach'}" style="background:rgba(17,17,22,0.92); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:14px 16px; cursor:pointer; transition:all 0.2s ease;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                            <span style="font-size:10px; font-weight:800; padding:3px 8px; border-radius:99px; background:rgba(245,158,11,0.15); color:#fbbf24; letter-spacing:0.6px;">${escapeHtml(item.tool || 'CONSULTA')}</span>
+                            <span style="font-size:11px; color:#64748b;">${escapeHtml(item.time || 'Recente')}</span>
+                        </div>
+                        <p style="font-size:13px; color:#e2e8f0; font-weight:600; margin:0 0 4px; line-height:1.4;">${escapeHtml(item.prompt || '')}</p>
+                        <p style="font-size:12px; color:#94a3b8; margin:0; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${escapeHtml(item.reply || '')}</p>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+            historyList.innerHTML = html;
+
+            const btnClear = historyList.querySelector('#btnClearHubHistory');
+            if (btnClear) {
+                btnClear.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    localStorage.removeItem('ordem_activity_history');
+                    renderHubHistory();
+                    showToast('Histórico de atividades limpo.');
+                });
+            }
+
+            historyList.querySelectorAll('.hub-history-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const targetId = card.dataset.targetView;
+                    const pane = document.getElementById(targetId);
+                    if (pane) switchToolView(pane);
+                });
+            });
+        }
+
+        window.saveActivityHistory = function(tool, promptText, replyText, viewId) {
+            try {
+                const list = JSON.parse(localStorage.getItem('ordem_activity_history') || '[]');
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                list.unshift({
+                    tool,
+                    prompt: (promptText || '').slice(0, 120),
+                    reply: (replyText || '').slice(0, 180),
+                    viewId,
+                    time: `Hoje às ${timeStr}`
+                });
+                localStorage.setItem('ordem_activity_history', JSON.stringify(list.slice(0, 20)));
+            } catch (e) {}
+        };
+
         // Tabs Ferramentas vs Histórico na Home
         hubTabBtns.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -254,8 +335,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.classList.add('active');
                 const tab = btn.dataset.hubTab;
                 if (tab === 'history') {
+                    renderHubHistory();
                     if (toolsList) toolsList.classList.add('hidden');
-                    if (historyList) historyList.classList.remove('hidden');
+                    if (historyList) historyList.removeAttribute('class');
+                    if (historyList) historyList.className = 'hub-history-container';
                 } else {
                     if (toolsList) toolsList.classList.remove('hidden');
                     if (historyList) historyList.classList.add('hidden');
@@ -554,6 +637,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         const cardEl = appendCoachTurn(coachThreadFeed, situation, result.data, 1);
                         cardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        if (window.saveActivityHistory) {
+                            window.saveActivityHistory('O COACH DE EMERGÊNCIA', situation, result.data.script || result.data.diagnosis, 'view-coach');
+                        }
                         showToast(`Parecer pronto! Restam ${credits} créditos.`);
                     } else {
                         showToast('Erro ao consultar o Coach. Tente novamente.');
@@ -772,6 +858,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             const reason3 = document.querySelector('.desf-option-card:nth-child(3) .desf-reason');
                             if (reason3) reason3.textContent = opts[2].reason || '';
                         }
+                        if (window.saveActivityHistory && opts[0]) {
+                            window.saveActivityHistory('O DESFIBRILADOR', `Vácuo de ${selectedTime}${topic ? ' · ' + topic : ''}`, opts[0].text, 'view-desfibrilador');
+                        }
                     } else {
                         throw new Error('Falha na resposta da IA');
                     }
@@ -954,6 +1043,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         const cardEl = appendFzTurn(threadFeed, message, result.data, 1);
                         cardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        if (window.saveActivityHistory) {
+                            window.saveActivityHistory('A ROTA DE FUGA', message, result.data.script, 'view-friendzone');
+                        }
                         showToast(`Friendzone desarmada! Restam ${credits} créditos.`);
                     } else {
                         showToast('Erro ao processar. Tente novamente.');
@@ -1108,10 +1200,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
 
-                // Se clicou na aba Início (tab-scanner), volta a exibir o Hub com os 3 cards
+                // Se clicou na aba Início (tab-scanner), volta a exibir o Hub com os 4 cards
                 if (targetTab === 'tab-scanner') {
                     const viewHub = document.getElementById('view-hub');
-                    const toolViews = [viewHub, document.getElementById('view-oraculo'), document.getElementById('view-coach'), document.getElementById('view-cantadas')];
+                    const toolViews = [
+                        viewHub,
+                        document.getElementById('view-oraculo'),
+                        document.getElementById('view-coach'),
+                        document.getElementById('view-desfibrilador'),
+                        document.getElementById('view-friendzone')
+                    ];
                     toolViews.forEach(v => { if (v) v.classList.add('hidden'); });
                     if (viewHub) viewHub.classList.remove('hidden');
                 }
@@ -1383,16 +1481,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (data.options && data.options.length >= 3) {
+            const formatAdviceHtml = (str) => {
+                if (!str) return '';
+                return str
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\\n/g, '<br>')
+                    .replace(/\n/g, '<br>');
+            };
+
             document.getElementById('textOption1').textContent = data.options[0].text;
             document.getElementById('textOption2').textContent = data.options[1].text;
             document.getElementById('textOption3').textContent = data.options[2].text;
 
+            if (data.options[2].badge) {
+                const opt3BadgeEl = document.getElementById('option3Type');
+                if (opt3BadgeEl) opt3BadgeEl.textContent = data.options[2].badge;
+            }
+
             const desc1 = document.getElementById('intelDescOption1');
             const desc2 = document.getElementById('intelDescOption2');
             const desc3 = document.getElementById('intelDescOption3');
-            if (desc1) desc1.innerHTML = data.options[0].advice || '';
-            if (desc2) desc2.innerHTML = data.options[1].advice || '';
-            if (desc3) desc3.innerHTML = data.options[2].advice || '';
+            if (desc1) desc1.innerHTML = formatAdviceHtml(data.options[0].advice);
+            if (desc2) desc2.innerHTML = formatAdviceHtml(data.options[1].advice);
+            if (desc3) desc3.innerHTML = formatAdviceHtml(data.options[2].advice);
+
+            if (window.saveActivityHistory) {
+                const hookTitle = (data.intel && data.intel.gancho) ? `Print Analisado: ${data.intel.gancho}` : 'Análise de Print via Visão Computacional';
+                window.saveActivityHistory('O ORÁCULO (SCANNER)', hookTitle, data.options[0].text, 'view-oraculo');
+            }
         }
     }
 
@@ -2255,64 +2371,25 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         },
         'formula-seducao': {
-            title: "A Fórmula Secreta da Sedução · Área de Membros",
+            title: "A Fórmula Secreta da Sedução · Acesso Oficial Kiwify",
             html: `
                 <div class="video-course-container">
                     <div class="course-hero-banner">
-                        <span class="modal-badge-unlocked" style="margin-bottom: 6px;"><i class="fa-solid fa-circle-check"></i> MATRÍCULA ATIVA</span>
-                        <h4>Treinamento em Vídeo-Aulas (HD)</h4>
-                        <p>Seu acesso exclusivo já está liberado na Área de Membros Kiwify com o e-mail utilizado na sua compra.</p>
+                        <span class="modal-badge-unlocked" style="margin-bottom: 8px;"><i class="fa-solid fa-circle-check"></i> REDIRECIONAMENTO OFICIAL · KIWIFY</span>
+                        <h4>7 Livros Completos + 10 Aulas Gravadas</h4>
+                        <p>Todo o conteúdo da <strong>Fórmula Secreta da Sedução</strong> (os 7 livros oficiais + as 10 vídeo-aulas explicativas sobre os livros) está hospedado diretamente na Área de Membros Oficial da Kiwify.</p>
                     </div>
 
-                    <div class="course-modules-list">
-                        <div class="course-module-item">
-                            <div class="module-item-left">
-                                <div class="module-item-icon"><i class="fa-solid fa-play"></i></div>
-                                <div>
-                                    <div class="module-item-title">Módulo 1: O Mindset e a Postura Inabalável</div>
-                                    <div class="module-item-desc">6 aulas em vídeo · Duração: 1h 15m</div>
-                                </div>
-                            </div>
-                            <span class="module-item-status"><i class="fa-solid fa-unlock"></i> Liberado</span>
-                        </div>
-
-                        <div class="course-module-item">
-                            <div class="module-item-left">
-                                <div class="module-item-icon"><i class="fa-solid fa-play"></i></div>
-                                <div>
-                                    <div class="module-item-title">Módulo 2: O Radar do Jogo Digital (Stories & Zap)</div>
-                                    <div class="module-item-desc">8 aulas práticas na tela · Duração: 1h 45m</div>
-                                </div>
-                            </div>
-                            <span class="module-item-status"><i class="fa-solid fa-unlock"></i> Liberado</span>
-                        </div>
-
-                        <div class="course-module-item">
-                            <div class="module-item-left">
-                                <div class="module-item-icon"><i class="fa-solid fa-play"></i></div>
-                                <div>
-                                    <div class="module-item-title">Módulo 3: Dinâmicas de Conversa e Transição de Tensão</div>
-                                    <div class="module-item-desc">8 aulas com análises reais · Duração: 2h 10m</div>
-                                </div>
-                            </div>
-                            <span class="module-item-status"><i class="fa-solid fa-unlock"></i> Liberado</span>
-                        </div>
-
-                        <div class="course-module-item">
-                            <div class="module-item-left">
-                                <div class="module-item-icon"><i class="fa-solid fa-play"></i></div>
-                                <div>
-                                    <div class="module-item-title">Módulo 4: O Fechamento Prático & Condução ao Vivo</div>
-                                    <div class="module-item-desc">8 aulas de campo · Duração: 1h 55m</div>
-                                </div>
-                            </div>
-                            <span class="module-item-status"><i class="fa-solid fa-unlock"></i> Liberado</span>
-                        </div>
+                    <div class="reader-callout" style="border-left-color: #f59e0b; background: rgba(245, 158, 11, 0.08); color: #fef3c7; margin-bottom: 14px;">
+                        <strong><i class="fa-solid fa-key"></i> Seus Dados de Acesso na Kiwify:</strong><br><br>
+                        • <strong>E-mail de Login:</strong> Digite exatamente o mesmo e-mail que você utilizou na hora da compra.<br>
+                        • <strong>Senha de Acesso:</strong> Sua senha oficial chegou no seu e-mail enviado automaticamente pela <strong>Kiwify</strong> (verifique sua Caixa de Entrada, Spam ou aba Promoções).
                     </div>
 
-                    <div class="reader-callout" style="border-left-color: #ef4444; background: rgba(239, 68, 68, 0.08); color: #fee2e2;">
-                        <strong><i class="fa-solid fa-circle-info"></i> Como Assistir:</strong>
-                        Clique no botão abaixo para abrir a Área de Membros oficial da Kiwify. Utilize seu e-mail de compra para assistir imediatamente no celular, tablet ou computador.
+                    <div class="reader-callout" style="border-left-color: #ef4444; background: rgba(239, 68, 68, 0.08); color: #fee2e2; margin-bottom: 18px;">
+                        <strong><i class="fa-solid fa-layer-group"></i> O Que Você Vai Encontrar Lá Dentro:</strong><br><br>
+                        📚 <strong>Os 7 Livros da Fórmula Secreta da Sedução</strong> completos para leitura e download.<br>
+                        🎬 <strong>+ 10 Aulas Gravadas</strong> destrinchando na prática cada livro e como aplicar no seu dia a dia.
                     </div>
 
                     <a href="https://dashboard.kiwify.com.br" target="_blank" class="btn-kiwify-member-cta">
@@ -2733,6 +2810,28 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         ${sec.content}
                     `;
+
+                    // Adiciona botão de copiar prático nos cards de script/bio dentro dos capítulos
+                    contentBox.querySelectorAll('.tactical-script-card').forEach(card => {
+                        const header = card.querySelector('.script-card-header');
+                        const scriptTextEl = card.querySelector('.script-text');
+                        if (header && scriptTextEl && !header.querySelector('.btn-copy-ebook-script')) {
+                            const copyBtn = document.createElement('button');
+                            copyBtn.className = 'btn-copy-ebook-script';
+                            copyBtn.style.cssText = 'background:rgba(245,158,11,0.14); border:1px solid rgba(245,158,11,0.35); color:#fbbf24; border-radius:6px; padding:3px 9px; font-size:11px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:5px;';
+                            copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Copiar';
+                            copyBtn.addEventListener('click', () => {
+                                const rawText = scriptTextEl.innerText.trim().replace(/^"|"$/g, '');
+                                navigator.clipboard.writeText(rawText);
+                                copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado!';
+                                showToast('Script do livro copiado!');
+                                setTimeout(() => {
+                                    copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Copiar';
+                                }, 1800);
+                            });
+                            header.appendChild(copyBtn);
+                        }
+                    });
                 }
 
                 // Scroll para o topo
@@ -2787,12 +2886,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         elements.moduleModal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
-    }
-
-    function closeModuleModal() {
-        triggerHaptic(15);
-        elements.moduleModal.classList.add('hidden');
-        document.body.style.overflow = '';
     }
 
     function closeModuleModal() {

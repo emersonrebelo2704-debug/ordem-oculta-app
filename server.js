@@ -100,18 +100,6 @@ SAÍDA EM FORMATO JSON PURO (SEM CRASES DE MARKDOWN):
     }
   ]
 }
-    {
-      "badge": "O Loop de Curiosidade",
-      "text": "Frase enigmática.",
-      "advice": "💡 **Por que funciona:** ...\\n🎯 **O que ela vai sentir:** ...\\n⏭️ **Próximo passo:** ..."
-    },
-    {
-      "badge": "O Charme Descarado",
-      "text": "Frase de alto valor.",
-      "advice": "💡 **Por que funciona:** ...\\n🎯 **O que ela vai sentir:** ...\\n⏭️ **Próximo passo:** ..."
-    }
-  ]
-}
         `;
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${GEMINI_API_KEY}`;
