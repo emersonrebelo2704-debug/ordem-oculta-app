@@ -53,8 +53,24 @@
 
                 <!-- 4 Stacked Full-Width Phase Cards (De fora a fora) -->
                 <div class="phase-stack-list">
+                    <!-- Modo Auto-Diagnóstico por IA (Padrão) -->
+                    <button class="phase-card-row phase-card-auto active" data-phase="auto">
+                        <div class="phase-icon-box auto-glow">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </div>
+                        <div class="phase-row-info">
+                            <div class="auto-tag-row">
+                                <span class="phase-row-badge badge-auto">IA AUTOMÁTICA</span>
+                                <span class="phase-row-pill-rec">RECOMENDADO</span>
+                            </div>
+                            <h3 class="phase-row-title">Auto-Diagnóstico de Fase</h3>
+                            <p class="phase-row-desc">A IA lê o print e detecta a fase exata da conversa</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right phase-row-arrow"></i>
+                    </button>
+
                     <!-- Fase 1 -->
-                    <button class="phase-card-row active" data-phase="invasao">
+                    <button class="phase-card-row" data-phase="invasao">
                         <div class="phase-icon-box">
                             <i class="fa-solid fa-bolt-lightning"></i>
                         </div>
@@ -199,6 +215,15 @@
                             <span class="intel-label">Gancho Oculto</span>
                             <span class="intel-value" id="intelHook">Elemento Visual</span>
                         </div>
+                    </div>
+
+                    <!-- Tactical AI Diagnosis Box (Diagnóstico de Fase e Contexto) -->
+                    <div class="intel-diagnosis-box" id="intelDiagnosisBox">
+                        <div class="diagnosis-header">
+                            <i class="fa-solid fa-radar diagnosis-radar-icon"></i>
+                            <span class="diagnosis-title">DIAGNÓSTICO TÁTICO DO ORÁCULO</span>
+                        </div>
+                        <p class="diagnosis-desc" id="intelDiagnosisText">A IA avaliou o print e ajustou as respostas para o momento exato da interação.</p>
                     </div>
 
                     <div class="responses-stack">

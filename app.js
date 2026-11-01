@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Estado da Aplicação
     const state = {
         activeTab: 'tab-scanner',
-        selectedPhase: 'invasao', // 'invasao' | 'conducao' | 'extracao' | 'fechamento'
+        selectedPhase: 'auto', // 'auto' | 'invasao' | 'conducao' | 'extracao' | 'fechamento'
         selectedSubmode: 'story', // 'story' | 'chat'
         selectedFile: null,
         selectedBase64: null,
@@ -18,12 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Explicações Dinâmicas por Submodo & Fase
     const submodeExplanations = {
         story: {
+            auto: "<strong>Visão no Story / Foto:</strong> A IA examina a foto ou story e determina se o melhor é uma invasão do zero, reacender a atração ou avançar.",
             invasao: "<strong>Visão no Story / Foto:</strong> A IA varre o cenário da foto (comida, taça, roupas, fundo) para criar uma quebra de padrão espontânea sem elogiar o corpo.",
             conducao: "<strong>Visão no Story:</strong> A IA analisa uma foto postada no meio da conversa para reacender a atração com um comentário desafiador.",
             extracao: "<strong>Visão no Story:</strong> A IA usa a imagem como desculpa para dizer que o Instagram corta conteúdos e pedir o WhatsApp.",
             fechamento: "<strong>Visão no Story:</strong> A IA usa o restaurante, bebida ou evento do story dela como pretexto exato para fazer o convite a dois."
         },
         chat: {
+            auto: "<strong>Visão na Conversa / Chat:</strong> A IA lê a DM, avalia quem mandou a última mensagem, se houve vácuo e diagnostica o momento exato.",
             invasao: "<strong>Visão na Conversa / Vácuo:</strong> A IA lê a DM anterior onde ela parou de responder e gera uma mensagem de reativação para quebrar o gelo sem parecer carente.",
             conducao: "<strong>Visão na Conversa:</strong> A IA analisa o tom e tamanho da última mensagem dela para calibrar o ritmo e devolver uma resposta com tensão magnética.",
             extracao: "<strong>Visão na Conversa:</strong> A IA identifica o ápice do diálogo para criar a ponte orgânica para o WhatsApp no momento perfeito.",
@@ -33,6 +35,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Dados das 4 Fases para o Oráculo
     const phaseDefinitions = {
+        auto: {
+            badge: "IA AUTOMÁTICA",
+            title: "Modo Inteligente: Auto-Diagnóstico de Fase",
+            desc: "A visão computacional avalia todo o contexto visual e textual do print para diagnosticar em qual fase vocês estão (Invasão, Condução, Extração ou Fechamento) e aplicar a jogada cirúrgica.",
+            intel: { phase: "Auto-Diagnóstico", termometro: "Calculando...", gancho: "Visão Computacional" },
+            responses: {
+                opt1: '"Aguardando o print para decodificar a fase exata..."',
+                opt2: '"Envie uma foto ou print de conversa para o Oráculo diagnosticar."',
+                opt3: '"As respostas serão calibradas de acordo com a fase identificada."'
+            },
+            advice: {
+                opt1: "O Oráculo lerá o print para extrair o gancho real.",
+                opt2: "A quebra de padrão será formulada de acordo com o nível de resposta dela.",
+                opt3: "O timing e o próximo passo serão instruídos de acordo com o print."
+            },
+            opt3Badge: "Auto-Calibrada"
+        },
         invasao: {
             badge: "FASE I",
             title: "A Invasão: Quebrar o Silêncio nos Stories & DMs",
@@ -455,6 +474,22 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.intel.phase) document.getElementById('intelPhase').textContent = data.intel.phase;
             if (data.intel.termometro) document.getElementById('intelInterest').textContent = data.intel.termometro;
             if (data.intel.gancho) document.getElementById('intelHook').textContent = data.intel.gancho;
+
+            const diagEl = document.getElementById('intelDiagnosisText');
+            if (diagEl && data.intel.diagnosis) {
+                diagEl.textContent = data.intel.diagnosis;
+            }
+
+            // Se o Oráculo detectou a fase e estávamos no modo auto, atualiza os cards visualmente
+            if (data.intel.detected_phase_key) {
+                const detectedKey = data.intel.detected_phase_key.toLowerCase();
+                const targetCard = document.querySelector(`.phase-card-row[data-phase="${detectedKey}"]`);
+                if (targetCard) {
+                    elements.phaseCards.forEach(c => c.classList.remove('active'));
+                    targetCard.classList.add('active');
+                    updatePhaseBanner(detectedKey);
+                }
+            }
         }
 
         if (data.options && data.options.length >= 3) {
@@ -472,12 +507,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function applyPhaseResponses(phaseKey) {
-        const def = phaseDefinitions[phaseKey];
+        const def = phaseDefinitions[phaseKey] || phaseDefinitions.invasao;
         if (!def) return;
 
         document.getElementById('intelPhase').textContent = def.intel.phase;
         document.getElementById('intelInterest').textContent = def.intel.termometro;
         document.getElementById('intelHook').textContent = def.intel.gancho;
+
+        const diagEl = document.getElementById('intelDiagnosisText');
+        if (diagEl) {
+            diagEl.textContent = def.desc;
+        }
 
         document.getElementById('textOption1').textContent = def.responses.opt1;
         document.getElementById('textOption2').textContent = def.responses.opt2;
