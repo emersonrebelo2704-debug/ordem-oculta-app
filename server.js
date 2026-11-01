@@ -168,6 +168,73 @@ SAÍDA EM FORMATO JSON PURO (SEM CRASES DE MARKDOWN):
     }
 });
 
+// ENDPOINT DO COACH DE EMERGÊNCIA (DESCREVER SITUAÇÃO)
+app.post('/api/coach', async (req, res) => {
+    try {
+        const { situation } = req.body;
+
+        if (!situation || situation.trim().length === 0) {
+            return res.status(400).json({ success: false, error: 'Situação não fornecida' });
+        }
+
+        const systemPrompt = `
+VOCÊ É O COACH TÁTICO DE EMERGÊNCIA DA "ORDEM OCULTA": O MAIOR ESTRATEGISTA EM DINÂMICA SOCIAL E CONVERSAS DO PAÍS.
+O usuário está em uma situação crítica/tensa com uma mulher (vácuo, teste de desinteresse, dúvida do que mandar).
+Sua missão é dar um DIAGNÓSTICO FRIO, DESPROPOrcionalMENTE PRECISO e fornecer a RESPOSTA CIRÚRGICA exata para ele virar o jogo agora.
+
+FORMATO OBRIGATÓRIO DE SAÍDA (JSON PURO):
+{
+  "diagnosis": "Explicação fria e direta de 2 a 3 linhas sobre a psicologia dela e o que causou essa situação.",
+  "script": "A frase exata que ele deve mandar (curta, magnética e sem carência).",
+  "actionGuide": "A atitude mental recomendada (tempo de espera para mandar, postura e timing)."
+}
+        `;
+
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${GEMINI_API_KEY}`;
+        const payload = {
+            contents: [
+                {
+                    parts: [
+                        { text: systemPrompt },
+                        { text: `SITUAÇÃO DO USUÁRIO:\n"${situation}"` }
+                    ]
+                }
+            ],
+            generationConfig: {
+                temperature: 0.7,
+                topP: 0.95,
+                maxOutputTokens: 2000,
+                responseMimeType: "application/json"
+            }
+        };
+
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const resData = await response.json();
+
+        if (!response.ok || !resData.candidates || !resData.candidates[0].content) {
+            return res.status(500).json({ success: false, error: 'Erro na API Gemini', details: resData });
+        }
+
+        const rawText = resData.candidates[0].content.parts[0].text;
+        const cleanText = rawText.replace(/^```json\s*|\s*```$/gm, '').trim();
+        const decoded = JSON.parse(cleanText);
+
+        res.json({
+            success: true,
+            data: decoded
+        });
+
+    } catch (err) {
+        console.error("Erro interno no coach:", err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Oráculo Server rodando em http://localhost:${PORT}`);
 });

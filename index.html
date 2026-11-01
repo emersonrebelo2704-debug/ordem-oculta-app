@@ -40,9 +40,92 @@
         <!-- Main Content Area (Tabs) -->
         <main class="app-content">
             <!-- ============================================================
-                 TAB 1: ORÁCULO IA (SCANNER GUIADO PELOS CARDS DE FORA A FORA)
+                 VIEW 1: HOME COM OS 3 CARDS DE FERRAMENTAS (Padrão PuxeAssunto)
                  ============================================================ -->
-            <section id="tab-scanner" class="tab-pane active">
+            <section id="view-hub" class="hub-container">
+                <div class="hub-header-tabs">
+                    <button class="hub-tab-btn active" data-hub-tab="tools">Ferramentas</button>
+                    <button class="hub-tab-btn" data-hub-tab="history">Histórico</button>
+                </div>
+
+                <div class="hub-tools-list" id="hubToolsList">
+                    <!-- Card 1: Sugestão de Respostas / O Oráculo -->
+                    <div class="hub-tool-card card-oraculo" data-action="open-oraculo">
+                        <div class="tool-card-left">
+                            <div class="tool-mascot mascot-oraculo">
+                                <i class="fa-solid fa-heart-pulse"></i>
+                                <span class="mascot-bubble">oi, sumido kkk<br>saudades...</span>
+                            </div>
+                        </div>
+                        <div class="tool-card-body">
+                            <h3 class="tool-card-title">Sugestão de Respostas</h3>
+                            <p class="tool-card-desc">Envie um print, receba uma análise profunda e sugestões de respostas magnéticas.</p>
+                            <button class="btn-tool-action btn-red" data-action="open-oraculo">
+                                <span>Enviar print</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Descrever Situação (Coach de Emergência com Trava de Créditos) -->
+                    <div class="hub-tool-card card-coach" data-action="open-coach">
+                        <div class="tool-card-left">
+                            <div class="tool-mascot mascot-coach">
+                                <i class="fa-solid fa-brain"></i>
+                            </div>
+                        </div>
+                        <div class="tool-card-body">
+                            <div class="tool-badge-row">
+                                <span class="badge-hot">COACH DE EMERGÊNCIA</span>
+                            </div>
+                            <h3 class="tool-card-title">Descrever Situação</h3>
+                            <p class="tool-card-desc">Conte o que está rolando e converse com a IA treinada até descobrir o que mandar.</p>
+                            <button class="btn-tool-action btn-purple" data-action="open-coach">
+                                <span>Contar situação</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Gerador de Cantadas & Abridores Rápidos -->
+                    <div class="hub-tool-card card-cantadas" data-action="open-cantadas">
+                        <div class="tool-card-left">
+                            <div class="tool-mascot mascot-cantadas">
+                                <i class="fa-solid fa-fire-flame-curved"></i>
+                            </div>
+                        </div>
+                        <div class="tool-card-body">
+                            <h3 class="tool-card-title">Gerador de Cantadas</h3>
+                            <p class="tool-card-desc">Gere frases criativas, provocadoras, enigmáticas ou engraçadas para fotos e stories.</p>
+                            <button class="btn-tool-action btn-amber" data-action="open-cantadas">
+                                <span>Gerar cantadas</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Histórico Tab (Vazio inicial) -->
+                <div class="hub-history-container hidden" id="hubHistoryList">
+                    <div class="history-empty">
+                        <i class="fa-regular fa-folder-open"></i>
+                        <p>Nenhuma análise salva no histórico recente.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+                 VIEW 2: O ORÁCULO (SCANNER DE PRINTS E AUTO-DIAGNÓSTICO)
+                 ============================================================ -->
+            <section id="view-oraculo" class="tool-view-pane hidden">
+                <div class="view-back-bar">
+                    <button class="btn-back-hub" data-action="back-hub">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>Voltar às Ferramentas</span>
+                    </button>
+                    <span class="view-tag-current">O ORÁCULO</span>
+                </div>
+                
                 <div class="scanner-hero">
                     <div class="badge-phase">
                         <i class="fa-solid fa-crosshairs"></i> PASSO 1: SELECIONE A FASE
@@ -315,6 +398,136 @@
             </section>
 
             <!-- ============================================================
+                 VIEW 3: DESCREVER SITUAÇÃO (O COACH TÁTICO COM TRAVA DE CRÉDITOS)
+                 ============================================================ -->
+            <section id="view-coach" class="tool-view-pane hidden">
+                <div class="view-back-bar">
+                    <button class="btn-back-hub" data-action="back-hub">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>Voltar às Ferramentas</span>
+                    </button>
+                    <span class="view-tag-current purple">COACH TÁTICO</span>
+                </div>
+
+                <div class="coach-hero">
+                    <div class="coach-avatar-crest">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <h2 class="section-heading">Conselheiro <span class="gradient">de Emergência</span></h2>
+                    <p class="section-desc">Conte a situação exata em que você está travado com ela (vácuo, teste, dúvida de resposta). O Coach traçará a jogada de contra-ataque.</p>
+                </div>
+
+                <!-- Chat / Situation Interface -->
+                <div class="coach-input-container">
+                    <div class="coach-context-box">
+                        <label class="coach-label" for="coachSituationInput">
+                            <i class="fa-solid fa-pen-to-square"></i> DESCREVA A SITUAÇÃO:
+                        </label>
+                        <textarea id="coachSituationInput" class="coach-textarea" placeholder="Ex: Saímos ontem, ela disse que adorou, mas hoje mandei mensagem às 10h e ela visualizou e não respondeu até agora. O que eu faço?"></textarea>
+                    </div>
+
+                    <div class="coach-action-row">
+                        <span class="coach-credits-notice">
+                            <i class="fa-solid fa-bolt"></i> Custa 1 crédito · Restam: <strong id="coachCreditsLeft">5</strong>
+                        </span>
+                        <button class="btn-ask-coach" id="btnAskCoach">
+                            <span>Pedir Conselho</span>
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Coach Response Box (Aparece após o envio) -->
+                <div class="coach-response-container hidden" id="coachResponseContainer">
+                    <div class="coach-response-header">
+                        <div class="coach-header-left">
+                            <span class="coach-status-dot"></span>
+                            <span class="coach-name">PARECER DO COACH</span>
+                        </div>
+                        <span class="coach-badge-tactic">DIAGNÓSTICO FRIO</span>
+                    </div>
+
+                    <div class="coach-diagnosis-box">
+                        <div class="coach-diagnosis-title"><i class="fa-solid fa-crosshairs"></i> O QUE ESTÁ ACONTECENDO:</div>
+                        <p class="coach-diagnosis-text" id="coachDiagnosisText">...</p>
+                    </div>
+
+                    <div class="coach-script-box">
+                        <div class="coach-script-title"><i class="fa-solid fa-quote-left"></i> SUA PRÓXIMA MENSAGEM:</div>
+                        <p class="coach-script-text" id="coachScriptText">...</p>
+                        <button class="btn-copy-coach" id="btnCopyCoach">
+                            <i class="fa-regular fa-copy"></i>
+                            <span>Copiar Resposta</span>
+                        </button>
+                    </div>
+
+                    <div class="coach-action-guide">
+                        <div class="guide-title"><i class="fa-solid fa-lightbulb"></i> ATITUDE RECOMENDADA:</div>
+                        <p class="guide-desc" id="coachActionGuide">...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+                 VIEW 4: GERADOR DE CANTADAS & ABRIDORES
+                 ============================================================ -->
+            <section id="view-cantadas" class="tool-view-pane hidden">
+                <div class="view-back-bar">
+                    <button class="btn-back-hub" data-action="back-hub">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>Voltar às Ferramentas</span>
+                    </button>
+                    <span class="view-tag-current amber">CANTADAS CIRÚRGICAS</span>
+                </div>
+
+                <div class="cantadas-hero">
+                    <div class="cantadas-avatar-crest">
+                        <i class="fa-solid fa-fire-flame-curved"></i>
+                    </div>
+                    <h2 class="section-heading">Gerador de <span class="gradient">Cantadas & Abridores</span></h2>
+                    <p class="section-desc">Escolha o tom desejado para chamar atenção de forma espontânea, sem parecer carente.</p>
+                </div>
+
+                <div class="cantadas-tone-grid">
+                    <button class="cantadas-tone-card active" data-tone="provocacao">
+                        <i class="fa-solid fa-bolt"></i>
+                        <strong>Provocadora</strong>
+                        <span>Deboche leve e quebra de ego</span>
+                    </button>
+                    <button class="cantadas-tone-card" data-tone="enigma">
+                        <i class="fa-solid fa-mask"></i>
+                        <strong>Enigmática</strong>
+                        <span>Cria curiosidade obsessiva</span>
+                    </button>
+                    <button class="cantadas-tone-card" data-tone="humor">
+                        <i class="fa-solid fa-face-laugh-squint"></i>
+                        <strong>Bem-humorada</strong>
+                        <span>Faz ela rir e desarmar</span>
+                    </button>
+                </div>
+
+                <div class="cantadas-results-box" id="cantadasResultsBox">
+                    <div class="cantada-item">
+                        <p class="cantada-text" id="cantadaText1">"Você tem exatamente a cara de quem finge costume com viagens assim, mas se perde na primeira esquina."</p>
+                        <button class="btn-copy-small" data-copy-from="cantadaText1"><i class="fa-regular fa-copy"></i> Copiar</button>
+                    </div>
+                    <div class="cantada-item">
+                        <p class="cantada-text" id="cantadaText2">"Eu ia te elogiar, mas esse detalhe no fundo da foto entregou seu maior segredo."</p>
+                        <button class="btn-copy-small" data-copy-from="cantadaText2"><i class="fa-regular fa-copy"></i> Copiar</button>
+                    </div>
+                    <div class="cantada-item">
+                        <p class="cantada-text" id="cantadaText3">"Se você for metade do tempo tão imprevisível pessoalmente quanto parece nas fotos, nossa conversa vai ser um perigo."</p>
+                        <button class="btn-copy-small" data-copy-from="cantadaText3"><i class="fa-regular fa-copy"></i> Copiar</button>
+                    </div>
+                </div>
+
+                <button class="btn-generate-new-cantadas" id="btnGenerateNewCantadas">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                    <span>Gerar Outras Opções</span>
+                </button>
+            </section>
+
+            <!-- ============================================================
                  TAB 2: PLANOS (PAYWALL DE ALTA CONVERSÃO)
                  ============================================================ -->
             <section id="tab-protocolos" class="tab-pane">
@@ -561,6 +774,39 @@
                         </div>
                         <div class="module-modal-body" id="modalBody">
                             <!-- Injetado dinamicamente -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paywall Modal de Bloqueio (Trava dos 5 Créditos do Coach) -->
+                <div class="paywall-lock-modal hidden" id="paywallLockModal">
+                    <div class="paywall-lock-overlay" id="paywallLockOverlay"></div>
+                    <div class="paywall-lock-card">
+                        <div class="lock-header">
+                            <div class="lock-icon-box">
+                                <i class="fa-solid fa-lock"></i>
+                            </div>
+                            <button class="btn-close-lock" id="btnCloseLockModal">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                        <span class="lock-badge">LIMITE DE CRÉDITOS ATINGIDO</span>
+                        <h3 class="lock-title">Não fique no vácuo agora.</h3>
+                        <p class="lock-desc">Seus créditos da amostra grátis acabaram. Desbloqueie o acesso com <strong>Créditos Ilimitados</strong> para saber a jogada exata para responder ela imediatamente.</p>
+
+                        <div class="lock-plan-cta-box">
+                            <a href="https://pay.kiwify.com.br/mIglYN2" target="_blank" class="btn-lock-upgrade-pro">
+                                <div class="upgrade-text">
+                                    <strong>Desbloquear Plano PRO (1 Ano)</strong>
+                                    <span>Créditos Ilimitados · Apenas R$ 16,41/mês</span>
+                                </div>
+                                <i class="fa-solid fa-bolt"></i>
+                            </a>
+
+                            <button class="btn-lock-view-plans" id="btnLockViewPlans">
+                                <span>Ver todas as opções de planos</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
                         </div>
                     </div>
                 </div>

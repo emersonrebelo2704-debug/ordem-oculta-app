@@ -209,6 +209,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inicialização
     function init() {
         setupNavigation();
+        setupHubHomeAndViews();
+        setupCoachEmergency();
+        setupCantadasGenerator();
         setupPhaseRows();
         setupSubmodeSelector();
         setupDropzone();
@@ -218,6 +221,261 @@ document.addEventListener('DOMContentLoaded', () => {
         setupCopyButtons();
         updatePhaseBanner('auto');
         updateSubmodeUI();
+    }
+
+    // Setup da Home (Hub) e Navegação entre as 3 Ferramentas
+    function setupHubHomeAndViews() {
+        const hubTabBtns = document.querySelectorAll('.hub-tab-btn');
+        const toolsList = document.getElementById('hubToolsList');
+        const historyList = document.getElementById('hubHistoryList');
+        const viewHub = document.getElementById('view-hub');
+        const viewOraculo = document.getElementById('view-oraculo');
+        const viewCoach = document.getElementById('view-coach');
+        const viewCantadas = document.getElementById('view-cantadas');
+        const toolViews = [viewHub, viewOraculo, viewCoach, viewCantadas];
+
+        function switchToolView(activePane) {
+            triggerHaptic(20);
+            toolViews.forEach(v => {
+                if (v) v.classList.add('hidden');
+            });
+            if (activePane) activePane.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Tabs Ferramentas vs Histórico na Home
+        hubTabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                triggerHaptic();
+                hubTabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const tab = btn.dataset.hubTab;
+                if (tab === 'history') {
+                    if (toolsList) toolsList.classList.add('hidden');
+                    if (historyList) historyList.classList.remove('hidden');
+                } else {
+                    if (toolsList) toolsList.classList.remove('hidden');
+                    if (historyList) historyList.classList.add('hidden');
+                }
+            });
+        });
+
+        // Abertura dos 3 Cards
+        document.querySelectorAll('[data-action="open-oraculo"]').forEach(el => {
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                switchToolView(viewOraculo);
+            });
+        });
+
+        document.querySelectorAll('[data-action="open-coach"]').forEach(el => {
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                switchToolView(viewCoach);
+            });
+        });
+
+        document.querySelectorAll('[data-action="open-cantadas"]').forEach(el => {
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                switchToolView(viewCantadas);
+            });
+        });
+
+        // Botões de Voltar para a Home
+        document.querySelectorAll('[data-action="back-hub"]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                switchToolView(viewHub);
+            });
+        });
+
+        // Se clicar em Início no Bottom Nav, sempre retorna para o Hub principal
+        const homeNavBtn = document.querySelector('.nav-item[data-tab="tab-scanner"]');
+        if (homeNavBtn) {
+            homeNavBtn.addEventListener('click', () => {
+                switchToolView(viewHub);
+            });
+        }
+    }
+
+    // Setup do Coach de Emergência (com Sistema de Créditos & Paywall Lock)
+    function setupCoachEmergency() {
+        let credits = parseInt(localStorage.getItem('ordem_user_credits') || '5', 10);
+        const creditCountEl = document.getElementById('userCreditsCount');
+        const coachCreditsLeftEl = document.getElementById('coachCreditsLeft');
+        const situationInput = document.getElementById('coachSituationInput');
+        const btnAskCoach = document.getElementById('btnAskCoach');
+        const responseContainer = document.getElementById('coachResponseContainer');
+        const diagnosisTextEl = document.getElementById('coachDiagnosisText');
+        const scriptTextEl = document.getElementById('coachScriptText');
+        const actionGuideEl = document.getElementById('coachActionGuide');
+        const btnCopyCoach = document.getElementById('btnCopyCoach');
+
+        // Modal de Bloqueio (Paywall)
+        const paywallLockModal = document.getElementById('paywallLockModal');
+        const paywallLockOverlay = document.getElementById('paywallLockOverlay');
+        const btnCloseLockModal = document.getElementById('btnCloseLockModal');
+        const btnLockViewPlans = document.getElementById('btnLockViewPlans');
+
+        function updateCreditsDisplay() {
+            if (creditCountEl) creditCountEl.textContent = credits;
+            if (coachCreditsLeftEl) coachCreditsLeftEl.textContent = credits;
+            localStorage.setItem('ordem_user_credits', credits.toString());
+        }
+        updateCreditsDisplay();
+
+        function showPaywallLock() {
+            triggerHaptic(40);
+            if (paywallLockModal) paywallLockModal.classList.remove('hidden');
+        }
+
+        function hidePaywallLock() {
+            if (paywallLockModal) paywallLockModal.classList.add('hidden');
+        }
+
+        if (btnCloseLockModal) btnCloseLockModal.addEventListener('click', hidePaywallLock);
+        if (paywallLockOverlay) paywallLockOverlay.addEventListener('click', hidePaywallLock);
+
+        if (btnLockViewPlans) {
+            btnLockViewPlans.addEventListener('click', () => {
+                hidePaywallLock();
+                // Vai direto para a aba de Planos
+                const plansNavBtn = document.querySelector('.nav-item[data-tab="tab-protocolos"]');
+                if (plansNavBtn) plansNavBtn.click();
+            });
+        }
+
+        if (btnAskCoach) {
+            btnAskCoach.addEventListener('click', async () => {
+                const situation = situationInput ? situationInput.value.trim() : '';
+
+                if (!situation) {
+                    showToast('Descreva o que está acontecendo com ela antes de enviar.');
+                    return;
+                }
+
+                // TRAVA DE CRÉDITOS (SE CHEGAR A ZERO)
+                if (credits <= 0) {
+                    showPaywallLock();
+                    return;
+                }
+
+                btnAskCoach.disabled = true;
+                btnAskCoach.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Consultando Coach...</span>';
+                triggerHaptic(30);
+
+                try {
+                    const endpoint = window.location.protocol === 'file:' ? 'http://localhost:3000/api/coach' : '/api/coach';
+                    const res = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ situation })
+                    });
+                    const result = await res.json();
+
+                    if (result.success && result.data) {
+                        credits--;
+                        updateCreditsDisplay();
+
+                        if (diagnosisTextEl) diagnosisTextEl.textContent = result.data.diagnosis || 'Análise da dinâmica traçada.';
+                        if (scriptTextEl) scriptTextEl.textContent = result.data.script || 'Envie a resposta de contra-ataque.';
+                        if (actionGuideEl) actionGuideEl.textContent = result.data.actionGuide || 'Mantenha a postura recomendada.';
+
+                        if (responseContainer) {
+                            responseContainer.classList.remove('hidden');
+                            responseContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                        showToast(`Parecer pronto! Restam ${credits} créditos.`);
+                    } else {
+                        showToast('Erro ao consultar o Coach. Tente novamente.');
+                    }
+                } catch (e) {
+                    // Fallback se estiver offline
+                    credits--;
+                    updateCreditsDisplay();
+                    if (diagnosisTextEl) diagnosisTextEl.textContent = "Ela está testando o seu nível de apego e segurança. Quanto mais rápido você cobrar resposta, mais baixo fica o seu valor.";
+                    if (scriptTextEl) scriptTextEl.textContent = '"Pelo visto o dia aí tá corrido. Me avisa quando desocupar pra gente continuar o papo."';
+                    if (actionGuideEl) actionGuideEl.textContent = "Aguarde ela responder espontaneamente sem mandar nenhuma mensagem adicional.";
+                    if (responseContainer) responseContainer.classList.remove('hidden');
+                    showToast(`Parecer gerado. Restam ${credits} créditos.`);
+                } finally {
+                    btnAskCoach.disabled = false;
+                    btnAskCoach.innerHTML = '<span>Pedir Conselho</span><i class="fa-solid fa-paper-plane"></i>';
+                }
+            });
+        }
+
+        if (btnCopyCoach && scriptTextEl) {
+            btnCopyCoach.addEventListener('click', () => {
+                navigator.clipboard.writeText(scriptTextEl.textContent);
+                showToast('Resposta do Coach copiada!');
+            });
+        }
+    }
+
+    // Setup do Gerador de Cantadas Rápidas
+    function setupCantadasGenerator() {
+        const toneCards = document.querySelectorAll('.cantadas-tone-card');
+        const btnGenerate = document.getElementById('btnGenerateNewCantadas');
+        const text1 = document.getElementById('cantadaText1');
+        const text2 = document.getElementById('cantadaText2');
+        const text3 = document.getElementById('cantadaText3');
+
+        const cantadasBank = {
+            provocacao: [
+                '"Você tem exatamente a cara de quem finge costume com viagens assim, mas se perde na primeira esquina."',
+                '"O fotógrafo merece aumento pelo ângulo, mas o contexto entregou que você improvisou."',
+                '"Geralmente quem posta foto com essa pose ou é um perigo ou é quietinha demais. Qual é o seu caso?"'
+            ],
+            enigma: [
+                '"Eu ia te elogiar, mas esse detalhe no fundo da foto entregou seu maior segredo."',
+                '"Você acredita em coincidência ou já estava planejando postar isso pra ver quem notava?"',
+                '"Tem uma coisa nessa foto que fez eu mudar completamente de opinião sobre você."'
+            ],
+            humor: [
+                '"Pelo silêncio, aposto que o sol queimou além da conta e você tá de molho no hidratante."',
+                '"Seu sorriso devia vir com aviso prévio de perigo antes das 22h."',
+                '"Acho fascinante como você consegue sustentar uma pose de durona com cara de quem pede sobremesa antes do almoço."'
+            ]
+        };
+
+        let currentTone = 'provocacao';
+
+        toneCards.forEach(card => {
+            card.addEventListener('click', () => {
+                triggerHaptic();
+                toneCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                currentTone = card.dataset.tone;
+                renderCantadas();
+            });
+        });
+
+        function renderCantadas() {
+            const list = cantadasBank[currentTone] || cantadasBank.provocacao;
+            if (text1) text1.textContent = list[0];
+            if (text2) text2.textContent = list[1];
+            if (text3) text3.textContent = list[2];
+        }
+
+        if (btnGenerate) {
+            btnGenerate.addEventListener('click', () => {
+                triggerHaptic(20);
+                renderCantadas();
+                showToast('Novas opções geradas!');
+            });
+        }
+
+        document.querySelectorAll('.btn-copy-small').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.dataset.copyFrom;
+                const el = document.getElementById(targetId);
+                if (el) {
+                    navigator.clipboard.writeText(el.textContent.replace(/"/g, ''));
+                    showToast('Cantada copiada!');
+                }
+            });
+        });
     }
 
     // Navegação entre Abas Principais
