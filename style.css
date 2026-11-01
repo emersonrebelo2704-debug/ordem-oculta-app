@@ -1384,6 +1384,304 @@ html, body {
 }
 
 /* ==========================================================================
+   PLANS PAYWALL TAB (TAB 2)
+   ========================================================================== */
+.status-credits {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: var(--accent-gold);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.plans-hero {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 10px 0 6px;
+}
+
+.plans-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(220, 38, 38, 0.15) 100%);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: var(--accent-gold);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    margin-bottom: 10px;
+}
+
+.plans-title {
+    font-family: var(--font-heading);
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    margin-bottom: 6px;
+}
+
+.plans-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.45;
+    max-width: 380px;
+    margin: 0 auto;
+}
+
+.plans-benefits-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--bg-card-border);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.benefit-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+}
+
+.benefit-icon.icon-fire {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.benefit-icon.icon-heart {
+    background: rgba(168, 85, 247, 0.15);
+    color: #a855f7;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.benefit-icon.icon-star {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.benefit-icon.icon-bolt {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.benefit-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.benefit-text strong {
+    font-size: 13px;
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.benefit-text span {
+    font-size: 11.5px;
+    color: var(--text-dim);
+}
+
+/* Plan Selection Cards */
+.plans-selection-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.plan-card {
+    background: var(--bg-card);
+    border: 1px solid var(--bg-card-border);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.plan-card:hover {
+    background: var(--bg-card-hover);
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.plan-card.active {
+    border-color: var(--accent-red);
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(245, 158, 11, 0.08) 100%);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+}
+
+.plan-card-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.plan-radio {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--text-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.plan-card.active .plan-radio {
+    border-color: var(--accent-red);
+    background: var(--accent-red);
+    box-shadow: inset 0 0 0 3px #111116;
+}
+
+.plan-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.plan-title-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.plan-name {
+    font-family: var(--font-heading);
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.plan-tag {
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    padding: 2px 6px;
+    border-radius: var(--radius-full);
+}
+
+.tag-best {
+    background: var(--brand-gradient);
+    color: #ffffff;
+}
+
+.tag-discount {
+    background: rgba(16, 185, 129, 0.18);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    color: #34d399;
+}
+
+.tag-credits {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: var(--accent-gold);
+}
+
+.tag-basic {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: var(--text-muted);
+}
+
+.plan-billing-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+}
+
+.plan-price-box {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.plan-price-val {
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.plan-card.active .plan-price-val {
+    color: var(--accent-gold);
+}
+
+.plan-price-period {
+    font-size: 10px;
+    color: var(--text-dim);
+}
+
+/* Big CTA Button */
+.btn-subscribe-cta {
+    width: 100%;
+    padding: 16px;
+    border-radius: var(--radius-md);
+    background: var(--brand-gradient);
+    border: none;
+    color: #ffffff;
+    font-family: var(--font-heading);
+    font-size: 15px;
+    font-weight: 800;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 8px 30px var(--accent-red-glow);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    margin-top: 6px;
+}
+
+.btn-subscribe-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(239, 68, 68, 0.5);
+}
+
+.btn-subscribe-cta:active {
+    transform: translateY(1px) scale(0.98);
+}
+
+.plans-guarantee-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 10px;
+}
+
+.plans-guarantee-row i {
+    color: #10b981;
+}
+
+/* ==========================================================================
    BOTTOM NAVIGATION
    ========================================================================== */
 .bottom-nav {

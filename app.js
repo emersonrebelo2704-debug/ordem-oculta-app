@@ -213,12 +213,11 @@ document.addEventListener('DOMContentLoaded', () => {
         setupSubmodeSelector();
         setupDropzone();
         setupClipboardPaste();
-        setupGrimorio();
+        setupPlansTab();
         setupArsenalAndModals();
         setupCopyButtons();
-        updatePhaseBanner('invasao');
+        updatePhaseBanner('auto');
         updateSubmodeUI();
-        renderGrimorioGuide('1');
     }
 
     // Navegação entre Abas Principais
@@ -547,15 +546,31 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('option3Type').textContent = def.opt3Badge;
     }
 
-    // Grimório (Aba 2)
-    function setupGrimorio() {
-        elements.grimorioTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                triggerHaptic();
-                elements.grimorioTabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                state.activeGuide = tab.dataset.guide;
-                renderGrimorioGuide(state.activeGuide);
+    // Setup da Aba de Planos (Paywall e Seleção Dinâmica)
+    function setupPlansTab() {
+        const planCards = document.querySelectorAll('.plan-card');
+        const ctaBtn = document.getElementById('btnSubscribeCTA');
+
+        planCards.forEach(card => {
+            card.addEventListener('click', () => {
+                triggerHaptic(20);
+                planCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+
+                const planType = card.dataset.plan;
+                const checkoutUrl = card.dataset.checkout;
+                const price = card.dataset.price;
+
+                if (ctaBtn) {
+                    ctaBtn.href = checkoutUrl;
+                    if (planType === 'anual') {
+                        ctaBtn.innerHTML = `<span>Assinar Anual PRO · R$ ${price}</span><i class="fa-solid fa-arrow-right"></i>`;
+                    } else if (planType === 'trimestral') {
+                        ctaBtn.innerHTML = `<span>Assinar Trimestral · R$ ${price}</span><i class="fa-solid fa-arrow-right"></i>`;
+                    } else {
+                        ctaBtn.innerHTML = `<span>Assinar Mensal Base · R$ ${price}</span><i class="fa-solid fa-arrow-right"></i>`;
+                    }
+                }
             });
         });
     }

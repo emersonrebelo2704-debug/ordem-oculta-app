@@ -33,7 +33,7 @@
             </div>
             <div class="header-status">
                 <span class="status-pulse"></span>
-                <span class="status-label">ORÁCULO ATIVO</span>
+                <span class="status-credits" id="headerCreditsBadge"><i class="fa-solid fa-bolt"></i> <strong id="userCreditsCount">5</strong> créditos</span>
             </div>
         </header>
 
@@ -315,24 +315,125 @@
             </section>
 
             <!-- ============================================================
-                 TAB 2: O GRIMÓRIO (A METODOLOGIA & ESTUDO DOS GUIAS)
+                 TAB 2: PLANOS (PAYWALL DE ALTA CONVERSÃO)
                  ============================================================ -->
             <section id="tab-protocolos" class="tab-pane">
-                <div class="tab-header">
-                    <span class="tab-tag"><i class="fa-solid fa-book-skull"></i> O CONHECIMENTO OCULTO</span>
-                    <h2 class="tab-title">O Grimório <span class="gradient">dos 4 Guias</span></h2>
-                    <p class="tab-subtitle">Estude a psicologia comportamental e as regras de ouro por trás de cada fase para nunca mais ficar sem saber o que fazer.</p>
+                <div class="plans-hero">
+                    <span class="plans-badge"><i class="fa-solid fa-crown"></i> ACESSO ILIMITADO</span>
+                    <h2 class="plans-title">Desbloqueie o <span class="gradient">Poder Máximo</span></h2>
+                    <p class="plans-subtitle">Nunca mais fique sem saber o que responder. Tenha respostas e conselhos ilimitados no seu bolso.</p>
                 </div>
 
-                <div class="grimorio-nav">
-                    <button class="grimorio-tab-btn active" data-guide="1">Guia I</button>
-                    <button class="grimorio-tab-btn" data-guide="2">Guia II</button>
-                    <button class="grimorio-tab-btn" data-guide="3">Guia III</button>
-                    <button class="grimorio-tab-btn" data-guide="4">Guia IV</button>
+                <!-- Benefits List (Padrão PuxeAssunto) -->
+                <div class="plans-benefits-list">
+                    <div class="benefit-item">
+                        <div class="benefit-icon icon-fire">
+                            <i class="fa-solid fa-infinity"></i>
+                        </div>
+                        <div class="benefit-text">
+                            <strong>Respostas e Análises ILIMITADAS</strong>
+                            <span>Sem limite diário de prints ou mensagens.</span>
+                        </div>
+                    </div>
+
+                    <div class="benefit-item">
+                        <div class="benefit-icon icon-heart">
+                            <i class="fa-solid fa-brain"></i>
+                        </div>
+                        <div class="benefit-text">
+                            <strong>Coach Tático 24h sem travas</strong>
+                            <span>Descreva qualquer situação de emergência e receba a jogada exata.</span>
+                        </div>
+                    </div>
+
+                    <div class="benefit-item">
+                        <div class="benefit-icon icon-star">
+                            <i class="fa-solid fa-crosshairs"></i>
+                        </div>
+                        <div class="benefit-text">
+                            <strong>Protocolo dos 4 Níveis Liberado</strong>
+                            <span>Invasão de Story, Condução, Extração de Zap e Fechamento de Encontro.</span>
+                        </div>
+                    </div>
+
+                    <div class="benefit-item">
+                        <div class="benefit-icon icon-bolt">
+                            <i class="fa-solid fa-bolt-lightning"></i>
+                        </div>
+                        <div class="benefit-text">
+                            <strong>Prioridade Ultra-Rápida nos Servidores</strong>
+                            <span>Análise de visão computacional em menos de 3 segundos.</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="grimorio-content-card" id="grimorioContent">
-                    <!-- Injetado dinamicamente -->
+                <!-- Plan Selection Cards (3 Níveis de Preço com Ancoragem) -->
+                <div class="plans-selection-container">
+                    <!-- PLANO 1: ANUAL / PRO (O Alvo Principal - R$ 197) -->
+                    <div class="plan-card active" data-plan="anual" data-checkout="https://pay.kiwify.com.br/mIglYN2" data-price="197,00">
+                        <div class="plan-card-left">
+                            <div class="plan-radio"></div>
+                            <div class="plan-info">
+                                <div class="plan-title-row">
+                                    <span class="plan-name">Plano PRO / Anual</span>
+                                    <span class="plan-tag tag-best">MELHOR OFERTA</span>
+                                    <span class="plan-tag tag-discount">ILIMITADO</span>
+                                </div>
+                                <span class="plan-billing-desc">R$ 197,00 cobrado uma vez por ano</span>
+                            </div>
+                        </div>
+                        <div class="plan-price-box">
+                            <span class="plan-price-val">R$ 16,41</span>
+                            <span class="plan-price-period">/mês</span>
+                        </div>
+                    </div>
+
+                    <!-- PLANO 2: TRIMESTRAL (Âncora de Preço - R$ 127) -->
+                    <div class="plan-card" data-plan="trimestral" data-checkout="https://pay.kiwify.com.br/mIglYN2" data-price="127,00">
+                        <div class="plan-card-left">
+                            <div class="plan-radio"></div>
+                            <div class="plan-info">
+                                <div class="plan-title-row">
+                                    <span class="plan-name">Trimestral</span>
+                                    <span class="plan-tag tag-credits">30 CRÉDITOS</span>
+                                </div>
+                                <span class="plan-billing-desc">R$ 127,00 cobrado a cada 3 meses</span>
+                            </div>
+                        </div>
+                        <div class="plan-price-box">
+                            <span class="plan-price-val">R$ 42,33</span>
+                            <span class="plan-price-period">/mês</span>
+                        </div>
+                    </div>
+
+                    <!-- PLANO 3: BASE / MENSAL (Entrada - R$ 47) -->
+                    <div class="plan-card" data-plan="mensal" data-checkout="https://pay.kiwify.com.br/mIglYN2" data-price="47,00">
+                        <div class="plan-card-left">
+                            <div class="plan-radio"></div>
+                            <div class="plan-info">
+                                <div class="plan-title-row">
+                                    <span class="plan-name">Mensal Base</span>
+                                    <span class="plan-tag tag-basic">5 CRÉDITOS</span>
+                                </div>
+                                <span class="plan-billing-desc">R$ 47,00 cobrado todo mês</span>
+                            </div>
+                        </div>
+                        <div class="plan-price-box">
+                            <span class="plan-price-val">R$ 47,00</span>
+                            <span class="plan-price-period">/mês</span>
+                        </div>
+                    </div>
+
+                    <!-- Botão CTA Gigante de Pagamento -->
+                    <a href="https://pay.kiwify.com.br/mIglYN2" target="_blank" class="btn-subscribe-cta" id="btnSubscribeCTA">
+                        <span>Assinar Anual PRO · R$ 197,00</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+
+                    <div class="plans-guarantee-row">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>Garantia incondicional de 7 dias · Acesso imediato</span>
+                    </div>
                 </div>
             </section>
 
@@ -470,21 +571,21 @@
         <nav class="bottom-nav">
             <button class="nav-item active" data-tab="tab-scanner">
                 <div class="nav-icon-wrapper">
-                    <i class="fa-solid fa-crosshairs"></i>
+                    <i class="fa-solid fa-house"></i>
                 </div>
-                <span class="nav-label">O Oráculo</span>
+                <span class="nav-label">Início</span>
             </button>
 
             <button class="nav-item" data-tab="tab-protocolos">
-                <div class="nav-icon-wrapper">
-                    <i class="fa-solid fa-book-bookmark"></i>
+                <div class="nav-icon-wrapper badge-notify">
+                    <i class="fa-solid fa-credit-card"></i>
                 </div>
-                <span class="nav-label">O Grimório</span>
+                <span class="nav-label">Planos</span>
             </button>
 
             <button class="nav-item" data-tab="tab-arsenal">
-                <div class="nav-icon-wrapper badge-notify">
-                    <i class="fa-solid fa-shield-cat"></i>
+                <div class="nav-icon-wrapper">
+                    <i class="fa-solid fa-shield-halved"></i>
                 </div>
                 <span class="nav-label">Arsenal</span>
             </button>
