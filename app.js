@@ -1756,79 +1756,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     </a>
                 </div>
             `
-        },
-        'oraculo-pro': {
-            title: "Oráculo Pro · Acesso Ilimitado Ativado",
-            html: `
-                <div class="modal-book-box">
-                    <div style="color: var(--accent-gold); font-size: 11px; font-weight: 800; letter-spacing: 1px; margin-bottom: 6px;">STATUS DA CONTA</div>
-                    <h4 style="color: #fff; font-size: 15px; margin-bottom: 8px;">Scans Ilimitados sem Restrições</h4>
-                    <p style="color: var(--text-muted); font-size: 12.5px; line-height: 1.5; margin-bottom: 12px;">
-                        Sua conta foi promovida ao nível <strong>Adepto da Ordem</strong>. Agora você tem prioridade máxima nas filas de processamento da IA e pode escanear quantos prints de conversas e stories quiser por dia.
-                    </p>
-                    <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 10px; color: var(--accent-green); font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-check-circle"></i> Limite Diário Removido com Sucesso
-                    </div>
-                </div>
-            `
-        },
-        'audios': {
-            title: "Grimório dos Áudios Magnéticos",
-            html: `
-                <div class="modal-book-box">
-                    <div style="color: var(--accent-gold); font-size: 11px; font-weight: 800; letter-spacing: 1px; margin-bottom: 6px;">TREINAMENTO TÁTICO DE VOZ</div>
-                    <p style="color: var(--text-muted); font-size: 12px; line-height: 1.5; margin-bottom: 14px;">
-                        Ouça as faixas abaixo com fones de ouvido para calibrar o tom grave, a ressonância do peito e as pausas magnéticas antes de mandar áudios no WhatsApp.
-                    </p>
-                    
-                    <div class="modal-audio-track">
-                        <div class="track-header">
-                            <span class="track-name"><i class="fa-solid fa-play" style="color: var(--accent-gold); margin-right: 6px;"></i> 01. A Modulação Hipnótica (Tom Grave)</span>
-                            <span class="track-duration">03:42</span>
-                        </div>
-                        <audio controls style="width: 100%; height: 36px; margin-top: 4px;">
-                            <source src="#" type="audio/mpeg">
-                            Seu navegador não suporta reprodução de áudio.
-                        </audio>
-                    </div>
-
-                    <div class="modal-audio-track">
-                        <div class="track-header">
-                            <span class="track-name"><i class="fa-solid fa-play" style="color: var(--accent-gold); margin-right: 6px;"></i> 02. O Poder da Pausa & Silêncio Tático</span>
-                            <span class="track-duration">04:15</span>
-                        </div>
-                        <audio controls style="width: 100%; height: 36px; margin-top: 4px;">
-                            <source src="#" type="audio/mpeg">
-                        </audio>
-                    </div>
-
-                    <div class="modal-audio-track">
-                        <div class="track-header">
-                            <span class="track-name"><i class="fa-solid fa-play" style="color: var(--accent-gold); margin-right: 6px;"></i> 03. O Áudio Coringa de Convite Irrecusável</span>
-                            <span class="track-duration">02:50</span>
-                        </div>
-                        <audio controls style="width: 100%; height: 36px; margin-top: 4px;">
-                            <source src="#" type="audio/mpeg">
-                        </audio>
-                    </div>
-                </div>
-            `
-        },
-        'fechamento-dois': {
-            title: "O Fechamento Perfeito a Dois",
-            html: `
-                <div class="modal-book-box">
-                    <div style="color: var(--accent-gold); font-size: 11px; font-weight: 800; letter-spacing: 1px; margin-bottom: 6px;">LIVRO DIGITAL & PROTOCOLO COMPLETO</div>
-                    <h4 style="color: #fff; font-size: 15px; margin-bottom: 8px;">Do Barzinho ao Final a Dois</h4>
-                    <p style="color: var(--text-muted); font-size: 12.5px; line-height: 1.5; margin-bottom: 12px;">
-                        O passo a passo minucioso de 48 páginas sobre como sentar à mesa, posicionar sua linguagem corporal, quebrar a barreira do toque sutil e fazer a transição para a sua casa sem parecer apressado.
-                    </p>
-                    <button class="btn-download-pdf-app" onclick="downloadSamplePdf('O Fechamento Perfeito a Dois')">
-                        <i class="fa-solid fa-file-pdf"></i>
-                        <span>BAIXAR O LIVRO DIGITAL COMPLETO (PDF)</span>
-                    </button>
-                </div>
-            `
         }
     };
 
@@ -1863,7 +1790,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         if (urlParams.has('unlock_all') || urlParams.has('pago')) {
-            unlockedModules = ['perfil-magnetico', 'mente-feminina', 'formula-seducao', 'oraculo-pro', 'audios', 'fechamento-dois'];
+            unlockedModules = ['perfil-magnetico', 'mente-feminina', 'formula-seducao'];
             localStorage.setItem('ordem_unlocked_modules', JSON.stringify(unlockedModules));
             showToast('Todos os módulos do Arsenal foram liberados!');
         }
@@ -1932,7 +1859,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btnDevUnlockAll) {
             btnDevUnlockAll.addEventListener('click', () => {
                 triggerHaptic(20);
-                unlockedModules = ['perfil-magnetico', 'mente-feminina', 'formula-seducao', 'oraculo-pro', 'audios', 'fechamento-dois'];
+                unlockedModules = ['perfil-magnetico', 'mente-feminina', 'formula-seducao'];
                 localStorage.setItem('ordem_unlocked_modules', JSON.stringify(unlockedModules));
                 updateUnlockedUI();
                 showToast('Modo Teste: Todos os botões tornaram-se verdes!');
