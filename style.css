@@ -1793,10 +1793,94 @@ html, body {
     pointer-events: none;
 }
 
-.mascot-desfibrilador {
-    background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.15) 100%);
-    border: 1px solid rgba(6, 182, 212, 0.4);
-    color: #22d3ee;
+.mascot-friendzone {
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(220, 38, 38, 0.15) 100%);
+    border: 1px solid rgba(236, 72, 153, 0.4);
+    color: #f472b6;
+}
+
+.badge-fz {
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    padding: 2px 7px;
+    border-radius: var(--radius-full);
+    background: rgba(236, 72, 153, 0.15);
+    border: 1px solid rgba(236, 72, 153, 0.4);
+    color: #f472b6;
+}
+
+.btn-tool-action.btn-fz {
+    background: linear-gradient(135deg, #ec4899 0%, #dc2626 100%);
+    color: #ffffff;
+    box-shadow: 0 2px 10px rgba(236, 72, 153, 0.4);
+}
+
+.view-tag-current.fz-neon {
+    color: #f472b6;
+}
+
+/* Rota de Fuga View */
+.friendzone-hero {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.friendzone-avatar-crest {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin: 0 auto 12px;
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(220, 38, 38, 0.15) 100%);
+    border: 1px solid rgba(236, 72, 153, 0.5);
+    color: #f472b6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 0 20px rgba(236, 72, 153, 0.25);
+}
+
+.fz-border {
+    border-color: rgba(236, 72, 153, 0.3);
+}
+
+.fz-color {
+    color: #f472b6 !important;
+}
+
+.fz-textarea:focus {
+    border-color: #ec4899 !important;
+    box-shadow: 0 0 14px rgba(236, 72, 153, 0.25) !important;
+}
+
+.btn-fz-action {
+    background: linear-gradient(135deg, #ec4899 0%, #dc2626 100%) !important;
+    box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4) !important;
+}
+
+.fz-box {
+    border-color: rgba(236, 72, 153, 0.3) !important;
+}
+
+.fz-dot {
+    background: #ec4899 !important;
+    box-shadow: 0 0 8px #ec4899 !important;
+}
+
+.fz-badge {
+    background: rgba(236, 72, 153, 0.15) !important;
+    border-color: rgba(236, 72, 153, 0.4) !important;
+    color: #f472b6 !important;
+}
+
+.fz-script {
+    background: rgba(236, 72, 153, 0.08) !important;
+    border-color: rgba(236, 72, 153, 0.25) !important;
+}
+
+.fz-script .coach-script-title {
+    color: #f472b6 !important;
 }
 
 .badge-shock {

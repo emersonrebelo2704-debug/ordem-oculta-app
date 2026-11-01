@@ -108,6 +108,26 @@
                                 </button>
                             </div>
                         </div>
+
+                        <!-- Card 4: A Rota de Fuga (Protocolo Anti-Friendzone) -->
+                        <div class="hub-tool-card card-friendzone" data-action="open-friendzone">
+                            <div class="tool-card-left">
+                                <div class="tool-mascot mascot-friendzone">
+                                    <i class="fa-solid fa-person-walking-arrow-right"></i>
+                                </div>
+                            </div>
+                            <div class="tool-card-body">
+                                <div class="tool-badge-row">
+                                    <span class="badge-fz">ANTI-FRIENDZONE</span>
+                                </div>
+                                <h3 class="tool-card-title">A Rota de Fuga</h3>
+                                <p class="tool-card-desc">Ela te chamou de "amigo", "fofo" ou falou de outro cara? Corte a validação e vire o jogo na hora.</p>
+                                <button class="btn-tool-action btn-fz" data-action="open-friendzone">
+                                    <span>Desarmar friendzone</span>
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Histórico Tab (Vazio inicial) -->
@@ -565,6 +585,72 @@
                                 <button class="btn-copy-small" data-copy-from="desfText3"><i class="fa-regular fa-copy"></i> Copiar</button>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 VIEW 5: A ROTA DE FUGA (DESARME DE FRIENDZONE)
+                 ============================================================ -->
+            <div id="view-friendzone" class="tool-view-pane hidden">
+                <div class="view-back-bar">
+                    <button class="btn-back-hub" data-action="back-hub">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>Voltar às Ferramentas</span>
+                    </button>
+                    <span class="view-tag-current fz-neon">A ROTA DE FUGA</span>
+                </div>
+
+                <div class="friendzone-hero">
+                    <div class="friendzone-avatar-crest">
+                        <i class="fa-solid fa-person-walking-arrow-right"></i>
+                    </div>
+                    <h2 class="section-heading">Rota de Fuga <span class="gradient">Anti-Friendzone</span></h2>
+                    <p class="section-desc">Corte a validação gratuita. Cole a frase onde ela te tratou como amigo, irmão ou desabafou sobre outro cara e receba o contra-ataque.</p>
+                </div>
+
+                <!-- Input Interface -->
+                <div class="coach-input-container fz-border">
+                    <div class="coach-context-box">
+                        <label class="coach-label fz-color" for="fzMessageInput">
+                            <i class="fa-solid fa-quote-left"></i> O QUE ELA MANDOU PRA TE COLOCAR DE AMIGO?
+                        </label>
+                        <textarea id="fzMessageInput" class="coach-textarea fz-textarea" placeholder="Ex: 'Nossa, você é um fofo. Sério, você é como se fosse um irmão mais velho pra mim' ou 'Ai amigo, aquele cara não me responde...'"></textarea>
+                    </div>
+
+                    <div class="coach-action-row">
+                        <span class="coach-credits-notice">
+                            <i class="fa-solid fa-bolt"></i> Custa 1 crédito · Restam: <strong id="fzCreditsLeft">5</strong>
+                        </span>
+                        <button class="btn-ask-coach btn-fz-action" id="btnInvertGame">
+                            <span>Inverter o Jogo</span>
+                            <i class="fa-solid fa-rotate"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Response Box -->
+                <div class="coach-response-container fz-box hidden" id="fzResponseContainer">
+                    <div class="coach-response-header">
+                        <div class="coach-header-left">
+                            <span class="coach-status-dot fz-dot"></span>
+                            <span class="coach-name">RESPOSTA DE DESQUALIFICAÇÃO</span>
+                        </div>
+                        <span class="coach-badge-tactic fz-badge">CORTE DE FRAME</span>
+                    </div>
+
+                    <div class="coach-script-box fz-script">
+                        <div class="coach-script-title"><i class="fa-solid fa-fire"></i> COPIE E MANDE EXATAMENTE ISTO:</div>
+                        <p class="coach-script-text" id="fzScriptText">...</p>
+                        <button class="btn-copy-coach" id="btnCopyFz">
+                            <i class="fa-regular fa-copy"></i>
+                            <span>Copiar Resposta</span>
+                        </button>
+                    </div>
+
+                    <div class="coach-action-guide">
+                        <div class="guide-title"><i class="fa-solid fa-brain"></i> POR QUE ESSA RESPOSTA ENLOUQUECE ELA:</div>
+                        <p class="guide-desc" id="fzReasonText">...</p>
                     </div>
                 </div>
             </div>

@@ -212,6 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setupHubHomeAndViews();
         setupCoachEmergency();
         setupDesfibrilador();
+        setupFriendzoneEscape();
         setupPhaseRows();
         setupSubmodeSelector();
         setupDropzone();
@@ -231,8 +232,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const viewHub = document.getElementById('view-hub');
         const viewOraculo = document.getElementById('view-oraculo');
         const viewCoach = document.getElementById('view-coach');
-        const viewCantadas = document.getElementById('view-desfibrilador');
-        const toolViews = [viewHub, viewOraculo, viewCoach, viewCantadas];
+        const viewDesfibrilador = document.getElementById('view-desfibrilador');
+        const viewFriendzone = document.getElementById('view-friendzone');
+        const toolViews = [viewHub, viewOraculo, viewCoach, viewDesfibrilador, viewFriendzone];
 
         function switchToolView(activePane) {
             triggerHaptic(20);
@@ -278,7 +280,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('[data-action="open-desfibrilador"]').forEach(el => {
             el.addEventListener('click', (e) => {
                 e.stopPropagation();
-                switchToolView(viewCantadas);
+                switchToolView(viewDesfibrilador);
+            });
+        });
+
+        document.querySelectorAll('[data-action="open-friendzone"]').forEach(el => {
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                switchToolView(viewFriendzone);
             });
         });
 
@@ -531,6 +540,95 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         });
+    }
+
+    // Setup de "A Rota de Fuga" (Anti-Friendzone)
+    function setupFriendzoneEscape() {
+        const inputEl = document.getElementById('fzMessageInput');
+        const btnInvert = document.getElementById('btnInvertGame');
+        const responseBox = document.getElementById('fzResponseContainer');
+        const scriptEl = document.getElementById('fzScriptText');
+        const reasonEl = document.getElementById('fzReasonText');
+        const btnCopy = document.getElementById('btnCopyFz');
+        const fzCreditsEl = document.getElementById('fzCreditsLeft');
+
+        function updateFzCredits() {
+            const current = localStorage.getItem('ordem_user_credits') || '5';
+            if (fzCreditsEl) fzCreditsEl.textContent = current;
+        }
+        updateFzCredits();
+
+        if (btnInvert) {
+            btnInvert.addEventListener('click', async () => {
+                const message = inputEl ? inputEl.value.trim() : '';
+
+                if (!message) {
+                    showToast('Cole a mensagem que ela mandou antes de inverter o jogo.');
+                    return;
+                }
+
+                let credits = parseInt(localStorage.getItem('ordem_user_credits') || '5', 10);
+                if (credits <= 0) {
+                    const paywallModal = document.getElementById('paywallLockModal');
+                    if (paywallModal) paywallModal.classList.remove('hidden');
+                    return;
+                }
+
+                btnInvert.disabled = true;
+                btnInvert.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Desarmando Friendzone...</span>';
+                triggerHaptic(30);
+
+                try {
+                    const endpoint = window.location.protocol === 'file:' ? 'http://localhost:3000/api/friendzone' : '/api/friendzone';
+                    const res = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message })
+                    });
+                    const result = await res.json();
+
+                    if (result.success && result.data) {
+                        credits--;
+                        localStorage.setItem('ordem_user_credits', credits.toString());
+                        const userCred = document.getElementById('userCreditsCount');
+                        const coachCred = document.getElementById('coachCreditsLeft');
+                        if (userCred) userCred.textContent = credits;
+                        if (coachCred) coachCred.textContent = credits;
+                        updateFzCredits();
+
+                        if (scriptEl) scriptEl.textContent = result.data.script || 'Resposta pronta.';
+                        if (reasonEl) reasonEl.textContent = result.data.reason || 'Corte de validação aplicado com sucesso.';
+
+                        if (responseBox) {
+                            responseBox.classList.remove('hidden');
+                            responseBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                        showToast(`Friendzone desarmada! Restam ${credits} créditos.`);
+                    } else {
+                        showToast('Erro ao processar. Tente novamente.');
+                    }
+                } catch (e) {
+                    credits--;
+                    localStorage.setItem('ordem_user_credits', credits.toString());
+                    updateFzCredits();
+
+                    if (scriptEl) scriptEl.textContent = '"Que bom que a gente concorda nisso. Fico aliviado, porque a última coisa que eu preciso agora é de mais uma complicação romântica na minha vida. Toca aqui, \'irmãzinha\'. ✋"';
+                    if (reasonEl) reasonEl.textContent = 'Concorda com o rótulo de forma sarcástica, rebaixa o status dela como mulher e inverte o papel: agora você que não quer nada sério com ela.';
+                    if (responseBox) responseBox.classList.remove('hidden');
+                    showToast(`Resposta gerada. Restam ${credits} créditos.`);
+                } finally {
+                    btnInvert.disabled = false;
+                    btnInvert.innerHTML = '<span>Inverter o Jogo</span><i class="fa-solid fa-rotate"></i>';
+                }
+            });
+        }
+
+        if (btnCopy && scriptEl) {
+            btnCopy.addEventListener('click', () => {
+                navigator.clipboard.writeText(scriptEl.textContent.replace(/"/g, ''));
+                showToast('Resposta copiada! Mande para ela agora.');
+            });
+        }
     }
 
     // Navegação entre Abas Principais

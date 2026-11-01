@@ -337,6 +337,76 @@ FORMATO OBRIGATÓRIO DE SAÍDA (JSON PURO):
     }
 });
 
+// ENDPOINT DA ROTA DE FUGA (ANTI-FRIENDZONE)
+app.post('/api/friendzone', async (req, res) => {
+    try {
+        const { message } = req.body;
+
+        if (!message || message.trim().length === 0) {
+            return res.status(400).json({ success: false, error: 'Mensagem não fornecida' });
+        }
+
+        const systemPrompt = `
+VOCÊ É UM ESTRATEGISTA DE INTELIGÊNCIA SOCIAL IMPLACÁVEL E ESPECIALISTA EM DESARME DE FRIENDZONE DA "ORDEM OCULTA".
+O usuário está preso na 'Friendzone' e vai enviar a frase exata que a mulher disse para colocá-lo nessa posição (ex: chamou de 'fofo', 'amigo', 'irmão' ou desabafou sobre outro homem).
+
+SUA MISSÃO:
+Criar uma resposta curta de desqualificação e quebra imediata de padrão.
+A resposta NÃO pode demonstrar raiva, ciúmes, mágoa ou carência.
+Ela deve ser levemente sarcástica, estabelecendo limites claros de que o usuário é um homem de alto valor e NÃO é o 'amigo fofoqueiro' ou o ombro amigo dela.
+
+FORMATO OBRIGATÓRIO DE SAÍDA (JSON PURO):
+{
+  "script": "A resposta exata sarcástica e confiante que ele deve copiar e colar.",
+  "reason": "Explicação psicológica curta de como isso corta a validação e faz a mulher entrar em parafuso ao perder o controle."
+}
+        `;
+
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${GEMINI_API_KEY}`;
+        const payload = {
+            contents: [
+                {
+                    parts: [
+                        { text: systemPrompt },
+                        { text: `FRASE DA MULHER COLOCANDO NA FRIENDZONE:\n"${message}"` }
+                    ]
+                }
+            ],
+            generationConfig: {
+                temperature: 0.75,
+                topP: 0.95,
+                maxOutputTokens: 1500,
+                responseMimeType: "application/json"
+            }
+        };
+
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const resData = await response.json();
+
+        if (!response.ok || !resData.candidates || !resData.candidates[0].content) {
+            return res.status(500).json({ success: false, error: 'Erro na API Gemini', details: resData });
+        }
+
+        const rawText = resData.candidates[0].content.parts[0].text;
+        const cleanText = rawText.replace(/^```json\s*|\s*```$/gm, '').trim();
+        const decoded = JSON.parse(cleanText);
+
+        res.json({
+            success: true,
+            data: decoded
+        });
+
+    } catch (err) {
+        console.error("Erro interno na rota de fuga:", err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Oráculo Server rodando em http://localhost:${PORT}`);
 });
