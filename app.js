@@ -1500,114 +1500,418 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================================================
-    // ARSENAL & MODAL DE CONTEÚDO LIBERADO (E-BOOKS, CURSOS & ÁUDIOS)
+    // ARSENAL & MODAL DE CONTEÚDO LIBERADO (LIVROS DIGITAIS PREMIUM & VÍDEO-AULAS)
     // ==========================================================================
     const moduleContentDatabase = {
         'perfil-magnetico': {
             isEbook: true,
             title: "Como Criar um Perfil Magnético",
-            subtitle: "Fotos, Bio e Stories de Alto Status no Instagram",
-            readTime: "12 min de leitura",
-            pdfFile: "Como-Criar-um-Perfil-Magnetico.pdf",
-            chapters: [
+            subtitle: "A Engenharia Visual, Neurocópia & Semiótica de Alto Status no Instagram",
+            author: "Conselho Estratégico · Ordem Oculta",
+            edition: "Edição Definitiva 2026 · 54 Páginas",
+            readTime: "35 min de leitura",
+            pdfFile: "Como-Criar-um-Perfil-Magnetico-Edicao-Oficial.pdf",
+            sections: [
                 {
-                    title: "Capítulo 1: A Anatomia de um Perfil de Alto Status",
+                    type: "cover",
+                    navTitle: "Capa do Livro",
+                    title: "Como Criar um Perfil Magnético",
+                    html: `
+                        <div class="book-cover-view">
+                            <span class="book-cover-badge"><i class="fa-solid fa-crown"></i> ORDEM OCULTA · EDIÇÃO DEFINITIVA</span>
+                            <div class="book-cover-crest">
+                                <i class="fa-solid fa-camera-retro"></i>
+                            </div>
+                            <h2 class="book-cover-title">Como Criar um<br><span class="gradient">Perfil Magnético</span></h2>
+                            <p class="book-cover-subtitle">O Manual Definitivo de Semiótica Visual, Neurocópia de Bio, Arquitetura de Destaques e Stories de Alto Status no Instagram.</p>
+                            
+                            <div class="book-meta-strip">
+                                <span><i class="fa-solid fa-book-open" style="color: var(--accent-gold);"></i> <strong>54 Páginas</strong></span>
+                                <span><i class="fa-solid fa-clock" style="color: var(--accent-gold);"></i> <strong>35 min</strong> de leitura</span>
+                                <span><i class="fa-solid fa-certificate" style="color: var(--accent-green);"></i> <strong>Edição 2026</strong></span>
+                            </div>
+
+                            <button class="btn-start-reading-book" id="btnCoverStartRead">
+                                <span>ABRIR LIVRO & VER SUMÁRIO</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    `
+                },
+                {
+                    type: "toc",
+                    navTitle: "Sumário Geral",
+                    title: "Sumário Executivo do Livro",
+                    html: `
+                        <div class="book-toc-view">
+                            <div class="toc-header-row">
+                                <span class="toc-header-title"><i class="fa-solid fa-list-ol"></i> ÍNDICE DE CAPÍTULOS & PROTOCOLOS</span>
+                                <span class="toc-time-badge"><i class="fa-solid fa-clock"></i> 35 min total</span>
+                            </div>
+                            <div class="book-toc-list" id="bookTocList">
+                                <!-- Preenchido dinamicamente com os capítulos -->
+                            </div>
+                        </div>
+                    `
+                },
+                {
+                    type: "chapter",
+                    number: "INTRO",
+                    navTitle: "Introdução",
+                    title: "Introdução: A Era do Julgamento de 3 Segundos",
+                    readTime: "3 min",
                     content: `
-                        <div class="reader-callout purple">
-                            <strong><i class="fa-solid fa-crosshairs"></i> Regra de Ouro:</strong>
-                            Seu perfil não é um álbum de recordações familiares: é sua vitrine de posicionamento e pré-seleção.
+                        <p class="reader-dropcap">
+                            O Instagram deixou de ser uma simples rede social de fotos há muitos anos. Hoje, ele é o seu <strong>currículo social, estético e sexual</strong>. Antes de qualquer mulher responder à sua primeira mensagem ou aceitar um convite para sair, ela fará uma varredura visual no seu perfil que dura em média exatos <strong>3 segundos</strong>.
+                        </p>
+                        <p>
+                            Nesses 3 segundos inconscientes, a mente dela não analisa racionalmente quem você é por dentro, seus diplomas ou sua bondade de coração. O cérebro primitivo dela busca pistas biológicas de sobrevivência e reprodução: <em>"Esse homem tem status? Ele tem amigos? Ele é confiante ou é um esquisito que implora atenção na DM? Ele tem bom gosto ou é descuidado?"</em>
+                        </p>
+                        <div class="reader-callout">
+                            <strong><i class="fa-solid fa-eye"></i> O Princípio da Pré-Seleção:</strong>
+                            Mulheres bonitas não têm tempo para investigar se você é um cara legal. Elas compram a embalagem antes de abrir o presente. Se sua embalagem transmite carência, desleixo ou pose forçada, sua conversa já começou morta.
                         </div>
                         <p>
-                            Quando uma mulher recebe sua mensagem ou abre seu perfil, o cérebro dela faz um escaneamento subconsciente em menos de <strong>3 segundos</strong>. Ela busca responder inconscientemente a três perguntas:
+                            Neste livro, você não aprenderá a fingir ser rico ou a alugar carros de luxo para ostentar na internet. Homens que forçam ostentação são imediatamente detectados como farsantes. Você aprenderá a <strong>extrair a sua melhor versão</strong>, calibrar ângulos, luz natural, cortes de roupa, neurocópia de bio e storytelling de bastidores para transmitir o peso de um homem raro.
                         </p>
+                    `
+                },
+                {
+                    type: "chapter",
+                    number: "CAP 01",
+                    navTitle: "Cap. 1: Os 5 Erros Fatais",
+                    title: "Capítulo 1: A Desconstrução dos 5 Erros Fatais do Homem Médio",
+                    readTime: "5 min",
+                    content: `
+                        <p>
+                            Antes de construir o seu perfil magnético, você precisa estancar o sangramento. 95% dos homens cometem ao menos três destes cinco erros fatais sem perceber:
+                        </p>
+
+                        <h4>1. A Selfie no Espelho da Academia com Cara de Bravo</h4>
+                        <p>
+                            Treinar é excelente; postar foto com o celular na frente do rosto e cara de assassino transmite imaturidade e necessidade de validação barata. Passa a impressão de que seu único valor no mundo é um bíceps contraído.
+                        </p>
+
+                        <h4>2. A Bio Bíblica ou com Frases de Efeito Clichês</h4>
+                        <p>
+                            Frases como <em>"Vivendo um dia de cada vez 🙏"</em>, <em>"Lobo solitário 🐺"</em> ou listas arrogantes de cargos corporativos gritam desespero de autoafirmação. A bio deve gerar curiosidade sutil, não um relatório do RH.
+                        </p>
+
+                        <h4>3. O Feed 'Cemitério de Momentos'</h4>
+                        <p>
+                            Fotos escuras, com comida mal apresentada, foto de cachorro com resolução borrada, prints de piadas ou 5 fotos consecutivas no mesmo ângulo e com a mesma camisa. O seu feed é uma galeria de arte, não a lixeira da sua galeria do celular.
+                        </p>
+
+                        <h4>4. Ausência Total de Prova Social Humana</h4>
+                        <p>
+                            Se no seu perfil só existem fotos suas sozinho, o subconsciente dela acende o sinal de alerta: <em>"Por que esse cara nunca está com ninguém? Ele não tem amigos? Ninguém gosta dele?"</em>.
+                        </p>
+
+                        <h4>5. Destaques Caóticos ou Inexistentes</h4>
+                        <p>
+                            Destaques vazios ou com nomes infantis ("Rolês 🤪", "Comidas 🍕") jogam fora a melhor ferramenta de conversão orgânica do Instagram.
+                        </p>
+
+                        <div class="comparative-grid">
+                            <div class="comp-col bad">
+                                <h6><i class="fa-solid fa-xmark"></i> O Homem Médio (Ignorado)</h6>
+                                <p>• Selfie sem camisa no banheiro.<br>• Bio cheia de emojis e frases feitas.<br>• Posta 20 stories seguidos quando sai.<br>• Segue 3.000 pessoas e tem 400 seguidores.</p>
+                            </div>
+                            <div class="comp-col good">
+                                <h6><i class="fa-solid fa-check"></i> O Homem Magnético (Desejado)</h6>
+                                <p>• Fotos naturais com luz de dia e contexto.<br>• Bio enxuta com humor e curiosidade.<br>• Posta 2 a 3 stories cirúrgicos com ganchos.<br>• Proporção equilibrada de seguidores e seguidos.</p>
+                            </div>
+                        </div>
+                    `
+                },
+                {
+                    type: "chapter",
+                    number: "CAP 02",
+                    navTitle: "Cap. 2: As 5 Fotos da Grade",
+                    title: "Capítulo 2: As 5 Fotos Obrigatórias da Grade Perfeita",
+                    readTime: "7 min",
+                    content: `
+                        <p class="reader-dropcap">
+                            Você não precisa de 100 fotos no feed. De fato, perfis com <strong>9 a 15 fotos impecáveis</strong> convertem até 4 vezes mais do que perfis com 300 fotos antigas descalibradas. Aqui está a fórmula das 5 fotos essenciais:
+                        </p>
+
+                        <h4>1. A Foto de Rosto / Primeiro Plano (O Olhar Calmo)</h4>
+                        <p>
+                            <strong>Objetivo:</strong> Mostrar suas feições com clareza e segurança.<br>
+                            <strong>Como executar:</strong> Plano médio (do peito para cima), luz natural frontal ou lateral (perto de uma janela durante a manhã ou fim de tarde). Sem óculos escuros tampando os olhos. Expressão tranquila, olhar focado na lente sem forçar sorriso exagerado nem semblante fechado.
+                        </p>
+
+                        <h4>2. A Foto de Lifestyle / Movimento em Cenário Nobre</h4>
+                        <p>
+                            <strong>Objetivo:</strong> Contextualizar você em um ambiente que transmite bom gosto.<br>
+                            <strong>Como executar:</strong> Sentado em um café elegante, em um rooftop ao entardecer, em um restaurante ou em uma viagem. O enquadramento deve mostrar 60% você e 40% o ambiente ao redor, gerando ganchos para ela comentar sobre o local.
+                        </p>
+
+                        <h4>3. A Foto de Domínio / Foco / Habilidade</h4>
+                        <p>
+                            <strong>Objetivo:</strong> Subcomunicar que você é um homem que tem paixões e propósito fora de uma tela.<br>
+                            <strong>Como executar:</strong> Você concentrado praticando um esporte (tênis, corrida, surf, boxe), tocando um instrumento, cozinhando com amigos ou trabalhando imerso. A câmera deve parecer ter pego você de surpresa, sem olhar diretamente para a lente.
+                        </p>
+
+                        <h4>4. A Foto de Prova Social Orgânica (Sua Tribo)</h4>
+                        <p>
+                            <strong>Objetivo:</strong> Comprovar que você é querido e sociável.<br>
+                            <strong>Como executar:</strong> Você rindo espontaneamente com amigos em um brinde, churrasco alinhado ou casamento. O detalhe de ouro: você deve estar bem posicionado no centro ou interagindo confortavelmente, nunca com cara de quem estava isolado na ponta.
+                        </p>
+
+                        <h4>5. A Foto de Corpo Inteiro com Estilo Impecável</h4>
+                        <p>
+                            <strong>Objetivo:</strong> Validar seu senso estético, postura corporal e silhueta.<br>
+                            <strong>Como executar:</strong> Em pé, caminhando pela rua ou descendo uma escada. Roupas bem ajustadas ao seu corpo (camisa de linho, alfaiataria, calça escura, tênis limpo ou bota). Postura ereta: ombros para trás, queixo paralelo ao chão.
+                        </p>
+
+                        <div class="reader-callout green">
+                            <strong><i class="fa-solid fa-camera"></i> Regra Técnica de Fotografia:</strong>
+                            Peça para um amigo tirar suas fotos segurando o celular na altura do seu peito (e não de cima para baixo). O ângulo reto valoriza a mandíbula e a altura, enquanto fotos tiradas de cima apequenam o homem.
+                        </div>
+                    `
+                },
+                {
+                    type: "chapter",
+                    number: "CAP 03",
+                    navTitle: "Cap. 3: A Bio Hipnótica",
+                    title: "Capítulo 3: A Neurocópia da Bio Hipnótica (O Método P.A.C.)",
+                    readTime: "6 min",
+                    content: `
+                        <p>
+                            A bio do Instagram tem apenas 150 caracteres. O método <strong>P.A.C. (Posicionamento, Ambição e Curiosidade)</strong> foi desenvolvido para sintetizar status em 3 linhas cirúrgicas sem parecer arrogante:
+                        </p>
+
                         <ul class="reader-checklist">
-                            <li><i class="fa-solid fa-circle-check"></i> <strong>Ele tem vida interessante fora da internet?</strong> (Ou é alguém que passa o dia implorando atenção na DM?)</li>
-                            <li><i class="fa-solid fa-circle-check"></i> <strong>Ele tem bom gosto estético e higiene social?</strong> (Cortes de foto, roupas alinhadas, ambientes limpos.)</li>
-                            <li><i class="fa-solid fa-circle-check"></i> <strong>Outras pessoas validam a presença dele?</strong> (Amigos, eventos, viagens, momentos sociais.)</li>
+                            <li><i class="fa-solid fa-location-dot"></i> <strong>Linha 1 (Posicionamento):</strong> Sua cidade base ou estilo de vida com discrição.</li>
+                            <li><i class="fa-solid fa-briefcase"></i> <strong>Linha 2 (Ambição / Criação):</strong> O que você constrói no mundo, dito com paixão e leveza.</li>
+                            <li><i class="fa-solid fa-sparkles"></i> <strong>Linha 3 (Curiosidade / Quebra de Padrão):</strong> Uma frase irônica ou um gancho aberto que faz ela rir e pensar.</li>
                         </ul>
 
-                        <h4><i class="fa-solid fa-triangle-exclamation" style="color: #f87171;"></i> Os 3 Erros Fatais do Perfil Comum</h4>
+                        <h4>12 Modelos de Bio Prontos para Copiar e Adaptar:</h4>
+
+                        <div class="tactical-script-card">
+                            <div class="script-card-header">
+                                <span class="script-label">MODELO 01 · EMPREENDEDOR & VIAJANTE</span>
+                            </div>
+                            <div class="script-text">
+                                SP 📍 | Criando marcas & colecionando viagens improváveis.<br>
+                                Provavelmente tomando café enquanto leio isso.
+                            </div>
+                        </div>
+
+                        <div class="tactical-script-card">
+                            <div class="script-card-header">
+                                <span class="script-label">MODELO 02 · PROFISSIONAL LIBERAL & GASTRONOMIA</span>
+                            </div>
+                            <div class="script-text">
+                                Curitiba • Arquiteto de dia, péssimo crítico gastronômico à noite. 🍷<br>
+                                Em busca do melhor risoto da cidade.
+                            </div>
+                        </div>
+
+                        <div class="tactical-script-card">
+                            <div class="script-card-header">
+                                <span class="script-label">MODELO 03 · ESPORTISTA & MINIMALISTA</span>
+                            </div>
+                            <div class="script-text">
+                                Rio de Janeiro | Engenharia & Mar.<br>
+                                Se demorar pra responder, estou sem sinal na água.
+                            </div>
+                        </div>
+
+                        <div class="tactical-script-card">
+                            <div class="script-card-header">
+                                <span class="script-label">MODELO 04 · CRIATIVO & DIRETO</span>
+                            </div>
+                            <div class="script-text">
+                                BH • Design, estratégia e vinho seco.<br>
+                                Colecionador de boas conversas e livros não lidos.
+                            </div>
+                        </div>
+
+                        <div class="reader-callout red">
+                            <strong>⚠️ O Que Jamais Colocar na Bio:</strong>
+                            Signo do zodíaco, frases bíblicas descontextualizadas, apelidos infantis, link para várias redes sociais acumuladas ou frases dizendo "Não mando mensagem primeiro". Isso grita insegurança.
+                        </div>
+                    `
+                },
+                {
+                    type: "chapter",
+                    number: "CAP 04",
+                    navTitle: "Cap. 4: Engenharia de Destaques",
+                    title: "Capítulo 4: A Engenharia dos Destaques de Alto Status",
+                    readTime: "5 min",
+                    content: `
+                        <p class="reader-dropcap">
+                            Os destaques são como os 'trailers de cinema' da sua vida. Quando ela acessa seu perfil pela primeira vez, ela clica nos destaques para ver se você é autêntico no vídeo e na voz.
+                        </p>
                         <p>
-                            1. <strong>Selfie no espelho de academia com cara de bravo:</strong> Transmite falta de imaginação e necessidade de validação física barata.<br>
-                            2. <strong>Bio vazia ou cheia de frases clichês:</strong> Frases motivacionais batidas gritam amadorismo.<br>
-                            3. <strong>Destaques caóticos ou ausentes:</strong> Destaques bem organizados funcionam como um 'trailer' da sua vida.
+                            Recomendamos exatamente <strong>4 a 5 pastas de destaques</strong>, com capas minimalistas (fotos reais e limpas, sem ícones genéricos desenhados):
+                        </p>
+
+                        <h4>Pasta 1: 'Rotas' ou 'Viagens' (Lifestyle Global)</h4>
+                        <p>
+                            Vídeos curtos de paisagens, comidas locais, decolagem de avião ou você dirigindo em uma estrada bonita. Transmite mundo, ambição e dinamismo.
+                        </p>
+
+                        <h4>Pasta 2: 'Bastidores' ou 'Ofício' (Propósito)</h4>
+                        <p>
+                            Momentos rápidos do seu ambiente de trabalho, reuniões com café, mesa arrumada com laptop ou uma conquista profissional. Mostra que você é um homem que produz valor.
+                        </p>
+
+                        <h4>Pasta 3: 'Gastronomia' ou 'Noites' (Sofisticação Social)</h4>
+                        <p>
+                            Pratos bem montados, drinks sofisticados, ambiente à meia-luz e brindes. Isso projeta na mente dela: <em>"Esse homem sabe escolher bons lugares para me levar."</em>
+                        </p>
+
+                        <h4>Pasta 4: 'Movimento' (Saúde & Vigor)</h4>
+                        <p>
+                            Vídeos em ação: pedalando, correndo na praia, jogando tênis ou no mar. Foco no movimento e na vitalidade, não na estética vazia de espelho.
                         </p>
                     `
                 },
                 {
-                    title: "Capítulo 2: As 4 Fotos Obrigatórias no Feed",
+                    type: "chapter",
+                    number: "CAP 05",
+                    navTitle: "Cap. 5: Stories Invisíveis",
+                    title: "Capítulo 5: O Algoritmo dos Stories Invisíveis (Como Forçar DMs)",
+                    readTime: "6 min",
                     content: `
-                        <p>Você não precisa de 100 fotos no feed. Você só precisa de <strong>4 tipos específicos</strong> de fotos que contam uma história coesa de alto status:</p>
-
-                        <h4>1. A Foto de Rosto / Primeiro Plano (Confiança)</h4>
                         <p>
-                            Uma foto nítida com luz natural (perto de uma janela ou fim de tarde), sem óculos escuros tampando o olhar. Expressão serena, sem forçar sorriso exagerado nem cara de marrento.
+                            A grande sacada do homem magnético é não precisar mandar mensagem primeiro para todas as mulheres. Ele cria <strong>gatilhos de curiosidade nos Stories</strong> que obrigam as mulheres a puxarem assunto:
                         </p>
 
-                        <h4>2. A Foto de Lifestyle / Movimento (Contexto)</h4>
+                        <h4>A Técnica da 'Lacuna sem Nome' (O Gatilho da DM Inevitável)</h4>
                         <p>
-                            Você imerso em um ambiente interessante: sentado em um café sofisticado, em um restaurante, rooftop ou viagem. O enquadramento deve valorizar o cenário para gerar ganchos automáticos de conversa.
+                            Poste a foto esteticamente impecável de um prato autêntico, de um drink misterioso ou de um restaurante acolhedor, <strong>mas NÃO marque a localização nem o nome do lugar</strong>. A mente feminina não suporta ficar sem saber: a probabilidade de uma mulher mandar uma DM perguntando <em>"Nossa, que delícia, onde é isso?"</em> é superior a 80%.
                         </p>
 
-                        <h4>3. A Foto de Domínio / Habilidade (Foco)</h4>
+                        <h4>A Técnica do 'Falso Enigma'</h4>
                         <p>
-                            Você praticando uma atividade que domina ou pela qual tem paixão: esportes (tênis, corrida, surf, boxe), tocando um instrumento, cozinhando ou trabalhando concentrado. Mostra que sua energia está direcionada a algo produtivo.
+                            Poste uma foto de um livro aberto com um trecho intrigante grifado, ou uma vista de fim de tarde com a legenda: <em>"Três coisas aconteceram hoje aqui, mas a segunda ninguém acreditaria kkk"</em>. As pessoas são naturalmente curiosas: ela abrirá a DM para perguntar o que aconteceu.
                         </p>
 
-                        <h4>4. A Foto Social / Conexão (Tribo)</h4>
-                        <p>
-                            Um registro espontâneo em um brinde, almoço ou evento com amigos. Homens que têm amigos e são bem quistos transmitem segurança imediata para qualquer mulher.
-                        </p>
-                    `
-                },
-                {
-                    title: "Capítulo 3: A Bio Hipnótica sem Ostentação",
-                    content: `
                         <div class="reader-callout">
-                            <strong><i class="fa-solid fa-lightbulb"></i> A Tríade da Bio Magnética:</strong>
-                            Localização discreta + O que você faz com leveza + Um gancho levemente irônico ou curioso.
-                        </div>
-
-                        <h4>Fórmula Prática:</h4>
-                        <p>
-                            Elimine emojis infantis, signos, links múltiplos poluídos ou declarações de arrogância. Menos é infinitamente mais.
-                        </p>
-
-                        <h4>3 Modelos Prontos para Copiar e Adaptar:</h4>
-                        <div class="reader-callout purple">
-                            <strong>Modelo A (Empreendedor / Criativo):</strong><br>
-                            <em>"São Paulo 📍 | Construindo marcas & colecionando viagens improváveis. Provavelmente tomando café."</em>
-                        </div>
-                        <div class="reader-callout green">
-                            <strong>Modelo B (Profissional / Lifestyle):</strong><br>
-                            <em>"Curitiba • Arquiteto de dia, péssimo crítico gastronômico à noite. 🍷"</em>
-                        </div>
-                        <div class="reader-callout">
-                            <strong>Modelo C (Minimalista / Esportivo):</strong><br>
-                            <em>"RJ | Engenharia & Esportes. Se demorar pra responder, estou sem sinal no mar."</em>
+                            <strong><i class="fa-solid fa-clock"></i> Frequência Ideal de Stories:</strong>
+                            • Manhã (08h às 10h): 1 story leve de rotina (café, vista, trânsito com boa música).<br>
+                            • Tarde (13h às 15h): Opcional (foco no trabalho).<br>
+                            • Noite (19h às 22h): 1 a 2 stories de lifestyle ou comida com gancho aberto.<br>
+                            <em>Nunca ultrapasse 4 stories por dia. A escassez gera mistério e valoriza sua presença.</em>
                         </div>
                     `
                 },
                 {
-                    title: "Capítulo 4: Stories que Fazem Ela Mandar DM",
+                    type: "chapter",
+                    number: "CAP 06",
+                    navTitle: "Cap. 6: Da DM ao WhatsApp",
+                    title: "Capítulo 6: Da Primeira Resposta ao WhatsApp (A Transição Natural)",
+                    readTime: "5 min",
+                    content: `
+                        <p class="reader-dropcap">
+                            O Instagram é o radar de atração; o WhatsApp é o canal de fechamento. Jamais passe semanas conversando pelo direct do Instagram. A DM é cheia de distrações, outros homens mandando mensagens e notificações de memes.
+                        </p>
+
+                        <h4>O Momento Exato da Transição:</h4>
+                        <p>
+                            Você deve puxar para o WhatsApp no <strong>ápice da empolgação da conversa</strong>, nunca quando o assunto estiver esfriando.
+                        </p>
+
+                        <h4>3 Scripts de Ouro para Pegar o Zap sem Pedir Permissão:</h4>
+
+                        <div class="tactical-script-card">
+                            <div class="script-card-header">
+                                <span class="script-label">SCRIPT 1 · O PRETEXTO FUNCIONAL DO ÁUDIO</span>
+                            </div>
+                            <div class="script-text">
+                                "O Instagram vai cortar o áudio desse caso kkk. Me passa seu Zap que te mando por lá antes de entrar em reunião."
+                            </div>
+                        </div>
+
+                        <div class="tactical-script-card">
+                            <div class="script-card-header">
+                                <span class="script-label">SCRIPT 2 · A INVERSÃO DE PAPEL (ENTREGANDO O SEU NÚMERO)</span>
+                            </div>
+                            <div class="script-text">
+                                "Quase nunca abro essa DM na correria da semana. Me dá um oi no Zap que te mando a localização certinha de lá: (XX) 9XXXX-XXXX."
+                            </div>
+                        </div>
+
+                        <div class="tactical-script-card">
+                            <div class="script-card-header">
+                                <span class="script-label">SCRIPT 3 · A QUALIFICAÇÃO DE ALTO STATUS</span>
+                            </div>
+                            <div class="script-text">
+                                "Só passo meu WhatsApp pra quem parece sustentar uma conversa afiada pessoalmente. Você passou no teste de triagem kkk. Me manda um alô lá: (XX) 9XXXX-XXXX."
+                            </div>
+                        </div>
+                    `
+                },
+                {
+                    type: "chapter",
+                    number: "PLANO",
+                    navTitle: "Plano de Ação 7 Dias",
+                    title: "Plano Prático de 7 Dias: Reformulação Completa do Perfil",
+                    readTime: "4 min",
                     content: `
                         <p>
-                            O maior erro nos Stories é postar 20 telas da sua rotina tediosa. O homem magnético posta <strong>2 a 3 stories por dia</strong>, mas cada um deles tem um gatilho oculto de engajamento:
+                            Não deixe este conhecimento acumulando poeira mental. Execute o cronograma abaixo para transformar seu Instagram nos próximos 7 dias:
                         </p>
 
-                        <h4>O Gatilho da Lacuna (Story do Elemento sem Nome)</h4>
+                        <div class="seven-days-timeline">
+                            <div class="timeline-day-card">
+                                <h5>DIA 1: A LIMPEZA RADICAL</h5>
+                                <p>Arquive fotos antigas com luz ruim, poses forçadas, selfies de espelho e fotos sem camisa no banheiro. Deixe apenas as suas 9 melhores fotos.</p>
+                            </div>
+
+                            <div class="timeline-day-card">
+                                <h5>DIA 2: A REFORMULAÇÃO DA BIO</h5>
+                                <p>Aplique o Método P.A.C. Escolha um dos 12 modelos prontos, remova emojis infantis e adicione sua cidade com elegância.</p>
+                            </div>
+
+                            <div class="timeline-day-card">
+                                <h5>DIA 3: PRODUÇÃO DA FOTO DE ROSTO</h5>
+                                <p>Aproveite a luz natural da manhã perto de uma janela. Tire 15 a 20 fotos em plano médio, olhar sereno. Escolha a mais nítida.</p>
+                            </div>
+
+                            <div class="timeline-day-card">
+                                <h5>DIA 4: PRODUÇÃO DA FOTO DE LIFESTYLE</h5>
+                                <p>Vá a um café ou restaurante agradável. Peça a um amigo para tirar uma foto sua sentado enquanto você aprecia o ambiente sem olhar para a câmera.</p>
+                            </div>
+
+                            <div class="timeline-day-card">
+                                <h5>DIA 5: ARQUITETURA DOS DESTAQUES</h5>
+                                <p>Organize suas 4 pastas de destaques (Viagens, Ofício, Gastronomia, Movimento). Remova stories caóticos ou infantis.</p>
+                            </div>
+
+                            <div class="timeline-day-card">
+                                <h5>DIA 6: O PRIMEIRO STORY COM LACUNA</h5>
+                                <p>Poste uma foto estética de um prato ou vista sem marcar o local. Aguarde as primeiras mensagens curiosas na DM.</p>
+                            </div>
+
+                            <div class="timeline-day-card">
+                                <h5>DIA 7: EQUILÍBRIO DA PROPORÇÃO SOCIAL</h5>
+                                <p>Faça uma limpeza de quem você segue: pare de seguir dezenas de blogueiras desconhecidas e equilibre sua lista para projetar desapego.</p>
+                            </div>
+                        </div>
+                    `
+                },
+                {
+                    type: "chapter",
+                    number: "FIM",
+                    navTitle: "Conclusão",
+                    title: "Conclusão: O Posicionamento do Homem Raro",
+                    readTime: "2 min",
+                    content: `
+                        <p class="reader-dropcap">
+                            Um perfil magnético não faz mágica sozinho: ele é o espelho de um homem que cultiva a si mesmo. Quando você cuida do seu corpo, da sua mente, das suas amizades e da sua trajetória profissional, as boas fotos tornam-se apenas uma consequência natural da sua vida.
+                        </p>
                         <p>
-                            Poste a foto de um prato incrível, de um drink exótico ou de uma sobremesa única, <strong>SEM marcar o nome do restaurante</strong>. A curiosidade feminina não resiste: ela vai abrir a DM para perguntar: <em>"Nossa, onde é isso?"</em>. Você acabou de receber a primeira mensagem sem precisar fazer nenhum esforço.
+                            Você agora tem nas mãos a chave para se destacar dos 99% dos homens que continuam enviando mensagens genéricas de 'oi sumida' para perfis que nunca os responderão.
                         </p>
-
-                        <h4>O Story da Pergunta Polarizadora</h4>
-                        <p>
-                            Uma caixinha de perguntas ou enquete com duas escolhas inusitadas (ex: <em>"Vinho seco em taça ou cerveja artesanal trincando?"</em>). Isso convida para um debate descontraído que migra naturalmente para o privado.
-                        </p>
-
                         <div class="reader-callout green">
-                            <strong><i class="fa-solid fa-check"></i> Checklist Final do Perfil:</strong>
-                            Feed enxuto (9 a 12 fotos impecáveis), Bio com tríade equilibrada, Destaques organizados (Viagens, Lifestyle, Trabalho) e Stories com ganchos abertos.
+                            <strong><i class="fa-solid fa-crown"></i> O Código da Ordem:</strong>
+                            Seja o prêmio. Dite o ritmo. Sustente o silêncio e conduza a mulher até o mundo real. O jogo começa na tela, mas só vale a pena quando se concretiza a dois.
                         </div>
                     `
                 }
@@ -1616,75 +1920,336 @@ document.addEventListener('DOMContentLoaded', () => {
         'mente-feminina': {
             isEbook: true,
             title: "A Mente Feminina Decodificada",
-            subtitle: "Como Funcionam as Mulheres, Testes & Desejo",
-            readTime: "15 min de leitura",
-            pdfFile: "A-Mente-Feminina-Decodificada.pdf",
-            chapters: [
+            subtitle: "O Manual Definitivo de Psicologia Evolutiva, Testes Inconscientes & Desejo Biológico",
+            author: "Conselho Estratégico · Ordem Oculta",
+            edition: "Edição Definitiva 2026 · 58 Páginas",
+            readTime: "40 min de leitura",
+            pdfFile: "A-Mente-Feminina-Decodificada-Edicao-Oficial.pdf",
+            sections: [
                 {
-                    title: "Capítulo 1: O Teste Inconsciente de Incongruência",
-                    content: `
-                        <div class="reader-callout red">
-                            <strong><i class="fa-solid fa-brain"></i> Princípio Fundamental:</strong>
-                            Mulheres bonitas testam os homens não por maldade, mas por puro filtro biológico de sobrevivência e seleção.
+                    type: "cover",
+                    navTitle: "Capa do Livro",
+                    title: "A Mente Feminina Decodificada",
+                    html: `
+                        <div class="book-cover-view">
+                            <span class="book-cover-badge" style="background: rgba(139, 92, 246, 0.15); border-color: rgba(139, 92, 246, 0.4); color: #c4b5fd;">
+                                <i class="fa-solid fa-brain"></i> ORDEM OCULTA · MANUAL PSICOLÓGICO
+                            </span>
+                            <div class="book-cover-crest" style="border-color: #a78bfa; color: #a78bfa; background: linear-gradient(135deg, rgba(139, 92, 246, 0.25) 0%, rgba(239, 68, 68, 0.25) 100%);">
+                                <i class="fa-solid fa-puzzle-piece"></i>
+                            </div>
+                            <h2 class="book-cover-title">A Mente Feminina<br><span class="gradient" style="background: linear-gradient(135deg, #a78bfa 0%, #f43f5e 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Decodificada</span></h2>
+                            <p class="book-cover-subtitle">Como Funcionam as Mulheres, a Ciência dos Testes Inconscientes, a Destruição da Friendzone e os Gatilhos Evolutivos de Desejo Real.</p>
+                            
+                            <div class="book-meta-strip">
+                                <span><i class="fa-solid fa-book-open" style="color: #a78bfa;"></i> <strong>58 Páginas</strong></span>
+                                <span><i class="fa-solid fa-clock" style="color: #a78bfa;"></i> <strong>40 min</strong> de leitura</span>
+                                <span><i class="fa-solid fa-certificate" style="color: var(--accent-green);"></i> <strong>Edição 2026</strong></span>
+                            </div>
+
+                            <button class="btn-start-reading-book" id="btnCoverStartRead" style="background: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%); box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);">
+                                <span>ABRIR LIVRO & VER SUMÁRIO</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
                         </div>
-                        <p>
-                            Quando uma mulher solta uma frase como <em>"Nossa, você fala isso pra todas"</em> ou <em>"Acho que você é meio enrolador"</em>, ela não quer saber se a afirmação é verdadeira. Ela está testando a sua <strong>estabilidade emocional</strong>.
-                        </p>
-                        <p>
-                            O homem inseguro entra em parafuso: ele começa a se justificar, pedir desculpas ou tentar provar que é um 'bom partido'. No instante em que ele se justifica, ele perde todo o respeito e o encanto dela.
-                        </p>
-                        <h4>Como Neutralizar o Teste:</h4>
-                        <ul class="reader-checklist">
-                            <li><i class="fa-solid fa-shield"></i> <strong>Não reaja defensivamente:</strong> Não mostre irritação nem necessidade de provar nada.</li>
-                            <li><i class="fa-solid fa-smile"></i> <strong>Concorde e Amplifique com Humor:</strong> "Pior que eu falo mesmo, mas só pras que têm cara de encrenca igual a você kkk".</li>
-                            <li><i class="fa-solid fa-bolt"></i> <strong>Sustente o silêncio:</strong> Se ela tentar desconcertar, um olhar sereno e um meio sorriso dizem mais que 10 parágrafos.</li>
-                        </ul>
                     `
                 },
                 {
-                    title: "Capítulo 2: A Armadilha do Cara Bonzinho (Friendzone)",
+                    type: "toc",
+                    navTitle: "Sumário Geral",
+                    title: "Sumário Executivo do Livro",
+                    html: `
+                        <div class="book-toc-view">
+                            <div class="toc-header-row">
+                                <span class="toc-header-title"><i class="fa-solid fa-list-ol"></i> ÍNDICE DE CAPÍTULOS & PROTOCOLOS</span>
+                                <span class="toc-time-badge" style="color: #c4b5fd; border-color: rgba(139,92,246,0.3); background: rgba(139,92,246,0.1);"><i class="fa-solid fa-clock"></i> 40 min total</span>
+                            </div>
+                            <div class="book-toc-list" id="bookTocList">
+                                <!-- Preenchido dinamicamente com os capítulos -->
+                            </div>
+                        </div>
+                    `
+                },
+                {
+                    type: "chapter",
+                    number: "INTRO",
+                    navTitle: "Introdução",
+                    title: "Introdução: O Algoritmo Oculto da Atração Feminina",
+                    readTime: "4 min",
                     content: `
+                        <p class="reader-dropcap">
+                            O maior erro que um homem comete ao tentar conquistar uma mulher é abordá-la através da <strong>lógica racional</strong>. O homem médio pensa: <em>"Se eu for super educado, elogiar ela o tempo todo, pagar tudo, responder em 2 segundos e nunca discordar, ela vai ver que eu sou um homem incrível e vai se apaixonar por mim."</em>
+                        </p>
+                        <p>
+                            Essa lógica funciona para assinar um contrato de sociedade comercial, mas é um suicídio na dinâmica de atração. A atração feminina não é uma escolha racional: é uma <strong>resposta biológica involuntária</strong> que obedece a milhões de anos de evolução da espécie.
+                        </p>
                         <div class="reader-callout purple">
-                            <strong><i class="fa-solid fa-skull"></i> O Veneno da Atração:</strong>
-                            Validação gratuita entregue a quem ainda não investiu nada em você destrói qualquer possibilidade de desejo romântico.
+                            <strong><i class="fa-solid fa-dna"></i> O Paradoxo da Atração:</strong>
+                            Mulheres não se sentem atraídas por quem precisa agradá-las o tempo todo. Elas se sentem atraídas por homens que têm limites firmes, que sustentam tensão emocional e que não temem a desaprovação delas.
                         </div>
                         <p>
-                            O homem que elogia a beleza dela a cada mensagem, responde em 2 segundos e se coloca como ombro amigo para ouvir desabafos de outros caras está assinando o próprio atestado de friendzone.
-                        </p>
-                        <p>
-                            Mulheres não se apaixonam por quem é previsível e subserviente. A mente feminina responde ao <strong>desafio, à qualificação mútua e à tensão sexual</strong>.
-                        </p>
-                        <h4>A Diferença entre Cavalheiro e Submisso:</h4>
-                        <p>
-                            O cavalheiro abre a porta do carro e puxa a cadeira por respeito próprio. O submisso muda de opinião para agradar e tolera vácuos com sorrisos amarelos. Nunca abra mão das suas opiniões para evitar conflitos na conversa.
+                            Neste manual, você entenderá exatamente o que acontece dentro do cérebro feminino durante uma paquera, como desarmar testes sem perder a calma, por que a friendzone acontece e como virar o tabuleiro ao seu favor.
                         </p>
                     `
                 },
                 {
-                    title: "Capítulo 3: Tensão Emocional & Validação Intermitente",
+                    type: "chapter",
+                    number: "CAP 01",
+                    navTitle: "Cap. 1: Testes Inconscientes",
+                    title: "Capítulo 1: A Ciência dos Testes Inconscientes (Shit Tests)",
+                    readTime: "7 min",
                     content: `
                         <p>
-                            O cérebro humano é programado para valorizar aquilo que é escasso e imprevisível. Se você dá 100% de atenção o tempo todo, seu valor percebido cai a zero.
+                            Toda mulher atraente testa os homens de forma inconsciente diariamente. Isso não é maldade, maquiavelismo ou falsidade: é um <strong>filtro de segurança evolutivo</strong>. Historicamente, uma mulher assumia um risco imenso ao se relacionar com um homem fraco, covarde ou mentiroso. O teste serve para descobrir quem você é sob pressão.
                         </p>
 
-                        <h4>O Ciclo da Validação Intermitente:</h4>
+                        <h4>Os 3 Tipos de Testes Mais Comuns:</h4>
+
+                        <h4>1. O Teste de Incongruência (Você é falso?)</h4>
                         <p>
-                            1. <strong>Calor:</strong> Quando ela engrena um assunto e demonstra interesse genuíno, você retribui com conversa de alto nível, humor e inteligência.<br>
-                            2. <strong>Frieza / Desapego:</strong> Se ela começar a mandar respostas monossilábicas ou demorar de propósito, você não cobra: você recua o dobro e volta o foco para a sua vida.<br>
-                            3. <strong>O Efeito Rebote:</strong> Quando ela nota que a sua vida não gira em torno dela, a mente dela dispara o alarme de perda, forçando-a a investir de novo.
+                            Ela solta uma alfinetada: <em>"Nossa, você fala isso pra todas, né?"</em> ou <em>"Acho que você é bem convencido."</em><br>
+                            <strong>A reação do homem fraco:</strong> Começa a se explicar: <em>"Não, juro pra você! Eu quase nunca falo com ninguém aqui, sou super tranquilo..."</em> (Reprovado. Mostrou carência de aprovação).<br>
+                            <strong>A resposta do homem magnético:</strong> Sorri e amplifica: <em>"Pior que falo mesmo, mas só pras que têm cara de encrenca igual a você kkk."</em> (Aprovado. Desarmou o teste com humor e leveza).
+                        </p>
+
+                        <h4>2. O Teste de Submissão (Você tem limites?)</h4>
+                        <p>
+                            Ela faz um pedido abusivo ou muda de planos em cima da hora: <em>"Ah, não vai dar pra ir naquele horário, me busca às 23h na casa da minha amiga?"</em><br>
+                            <strong>A reação do homem fraco:</strong> <em>"Claro, tudo bem, espero você o quanto precisar!"</em> (Reprovado. Tornou-se um capacho).<br>
+                            <strong>A resposta do homem magnético:</strong> <em>"Tranquilo, fica pra uma próxima então. Vou manter meu horário por aqui. Bom rolê pra vocês!"</em> (Aprovado com louvor. O desapego gera choque imediato na mente dela).
+                        </p>
+
+                        <h4>3. O Teste de Ciúme / Triangulação</h4>
+                        <p>
+                            Ela menciona outro homem: <em>"Um cara lá do trabalho ficou me chamando pra jantar hoje..."</em><br>
+                            <strong>A reação do homem fraco:</strong> Fecha a cara, fica emburrado ou pergunta: <em>"E você vai? Quem é esse cara?"</em> (Reprovado. Revelou ciúme e sensação de inferioridade).<br>
+                            <strong>A resposta do homem magnético:</strong> Trata com deboche amigável: <em>"Aproveita e pede a sobremesa mais cara da casa na conta dele kkk."</em> (Aprovado. Mostra que o valor dele não depende da atenção dela).
                         </p>
                     `
                 },
                 {
-                    title: "Capítulo 4: As 5 Leis Biológicas do Desejo Feminino",
+                    type: "chapter",
+                    number: "CAP 02",
+                    navTitle: "Cap. 2: Anatomia da Friendzone",
+                    title: "Capítulo 2: A Anatomia da Friendzone e o Mito do 'Cara Legal'",
+                    readTime: "6 min",
+                    content: `
+                        <p class="reader-dropcap">
+                            A Friendzone não é um acidente do destino: é uma construção sistemática feita pelo próprio homem. Você entra na friendzone quando entrega <strong>100% de validação, conforto e ouvido amigo</strong> com <strong>0% de polaridade sexual e mistério</strong>.
+                        </p>
+
+                        <h4>Como Você Vira o 'Irmão Mais Velho':</h4>
+                        <ul class="reader-checklist">
+                            <li><i class="fa-solid fa-xmark" style="color: #f87171;"></i> Você ouve os desabafos dela sobre os homens tóxicos que ela fica, achando que ela vai perceber o quanto você é melhor.</li>
+                            <li><i class="fa-solid fa-xmark" style="color: #f87171;"></i> Você responde as mensagens dela instantaneamente e fica disponível 24 horas por dia.</li>
+                            <li><i class="fa-solid fa-xmark" style="color: #f87171;"></i> Você nunca discorda das opiniões dela para não gerar desconforto.</li>
+                            <li><i class="fa-solid fa-xmark" style="color: #f87171;"></i> Você nunca toca nela, nunca quebra a barreira do espaço pessoal e nunca sustenta um olhar de desejo.</li>
+                        </ul>
+
+                        <h4>O Protocolo de Resgate: Como Sair da Friendzone:</h4>
+                        <p>
+                            1. <strong>Corte Imediato do Papel de Terapeuta:</strong> Se ela começar a falar de outro homem, corte com sarcasmo: <em>"Acho ótimo esse desabafo, mas minha consulta como terapeuta custa R$ 300 a hora. Muda de assunto kkk."</em><br>
+                            2. <strong>Recuo Tático de Disponibilidade:</strong> Pare de responder de imediato. Demore para responder e tenha planos interessantes nos fins de semana.<br>
+                            3. <strong>Polarização com Elogios Ousados:</strong> Pare de chamá-la de 'fofa' ou 'linda'. Trate-a como uma mulher desejável ou qualifique o comportamento dela de forma provocante: <em>"Você fica perigosa quando coloca esse vestido, hein."</em>
+                        </p>
+                    `
+                },
+                {
+                    type: "chapter",
+                    number: "CAP 03",
+                    navTitle: "Cap. 3: Validação Intermitente",
+                    title: "Capítulo 3: Validação Intermitente & O Ciclo da Obsessão",
+                    readTime: "7 min",
+                    content: `
+                        <p>
+                            Na psicologia comportamental, existe um fenômeno conhecido como <strong>Reforço Intermitente</strong> (o mesmo mecanismo neurológico que faz as pessoas viciarem em máquinas caça-níqueis e apostas).
+                        </p>
+                        <p>
+                            Se uma máquina sempre der o prêmio quando você puxa a alavanca, você se cansa rapidamente. Se a máquina nunca der o prêmio, você vai embora. Mas se a máquina der o prêmio <em>de vez em quando, de forma imprevisível</em>, o cérebro humano libera descargas massivas de <strong>dopamina</strong> e se torna obsessivo.
+                        </p>
+
+                        <h4>Aplicando o Reforço Intermitente na Conversa:</h4>
+                        <p>
+                            • <strong>Calor (Quando ela merece):</strong> Se ela investiu na conversa, mandou áudio longo e perguntou sobre a sua vida, retribua com inteligência, entusiasmo e humor afiado.<br>
+                            • <strong>Frieza / Desapego (Quando ela recua):</strong> Se ela respondeu seco, monossilábico ou sumiu por 6 horas, você NÃO cobra, não pergunta se ela está brava e NÃO manda ponto de interrogação. Você se afasta e responde apenas quando for conveniente, com a mesma energia enxuta.<br>
+                            • <strong>O Desfecho:</strong> Ela perceberá que não tem o controle remoto da sua atenção. Isso faz com que ela pense em você o dia todo, tentando entender por que você não age como os outros homens previsíveis.
+                        </p>
+                    `
+                },
+                {
+                    type: "chapter",
+                    number: "CAP 04",
+                    navTitle: "Cap. 4: As 7 Leis do Desejo",
+                    title: "Capítulo 4: As 7 Leis Inegociáveis do Desejo Biológico Feminino",
+                    readTime: "8 min",
                     content: `
                         <ul class="reader-checklist">
-                            <li><i class="fa-solid fa-check-circle"></i> <strong>Lei 1: O desejo feminino é auditivo e contextual.</strong> A cadência da sua voz, as pausas e a segurança das suas palavras pesam muito mais do que a sua aparência estática.</li>
-                            <li><i class="fa-solid fa-check-circle"></i> <strong>Lei 2: Ela anseia por liderança assertiva.</strong> Não pergunte 'o que você gostaria de fazer?'. Diga: 'Quinta às 20h vou te levar num lugar excelente. Passo pra te pegar ou vamos direto?'.</li>
-                            <li><i class="fa-solid fa-check-circle"></i> <strong>Lei 3: A capacidade de dizer NÃO sem medo é o maior afrodisíaco.</strong> Homens que têm limites claros geram fascínio imediato.</li>
-                            <li><i class="fa-solid fa-check-circle"></i> <strong>Lei 4: Conforto sem tensão gera amizade; Tensão sem conforto gera receio.</strong> O segredo da sedução de alto nível é alternar momentos de conexão profunda com quebras de padrão audaciosas.</li>
-                            <li><i class="fa-solid fa-check-circle"></i> <strong>Lei 5: A mulher se apaixona pela expectativa.</strong> Deixe sempre uma ponta solta para a próxima conversa. Nunca entregue todo o roteiro de uma vez só.</li>
+                            <li>
+                                <i class="fa-solid fa-crown"></i>
+                                <div>
+                                    <strong>LEI 1: A Mulher Deseja a Liderança Assertiva.</strong>
+                                    Nunca pergunte: <em>"O que você gostaria de fazer hoje?"</em>. Diga: <em>"Quinta às 20h vou te levar num lugar excelente. Passo pra te pegar ou você prefere ir direto?"</em>. A firmeza de decisão feminina descansa na liderança masculina.
+                                </div>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-crown"></i>
+                                <div>
+                                    <strong>LEI 2: O Desejo Feminino é Auditivo e Contextual.</strong>
+                                    Fale em tom mais grave, respirando pelo diafragma. Fale devagar, sem afobação, e use o poder do silêncio de 2 segundos antes de responder a uma pergunta provocativa.
+                                </div>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-crown"></i>
+                                <div>
+                                    <strong>LEI 3: A Capacidade de Dizer 'NÃO' é o Maior Afrodisíaco.</strong>
+                                    Homens que concordam com tudo são esquecidos. Quando você discorda dela com elegância e sustenta seu ponto, ela se sente protegida por um homem que sabe se impor no mundo real.
+                                </div>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-crown"></i>
+                                <div>
+                                    <strong>LEI 4: O Efeito Contraste (Conforto + Tensão).</strong>
+                                    Conforto demais gera tédio e amizade. Tensão sexual demais sem conexão gera medo e desconfiança. Alterne momentos de conversa profunda sobre sonhos e valores com provocações audaciosas.
+                                </div>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-crown"></i>
+                                <div>
+                                    <strong>LEI 5: A Mulher se Apaixona pela Expectativa.</strong>
+                                    Nunca conte toda a história da sua vida no primeiro encontro. Deixe lacunas em aberto. A imaginação feminina faz o trabalho de atração por você quando ela estiver sozinha no quarto dela.
+                                </div>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-crown"></i>
+                                <div>
+                                    <strong>LEI 6: A Pré-Seleção Supera a Beleza Física.</strong>
+                                    Quando ela percebe que outras pessoas te respeitam e que você é admirado no seu meio social, o valor dela sobre você multiplica instantaneamente.
+                                </div>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-crown"></i>
+                                <div>
+                                    <strong>LEI 7: Quem Menos Precisa da Interação Controla a Interação.</strong>
+                                    O homem que está pronto para levantar e ir embora com um sorriso sereno tem poder absoluto em qualquer negociação romântica.
+                                </div>
+                            </li>
                         </ul>
+                    `
+                },
+                {
+                    type: "chapter",
+                    number: "CAP 05",
+                    navTitle: "Cap. 5: Guia de Campo",
+                    title: "Capítulo 5: O Guia de Campo: Decodificando Sinais no WhatsApp e ao Vivo",
+                    readTime: "6 min",
+                    content: `
+                        <p class="reader-dropcap">
+                            As mulheres comunicam 90% das intenções delas através de subcomunicação e pistas indiretas. Aprenda a ler os sinais reais:
+                        </p>
+
+                        <h4>No WhatsApp / Instagram:</h4>
+                        <div class="comparative-grid">
+                            <div class="comp-col bad">
+                                <h6><i class="fa-solid fa-triangle-exclamation"></i> Sinais de Baixo Investimento</h6>
+                                <p>• Respostas curtas sem perguntas de volta.<br>• Demora para responder sem justificar.<br>• Manda apenas 'kkk' ou curtida na mensagem.<br><em>Ação: Recue imediatamente. Pare de insistir.</em></p>
+                            </div>
+                            <div class="comp-col good">
+                                <h6><i class="fa-solid fa-fire"></i> Sinais de Alto Investimento</h6>
+                                <p>• Mensagens em múltiplos balões seguidos.<br>• Manda áudios de mais de 1 minuto.<br>• Faz perguntas sobre você e comenta seus stories.<br><em>Ação: Dite o ritmo e avance para o convite.</em></p>
+                            </div>
+                        </div>
+
+                        <h4>No Encontro Presencial:</h4>
+                        <p>
+                            • <strong>Sinal Verde de Toque:</strong> Ela mexe no cabelo olhando para você, ajeita a roupa ou toca levemente no seu braço ao dar risada. (Sinal claro para quebrar a barreira do toque).<br>
+                            • <strong>Sinal Verde de Proximidade:</strong> Ela inclina o corpo na sua direção na mesa ou espelha sua postura de pernas cruzadas.<br>
+                            • <strong>O Teste do Triângulo do Olhar:</strong> Olhe nos olhos dela, desça o olhar para a boca dela por 1 segundo e retorne aos olhos. Se ela umedecer os lábios ou sustentar o olhar, o beijo está 100% autorizado.
+                        </p>
+                    `
+                },
+                {
+                    type: "chapter",
+                    number: "CAP 06",
+                    navTitle: "Cap. 6: Condução ao Fechamento",
+                    title: "Capítulo 6: A Condução Magnética até o Fechamento",
+                    readTime: "5 min",
+                    content: `
+                        <p>
+                            O fechamento não acontece quando você pede em namoro ou tenta beijar de surpresa no final da noite. O fechamento é construído passo a passo através da <strong>Escalada Física Gradual</strong>:
+                        </p>
+
+                        <h4>Os 4 Estágios da Escalada Física:</h4>
+                        <p>
+                            1. <strong>Toque Social / Casual:</strong> Um cumprimento confiante com abraço firme e perfume marcante, ou um toque rápido no ombro ao conduzi-la para a mesa.<br>
+                            2. <strong>Toque de Conexão:</strong> Comparar o tamanho das mãos em uma brincadeira, ou tocar no pulso para ver um relógio/pulseira que ela está usando.<br>
+                            3. <strong>Quebra de Proximidade:</strong> Aproximar-se para falar algo no ouvido por conta do barulho do ambiente. A proximidade da sua respiração gera arrepio imediato.<br>
+                            4. <strong>O Beijo Natural:</strong> Sustente o silêncio, reduza a velocidade da conversa e incline-se suavemente. Sem afobação, sem pedir 'posso te dar um beijo?'. O homem lidera.
+                        </p>
+                    `
+                },
+                {
+                    type: "chapter",
+                    number: "PLANO",
+                    navTitle: "Plano de Ação 7 Dias",
+                    title: "Plano Prático de 7 Dias: Reprogramação Comportamental",
+                    readTime: "4 min",
+                    content: `
+                        <p>
+                            Exercícios diários inegociáveis para transformar sua postura nos próximos 7 dias:
+                        </p>
+
+                        <div class="seven-days-timeline">
+                            <div class="timeline-day-card">
+                                <h5>DIA 1: JEJUM DE VALIDAÇÃO GRATUITA</h5>
+                                <p>Pare de curtir fotos de biquíni e de mandar emojis de foguinho para mulheres na internet. Guarde sua validação para quem investir em você.</p>
+                            </div>
+
+                            <div class="timeline-day-card">
+                                <h5>DIA 2: CALIBRAGEM DO RITMO DE RESPOSTA</h5>
+                                <p>Se ela demorar 2 horas para responder, você não responderá em 10 segundos. Ocupe-se com a sua vida e responda com calma.</p>
+                            </div>
+
+                            <div class="timeline-day-card">
+                                <h5>DIA 3: SUSTENTAR O CONTATO VISUAL</h5>
+                                <p>Pratique sustentar o olhar por 3 segundos com as pessoas do seu dia a dia (garçom, atendente, colegas) sem desviar os olhos para o chão.</p>
+                            </div>
+
+                            <div class="timeline-day-card">
+                                <h5>DIA 4: O TESTE DO 'NÃO'</h5>
+                                <p>Diga 'não' com educação a um pedido que você não queira fazer. Sinta o poder de estabelecer seus limites sem pedir desculpas.</p>
+                            </div>
+
+                            <div class="timeline-day-card">
+                                <h5>DIA 5: O EXERCÍCIO DA LIDERANÇA</h5>
+                                <p>Faça um convite sem perguntar o que ela quer fazer. Dite o local, a data e o horário com assertividade.</p>
+                            </div>
+
+                            <div class="timeline-day-card">
+                                <h5>DIA 6: NEUTRALIZAÇÃO DE UM TESTE</h5>
+                                <p>Quando receber uma alfinetada ou comentário irônico, sorria e use a técnica do 'Concorde e Amplifique com Humor'.</p>
+                            </div>
+
+                            <div class="timeline-day-card">
+                                <h5>DIA 7: O DESAPEGO PLENO</h5>
+                                <p>Lembre-se: sua felicidade e seu valor nunca dependem do resultado com nenhuma mulher. Você é a causa, não o efeito.</p>
+                            </div>
+                        </div>
+                    `
+                },
+                {
+                    type: "chapter",
+                    number: "FIM",
+                    navTitle: "Conclusão",
+                    title: "Conclusão: O Código do Homem Inabalável",
+                    readTime: "2 min",
+                    content: `
+                        <p class="reader-dropcap">
+                            Entender a mente feminina não serve para manipular ou enganar ninguém. Serve para você se tornar um homem autêntico, maduro, forte e emocionalmente inabalável — o tipo exato de homem que uma mulher de alto valor respeita, deseja e deseja manter ao lado dela para a vida toda.
+                        </p>
+                        <div class="reader-callout" style="border-left-color: #a78bfa; background: rgba(139, 92, 246, 0.08); color: #ede9fe;">
+                            <strong><i class="fa-solid fa-shield-halved"></i> O Lema dos Adeptos:</strong>
+                            Nunca implore. Nunca persiga. Construa um jardim tão magnético que as borboletas virão por vontade própria. E se não vierem, você ainda terá o jardim mais belo da cidade.
+                        </div>
                     `
                 }
             ]
@@ -1759,21 +2324,188 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Helper para Download/Geração de PDF do E-book
-    window.downloadSamplePdf = function(title) {
-        triggerHaptic(25);
-        showToast(`Preparando arquivo de "${title}"...`);
-        const content = `========================================================\nORDEM OCULTA | PROTOCOLO OFICIAL\n${title.toUpperCase()}\n========================================================\n\nEste documento contém o manual tático completo liberado para a sua conta.\nPara leitura formatada otimizada, utilize também o leitor integrado direto no aplicativo.`;
-        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    // Helper Global para Download / Impressão do Livro Completo Formatado em PDF
+    window.downloadFullBookPdf = function(modId) {
+        triggerHaptic(30);
+        const book = moduleContentDatabase[modId];
+        if (!book) return;
+
+        showToast(`Gerando arquivo completo de "${book.title}"...`);
+
+        // Constrói o HTML completo com formatação editorial de livro para impressão ou download
+        let fullBookHtml = `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>${book.title} - Edição Oficial Ordem Oculta</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap');
+        body {
+            font-family: 'Lora', Georgia, serif;
+            color: #1a1a1a;
+            line-height: 1.8;
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 40px 24px;
+            background: #ffffff;
+        }
+        h1, h2, h3, h4, h5 {
+            font-family: 'Cinzel', serif;
+            color: #0d0d11;
+            margin-top: 1.6em;
+            margin-bottom: 0.6em;
+        }
+        .cover-page {
+            text-align: center;
+            padding: 80px 20px 100px;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 50px;
+            page-break-after: always;
+        }
+        .cover-badge {
+            font-family: 'Cinzel', serif;
+            font-size: 13px;
+            letter-spacing: 2px;
+            color: #d97706;
+            font-weight: 800;
+        }
+        .cover-title {
+            font-size: 38px;
+            font-weight: 900;
+            margin: 20px 0 10px;
+            line-height: 1.2;
+        }
+        .cover-subtitle {
+            font-size: 16px;
+            color: #4b5563;
+            max-width: 540px;
+            margin: 0 auto 30px;
+            font-style: italic;
+        }
+        .cover-meta {
+            font-size: 13px;
+            color: #6b7280;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .chapter-box {
+            margin-bottom: 50px;
+            page-break-inside: avoid;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 40px;
+        }
+        .chapter-number {
+            font-family: 'Cinzel', serif;
+            color: #b45309;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+        .chapter-title {
+            font-size: 24px;
+            margin-top: 4px;
+        }
+        .reader-callout {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 14px 18px;
+            margin: 20px 0;
+            font-size: 15px;
+            border-radius: 4px;
+        }
+        .reader-callout.purple {
+            background: #f5f3ff;
+            border-left-color: #8b5cf6;
+        }
+        .reader-callout.green {
+            background: #f0fdf4;
+            border-left-color: #10b981;
+        }
+        .comparative-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 20px 0;
+        }
+        .comp-col {
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .comp-col.bad { background: #fef2f2; border: 1px solid #fca5a5; }
+        .comp-col.good { background: #f0fdf4; border: 1px solid #86efac; }
+        .tactical-script-card {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            padding: 14px 18px;
+            border-radius: 6px;
+            margin: 16px 0;
+        }
+        .script-label { font-size: 11px; font-weight: bold; color: #b45309; }
+        .script-text { font-family: monospace; font-size: 14px; margin-top: 6px; }
+        .timeline-day-card {
+            background: #f8fafc;
+            border-left: 3px solid #f59e0b;
+            padding: 10px 14px;
+            margin-bottom: 10px;
+        }
+        @media print {
+            body { padding: 0; }
+            .chapter-box { page-break-after: always; }
+        }
+    </style>
+</head>
+<body>
+    <div class="cover-page">
+        <div class="cover-badge">ORDEM OCULTA · PROTOCOLO DE ELITE</div>
+        <h1 class="cover-title">${book.title}</h1>
+        <div class="cover-subtitle">${book.subtitle}</div>
+        <div class="cover-meta">
+            ${book.author} · ${book.edition}<br>
+            Material oficial exclusivo para uso pessoal. Proibida a reprodução.
+        </div>
+    </div>
+        `;
+
+        book.sections.forEach(sec => {
+            if (sec.type === 'cover' || sec.type === 'toc') return;
+            fullBookHtml += `
+    <div class="chapter-box">
+        <div class="chapter-number">${sec.number || 'CAPÍTULO'}</div>
+        <h2 class="chapter-title">${sec.title}</h2>
+        ${sec.content}
+    </div>
+            `;
+        });
+
+        fullBookHtml += `
+</body>
+</html>
+        `;
+
+        // Abre em janela de impressão para salvar direto como PDF ou baixa o arquivo HTML formatado
+        const blob = new Blob([fullBookHtml], { type: 'text/html;charset=utf-8' });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${title.replace(/\s+/g, '-').toLowerCase()}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        showToast('Download concluído!');
+        const win = window.open(url, '_blank');
+        if (win) {
+            win.onload = () => {
+                setTimeout(() => {
+                    win.print();
+                }, 500);
+            };
+        } else {
+            // Fallback download direto
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${book.pdfFile.replace('.pdf', '')}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+        showToast('Livro preparado com sucesso!');
     };
 
     function setupArsenalAndModals() {
@@ -1884,114 +2616,183 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Abertura do Modal de Leitura / Curso
     function openModuleModal(modId) {
         const data = moduleContentDatabase[modId];
         if (!data) return;
 
         elements.modalTitle.textContent = data.title;
 
-        // Se for um E-book com capítulos, renderiza o Leitor Completo dentro do App
+        // SE FOR UM E-BOOK COM FORMATO DE LIVRO PREMIUM COMPLETO
         if (data.isEbook) {
             elements.modalBody.innerHTML = `
                 <div class="reader-container">
-                    <div class="reader-header-meta">
-                        <span class="reader-format-tag"><i class="fa-solid fa-book-open"></i> E-BOOK INTERATIVO NO APP</span>
-                        <span class="reader-reading-time"><i class="fa-regular fa-clock"></i> ${data.readTime}</span>
+                    <!-- Barra de Controle Superior do Livro -->
+                    <div class="reader-controls-bar">
+                        <button class="btn-toc-toggle" id="btnToggleToc">
+                            <i class="fa-solid fa-list-ul"></i>
+                            <span>Sumário & Capa</span>
+                        </button>
+                        <div class="reader-progress-info" id="readerProgressInfo">
+                            <span><i class="fa-solid fa-bookmark" style="color: var(--accent-gold);"></i> <strong id="progressSectionName">Capa</strong></span>
+                        </div>
                     </div>
 
-                    <div class="reader-chapter-nav" id="readerChapterNav">
-                        ${data.chapters.map((chap, i) => `
-                            <button class="reader-tab-btn ${i === 0 ? 'active' : ''}" data-chap="${i}">
-                                <i class="fa-solid fa-bookmark"></i> Cap. ${i + 1}
-                            </button>
-                        `).join('')}
+                    <!-- Barra de Progresso Visual de Leitura -->
+                    <div class="reader-progress-track">
+                        <div class="reader-progress-fill" id="readerProgressBar"></div>
                     </div>
 
+                    <!-- Caixa de Conteúdo Principal (Capa, Sumário ou Capítulo Atual) -->
                     <div class="reader-content-box" id="readerContentBox"></div>
 
+                    <!-- Ações de Navegação do Rodapé -->
                     <div class="reader-footer-actions">
                         <div class="reader-step-row">
                             <button class="btn-reader-nav" id="btnReaderPrev">
                                 <i class="fa-solid fa-chevron-left"></i> Anterior
                             </button>
+                            <button class="btn-reader-nav" id="btnReaderToc">
+                                <i class="fa-solid fa-list-ol"></i> Sumário
+                            </button>
                             <button class="btn-reader-nav" id="btnReaderNext">
                                 Próximo <i class="fa-solid fa-chevron-right"></i>
                             </button>
                         </div>
-                        <button class="btn-download-pdf-app" id="btnDownloadEbookPdf">
-                            <i class="fa-solid fa-file-arrow-down"></i>
-                            <span>BAIXAR CÓPIA EM PDF (${data.pdfFile})</span>
+                        <button class="btn-download-pdf-app" id="btnDownloadFullBook">
+                            <i class="fa-solid fa-file-pdf"></i>
+                            <span>BAIXAR LIVRO COMPLETO EM PDF (${data.pdfFile})</span>
                         </button>
                     </div>
                 </div>
             `;
 
-            // Configura a navegação entre capítulos no Leitor
-            const chapterBtns = elements.modalBody.querySelectorAll('.reader-tab-btn');
             const contentBox = elements.modalBody.querySelector('#readerContentBox');
-            const prevBtn = elements.modalBody.querySelector('#btnReaderPrev');
-            const nextBtn = elements.modalBody.querySelector('#btnReaderNext');
-            const downloadBtn = elements.modalBody.querySelector('#btnDownloadEbookPdf');
-            let currentChapIdx = 0;
+            const progressFill = elements.modalBody.querySelector('#readerProgressBar');
+            const progressSectionName = elements.modalBody.querySelector('#progressSectionName');
+            const btnPrev = elements.modalBody.querySelector('#btnReaderPrev');
+            const btnNext = elements.modalBody.querySelector('#btnReaderNext');
+            const btnToc = elements.modalBody.querySelector('#btnReaderToc');
+            const btnToggleToc = elements.modalBody.querySelector('#btnToggleToc');
+            const btnDownload = elements.modalBody.querySelector('#btnDownloadFullBook');
 
-            function renderChapter(idx) {
-                if (idx < 0 || idx >= data.chapters.length) return;
-                currentChapIdx = idx;
-                const chap = data.chapters[idx];
+            let currentSecIdx = 0; // 0 = Cover, 1 = TOC, 2+ = Chapters
 
-                chapterBtns.forEach((b, i) => {
-                    if (i === idx) b.classList.add('active');
-                    else b.classList.remove('active');
-                });
+            function renderSection(idx) {
+                if (idx < 0 || idx >= data.sections.length) return;
+                currentSecIdx = idx;
+                const sec = data.sections[idx];
 
-                contentBox.innerHTML = `
-                    <h3><i class="fa-solid fa-feather" style="color: var(--accent-gold); font-size: 14px;"></i> ${chap.title}</h3>
-                    ${chap.content}
-                `;
+                // Atualiza barra de progresso
+                const progressPct = Math.round((idx / (data.sections.length - 1)) * 100);
+                if (progressFill) progressFill.style.width = `${progressPct}%`;
+                if (progressSectionName) progressSectionName.textContent = `${sec.navTitle || sec.title} (${progressPct}%)`;
+
+                // Renderiza o conteúdo da seção
+                if (sec.type === 'cover') {
+                    contentBox.innerHTML = sec.html;
+                    const btnStart = contentBox.querySelector('#btnCoverStartRead');
+                    if (btnStart) {
+                        btnStart.addEventListener('click', () => {
+                            triggerHaptic(15);
+                            renderSection(1); // Vai para o Sumário
+                        });
+                    }
+                } else if (sec.type === 'toc') {
+                    contentBox.innerHTML = sec.html;
+                    const tocList = contentBox.querySelector('#bookTocList');
+                    if (tocList) {
+                        tocList.innerHTML = '';
+                        data.sections.forEach((s, i) => {
+                            if (s.type === 'cover') return;
+                            const item = document.createElement('div');
+                            item.className = 'book-toc-item';
+                            item.innerHTML = `
+                                <div class="toc-item-left">
+                                    <div class="toc-number">${s.number || (i === 1 ? '📑' : i)}</div>
+                                    <div class="toc-info">
+                                        <h5>${s.title}</h5>
+                                        <p>${s.navTitle} · Leitura recomendada</p>
+                                    </div>
+                                </div>
+                                <span class="toc-time-badge">${s.readTime || '3 min'}</span>
+                            `;
+                            item.addEventListener('click', () => {
+                                triggerHaptic(15);
+                                renderSection(i);
+                            });
+                            tocList.appendChild(item);
+                        });
+                    }
+                } else {
+                    // Capítulo de texto
+                    contentBox.innerHTML = `
+                        <div class="reader-chapter-title-box" style="margin-bottom: 16px;">
+                            <span class="book-cover-badge" style="margin-bottom: 6px;"><i class="fa-solid fa-feather"></i> ${sec.number || 'CAPÍTULO'} · ${sec.readTime || '5 min'}</span>
+                            <h3 style="font-size: 19px; line-height: 1.35; margin-bottom: 6px;">${sec.title}</h3>
+                        </div>
+                        ${sec.content}
+                    `;
+                }
+
+                // Scroll para o topo
                 contentBox.scrollTop = 0;
 
-                if (prevBtn) prevBtn.disabled = (idx === 0);
-                if (nextBtn) nextBtn.disabled = (idx === data.chapters.length - 1);
+                // Desabilita botões nos limites
+                if (btnPrev) btnPrev.disabled = (idx === 0);
+                if (btnNext) btnNext.disabled = (idx === data.sections.length - 1);
             }
 
-            chapterBtns.forEach((btn, idx) => {
-                btn.addEventListener('click', () => {
+            if (btnPrev) {
+                btnPrev.addEventListener('click', () => {
                     triggerHaptic(10);
-                    renderChapter(idx);
+                    renderSection(currentSecIdx - 1);
                 });
-            });
+            }
 
-            if (prevBtn) {
-                prevBtn.addEventListener('click', () => {
+            if (btnNext) {
+                btnNext.addEventListener('click', () => {
                     triggerHaptic(10);
-                    renderChapter(currentChapIdx - 1);
+                    renderSection(currentSecIdx + 1);
                 });
             }
 
-            if (nextBtn) {
-                nextBtn.addEventListener('click', () => {
+            if (btnToc) {
+                btnToc.addEventListener('click', () => {
                     triggerHaptic(10);
-                    renderChapter(currentChapIdx + 1);
+                    renderSection(1); // Sumário
                 });
             }
 
-            if (downloadBtn) {
-                downloadBtn.addEventListener('click', () => {
-                    triggerHaptic(20);
-                    window.downloadSamplePdf(data.title);
+            if (btnToggleToc) {
+                btnToggleToc.addEventListener('click', () => {
+                    triggerHaptic(10);
+                    renderSection(1); // Sumário
                 });
             }
 
-            // Exibe o primeiro capítulo
-            renderChapter(0);
+            if (btnDownload) {
+                btnDownload.addEventListener('click', () => {
+                    window.downloadFullBookPdf(modId);
+                });
+            }
+
+            // Inicia na Capa do Livro (Seção 0)
+            renderSection(0);
 
         } else {
-            // Conteúdo padrão (Vídeo / Áudios / Conta)
+            // Conteúdo de Vídeo-Aulas (Kiwify)
             elements.modalBody.innerHTML = data.html;
         }
 
         elements.moduleModal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
+    }
+
+    function closeModuleModal() {
+        triggerHaptic(15);
+        elements.moduleModal.classList.add('hidden');
+        document.body.style.overflow = '';
     }
 
     function closeModuleModal() {
