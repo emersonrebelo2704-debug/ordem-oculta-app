@@ -1793,10 +1793,257 @@ html, body {
     pointer-events: none;
 }
 
-.mascot-coach {
-    background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(99, 102, 241, 0.15) 100%);
-    border: 1px solid rgba(168, 85, 247, 0.4);
+.mascot-desfibrilador {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.15) 100%);
+    border: 1px solid rgba(6, 182, 212, 0.4);
+    color: #22d3ee;
+}
+
+.badge-shock {
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    padding: 2px 7px;
+    border-radius: var(--radius-full);
+    background: rgba(6, 182, 212, 0.15);
+    border: 1px solid rgba(6, 182, 212, 0.4);
+    color: #67e8f9;
+}
+
+.btn-tool-action.btn-shock {
+    background: linear-gradient(135deg, #06b6d4 0%, #2563eb 100%);
+    color: #ffffff;
+    box-shadow: 0 2px 10px rgba(6, 182, 212, 0.4);
+}
+
+.view-tag-current.shock-neon {
+    color: #22d3ee;
+}
+
+/* O Desfibrilador Pane Styles */
+.desfibrilador-hero {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.desfibrilador-avatar-crest {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin: 0 auto 12px;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.15) 100%);
+    border: 1px solid rgba(6, 182, 212, 0.5);
+    color: #22d3ee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.25);
+}
+
+.desfibrilador-form-card {
+    background: var(--bg-card);
+    border: 1px solid var(--bg-card-border);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.form-group-desf {
+    margin-bottom: 16px;
+}
+
+.desf-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: var(--accent-gold);
+    margin-bottom: 8px;
+}
+
+.desf-time-selector {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.desf-time-btn {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--bg-card-border);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    color: var(--text-dim);
+    font-family: var(--font-heading);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.desf-time-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+
+.desf-time-btn.active {
+    border-color: #06b6d4;
+    background: rgba(6, 182, 212, 0.12);
+    color: #22d3ee;
+    box-shadow: 0 0 12px rgba(6, 182, 212, 0.2);
+}
+
+.desf-text-input {
+    width: 100%;
+    background: rgba(8, 8, 12, 0.8);
+    border: 1px solid var(--bg-card-border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    color: #ffffff;
+    font-family: var(--font-body);
+    font-size: 13px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.desf-text-input:focus {
+    border-color: #06b6d4;
+    box-shadow: 0 0 14px rgba(6, 182, 212, 0.25);
+}
+
+.btn-activate-shock {
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, #06b6d4 0%, #2563eb 100%);
+    border: none;
+    color: #ffffff;
+    font-family: var(--font-heading);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(6, 182, 212, 0.35);
+    transition: all 0.2s ease;
+}
+
+.btn-activate-shock:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(6, 182, 212, 0.5);
+}
+
+/* Results Shock Container */
+.desfibrilador-results-container {
+    animation: fadeInTab 0.3s ease-out;
+}
+
+.desf-results-header {
+    margin-bottom: 12px;
+}
+
+.shock-indicator {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    color: #22d3ee;
+}
+
+.shock-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #06b6d4;
+    box-shadow: 0 0 10px #06b6d4;
+    animation: statusPulse 1.5s infinite ease-in-out;
+}
+
+.desf-options-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.desf-option-card {
+    background: var(--bg-card);
+    border: 1px solid var(--bg-card-border);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.desf-option-card:hover {
+    border-color: rgba(6, 182, 212, 0.35);
+}
+
+.desf-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.desf-tag {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+}
+
+.tag-curiosity {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: var(--accent-gold);
+}
+
+.tag-misdirect {
+    background: rgba(6, 182, 212, 0.15);
+    border: 1px solid rgba(6, 182, 212, 0.35);
+    color: #22d3ee;
+}
+
+.tag-frame {
+    background: rgba(168, 85, 247, 0.15);
+    border: 1px solid rgba(168, 85, 247, 0.35);
     color: #c084fc;
+}
+
+.desf-rate {
+    font-size: 10px;
+    font-weight: 700;
+    color: #10b981;
+}
+
+.desf-text {
+    font-family: var(--font-heading);
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.45;
+    margin-bottom: 10px;
+}
+
+.desf-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.desf-reason {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.3;
 }
 
 .mascot-cantadas {

@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setupNavigation();
         setupHubHomeAndViews();
         setupCoachEmergency();
-        setupCantadasGenerator();
+        setupDesfibrilador();
         setupPhaseRows();
         setupSubmodeSelector();
         setupDropzone();
@@ -231,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const viewHub = document.getElementById('view-hub');
         const viewOraculo = document.getElementById('view-oraculo');
         const viewCoach = document.getElementById('view-coach');
-        const viewCantadas = document.getElementById('view-cantadas');
+        const viewCantadas = document.getElementById('view-desfibrilador');
         const toolViews = [viewHub, viewOraculo, viewCoach, viewCantadas];
 
         function switchToolView(activePane) {
@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        document.querySelectorAll('[data-action="open-cantadas"]').forEach(el => {
+        document.querySelectorAll('[data-action="open-desfibrilador"]').forEach(el => {
             el.addEventListener('click', (e) => {
                 e.stopPropagation();
                 switchToolView(viewCantadas);
@@ -413,56 +413,79 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Setup do Gerador de Cantadas Rápidas
-    function setupCantadasGenerator() {
-        const toneCards = document.querySelectorAll('.cantadas-tone-card');
-        const btnGenerate = document.getElementById('btnGenerateNewCantadas');
-        const text1 = document.getElementById('cantadaText1');
-        const text2 = document.getElementById('cantadaText2');
-        const text3 = document.getElementById('cantadaText3');
+    // Setup d'O Desfibrilador (Recuperação de Vácuo & Ghosting)
+    function setupDesfibrilador() {
+        const timeBtns = document.querySelectorAll('.desf-time-btn');
+        const topicInput = document.getElementById('desfTopicInput');
+        const btnShock = document.getElementById('btnActivateShock');
+        const resultsContainer = document.getElementById('desfResultsContainer');
+        const text1 = document.getElementById('desfText1');
+        const text2 = document.getElementById('desfText2');
+        const text3 = document.getElementById('desfText3');
 
-        const cantadasBank = {
-            provocacao: [
-                '"Você tem exatamente a cara de quem finge costume com viagens assim, mas se perde na primeira esquina."',
-                '"O fotógrafo merece aumento pelo ângulo, mas o contexto entregou que você improvisou."',
-                '"Geralmente quem posta foto com essa pose ou é um perigo ou é quietinha demais. Qual é o seu caso?"'
-            ],
-            enigma: [
-                '"Eu ia te elogiar, mas esse detalhe no fundo da foto entregou seu maior segredo."',
-                '"Você acredita em coincidência ou já estava planejando postar isso pra ver quem notava?"',
-                '"Tem uma coisa nessa foto que fez eu mudar completamente de opinião sobre você."'
-            ],
-            humor: [
-                '"Pelo silêncio, aposto que o sol queimou além da conta e você tá de molho no hidratante."',
-                '"Seu sorriso devia vir com aviso prévio de perigo antes das 22h."',
-                '"Acho fascinante como você consegue sustentar uma pose de durona com cara de quem pede sobremesa antes do almoço."'
-            ]
-        };
+        let selectedTime = '24h';
 
-        let currentTone = 'provocacao';
-
-        toneCards.forEach(card => {
-            card.addEventListener('click', () => {
+        timeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
                 triggerHaptic();
-                toneCards.forEach(c => c.classList.remove('active'));
-                card.classList.add('active');
-                currentTone = card.dataset.tone;
-                renderCantadas();
+                timeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedTime = btn.dataset.time;
             });
         });
 
-        function renderCantadas() {
-            const list = cantadasBank[currentTone] || cantadasBank.provocacao;
-            if (text1) text1.textContent = list[0];
-            if (text2) text2.textContent = list[1];
-            if (text3) text3.textContent = list[2];
-        }
+        const shockPresets = {
+            '24h': {
+                opt1: '"Você não vai acreditar em quem eu acabei de ver e que me fez lembrar exatamente de você."',
+                opt2: '"Achei seu conselho ótimo, acabei fechando exatamente aquele lugar. Deu super certo."',
+                opt3: '"Tava revendo as conversas aqui e percebi que você bateu o recorde estadual de vácuo dramático. Parabéns pelo troféu."'
+            },
+            '3dias': {
+                opt1: '"Descobri uma coisa muito estranha sobre você hoje. Quando puder me responde que te conto."',
+                opt2: '"Acabei de pedir aquela mesma sobremesa que você comentou e me arrependi amargamente. Você me deve uma indicação boa agora."',
+                opt3: '"Sumir por 3 dias já é quase abandono de incapaz. Tô pensando se te perdoo ou se deixo no vácuo de volta."'
+            },
+            '1semana': {
+                opt1: '"Tava passando perto daquele café e lembrei de uma pergunta que você me fez há uma semana. Sobreviveu à semana corrida?"',
+                opt2: '"Quase mandei uma mensagem achando que era pra você, mas o susto foi tão grande que resolvi vir conferir se você ainda existe."',
+                opt3: '"Achei que você tinha sido abduzida. Se ainda estiver na Terra, me responde antes que eu chame o resgate."'
+            },
+            '1mes': {
+                opt1: '"Você acredita em sincronicidade? Acabei de ver um negócio que você me falou há 1 mês e dei risada sozinho na rua."',
+                opt2: '"Passando pra avisar que sua ausência foi notada, avaliada e reprovada com louvor. Mas dependendo da sua desculpa, tem recurso."',
+                opt3: '"O Instagram me lembrou da nossa conversa hoje. Como tá a vida de pessoa misteriosa e ocupada?"'
+            }
+        };
 
-        if (btnGenerate) {
-            btnGenerate.addEventListener('click', () => {
-                triggerHaptic(20);
-                renderCantadas();
-                showToast('Novas opções geradas!');
+        if (btnShock) {
+            btnShock.addEventListener('click', () => {
+                triggerHaptic(40);
+                btnShock.disabled = true;
+                btnShock.innerHTML = '<i class="fa-solid fa-bolt fa-fade"></i><span>DISPARANDO CHOQUE...</span>';
+
+                setTimeout(() => {
+                    const preset = shockPresets[selectedTime] || shockPresets['24h'];
+                    const topic = topicInput ? topicInput.value.trim() : '';
+
+                    if (topic) {
+                        text1.textContent = `"Você não vai acreditar no que aconteceu sobre '${topic}'. Na hora me veio seu nome na cabeça."`;
+                        text2.textContent = `"Acabei seguindo aquilo que você comentou sobre '${topic}'. Deu um resultado surreal."`;
+                        text3.textContent = preset.opt3;
+                    } else {
+                        text1.textContent = preset.opt1;
+                        text2.textContent = preset.opt2;
+                        text3.textContent = preset.opt3;
+                    }
+
+                    if (resultsContainer) {
+                        resultsContainer.classList.remove('hidden');
+                        resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+
+                    btnShock.disabled = false;
+                    btnShock.innerHTML = '<i class="fa-solid fa-bolt"></i><span>APLICAR NOVO CHOQUE</span>';
+                    showToast('Gatilhos de ressuscitação gerados!');
+                }, 400);
             });
         }
 
@@ -472,7 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const el = document.getElementById(targetId);
                 if (el) {
                     navigator.clipboard.writeText(el.textContent.replace(/"/g, ''));
-                    showToast('Cantada copiada!');
+                    showToast('Mensagem copiada!');
                 }
             });
         });

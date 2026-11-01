@@ -89,18 +89,21 @@
                             </div>
                         </div>
 
-                        <!-- Card 3: Gerador de Cantadas & Abridores Rápidos -->
-                        <div class="hub-tool-card card-cantadas" data-action="open-cantadas">
+                        <!-- Card 3: O Desfibrilador (Recuperação de Vácuo & Ghosting) -->
+                        <div class="hub-tool-card card-desfibrilador" data-action="open-desfibrilador">
                             <div class="tool-card-left">
-                                <div class="tool-mascot mascot-cantadas">
-                                    <i class="fa-solid fa-fire-flame-curved"></i>
+                                <div class="tool-mascot mascot-desfibrilador">
+                                    <i class="fa-solid fa-heart-crack"></i>
                                 </div>
                             </div>
                             <div class="tool-card-body">
-                                <h3 class="tool-card-title">Gerador de Cantadas</h3>
-                                <p class="tool-card-desc">Gere frases criativas, provocadoras, enigmáticas ou engraçadas para fotos e stories.</p>
-                                <button class="btn-tool-action btn-amber" data-action="open-cantadas">
-                                    <span>Gerar cantadas</span>
+                                <div class="tool-badge-row">
+                                    <span class="badge-shock">ANTI-GHOSTING</span>
+                                </div>
+                                <h3 class="tool-card-title">O Desfibrilador</h3>
+                                <p class="tool-card-desc">Ela parou de responder há dias ou semanas? Reative a conversa sem mandar o previsível "e aí sumida".</p>
+                                <button class="btn-tool-action btn-shock" data-action="open-desfibrilador">
+                                    <span>Reviver conversa</span>
                                     <i class="fa-solid fa-arrow-right"></i>
                                 </button>
                             </div>
@@ -469,62 +472,101 @@
             </div>
 
             <!-- ============================================================
-                 VIEW 4: GERADOR DE CANTADAS & ABRIDORES
+                 VIEW 4: O DESFIBRILADOR (RECUPERAÇÃO DE VÁCUO & GHOSTING)
                  ============================================================ -->
-            <div id="view-cantadas" class="tool-view-pane hidden">
+            <div id="view-desfibrilador" class="tool-view-pane hidden">
                 <div class="view-back-bar">
                     <button class="btn-back-hub" data-action="back-hub">
                         <i class="fa-solid fa-arrow-left"></i>
                         <span>Voltar às Ferramentas</span>
                     </button>
-                    <span class="view-tag-current amber">CANTADAS CIRÚRGICAS</span>
+                    <span class="view-tag-current shock-neon">O DESFIBRILADOR</span>
                 </div>
 
-                <div class="cantadas-hero">
-                    <div class="cantadas-avatar-crest">
-                        <i class="fa-solid fa-fire-flame-curved"></i>
+                <div class="desfibrilador-hero">
+                    <div class="desfibrilador-avatar-crest">
+                        <i class="fa-solid fa-bolt-lightning"></i>
                     </div>
-                    <h2 class="section-heading">Gerador de <span class="gradient">Cantadas & Abridores</span></h2>
-                    <p class="section-desc">Escolha o tom desejado para chamar atenção de forma espontânea, sem parecer carente.</p>
+                    <h2 class="section-heading">O Desfibrilador <span class="gradient">de Conversas</span></h2>
+                    <p class="section-desc">Ressuscite o contato sem parecer carente. A IA formula uma mensagem de alto impacto psicológico que a obriga a responder.</p>
                 </div>
 
-                <div class="cantadas-tone-grid">
-                    <button class="cantadas-tone-card active" data-tone="provocacao">
+                <!-- Input Parameters -->
+                <div class="desfibrilador-form-card">
+                    <!-- Step 1: Tempo de Vácuo -->
+                    <div class="form-group-desf">
+                        <label class="desf-label"><i class="fa-regular fa-clock"></i> HÁ QUANTO TEMPO ELA PAROU DE RESPONDER?</label>
+                        <div class="desf-time-selector">
+                            <button class="desf-time-btn active" data-time="24h">24 a 48h</button>
+                            <button class="desf-time-btn" data-time="3dias">3 a 5 dias</button>
+                            <button class="desf-time-btn" data-time="1semana">1 a 2 semanas</button>
+                            <button class="desf-time-btn" data-time="1mes">1 mês ou mais</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Último Assunto / Contexto -->
+                    <div class="form-group-desf">
+                        <label class="desf-label" for="desfTopicInput"><i class="fa-regular fa-comment-dots"></i> SOBRE O QUE VOCÊS ESTAVAM FALANDO? (OPCIONAL)</label>
+                        <input type="text" id="desfTopicInput" class="desf-text-input" placeholder="Ex: Viagem, restaurante, academia ou vácuo do nada no direct">
+                    </div>
+
+                    <!-- Botão de Choque -->
+                    <button class="btn-activate-shock" id="btnActivateShock">
                         <i class="fa-solid fa-bolt"></i>
-                        <strong>Provocadora</strong>
-                        <span>Deboche leve e quebra de ego</span>
-                    </button>
-                    <button class="cantadas-tone-card" data-tone="enigma">
-                        <i class="fa-solid fa-mask"></i>
-                        <strong>Enigmática</strong>
-                        <span>Cria curiosidade obsessiva</span>
-                    </button>
-                    <button class="cantadas-tone-card" data-tone="humor">
-                        <i class="fa-solid fa-face-laugh-squint"></i>
-                        <strong>Bem-humorada</strong>
-                        <span>Faz ela rir e desarmar</span>
+                        <span>APLICAR CHOQUE TÁTICO</span>
                     </button>
                 </div>
 
-                <div class="cantadas-results-box" id="cantadasResultsBox">
-                    <div class="cantada-item">
-                        <p class="cantada-text" id="cantadaText1">"Você tem exatamente a cara de quem finge costume com viagens assim, mas se perde na primeira esquina."</p>
-                        <button class="btn-copy-small" data-copy-from="cantadaText1"><i class="fa-regular fa-copy"></i> Copiar</button>
+                <!-- Results Shock Box -->
+                <div class="desfibrilador-results-container hidden" id="desfResultsContainer">
+                    <div class="desf-results-header">
+                        <div class="shock-indicator">
+                            <span class="shock-dot"></span>
+                            <strong>3 GATILHOS DE RESSUSCITAÇÃO GERADOS</strong>
+                        </div>
                     </div>
-                    <div class="cantada-item">
-                        <p class="cantada-text" id="cantadaText2">"Eu ia te elogiar, mas esse detalhe no fundo da foto entregou seu maior segredo."</p>
-                        <button class="btn-copy-small" data-copy-from="cantadaText2"><i class="fa-regular fa-copy"></i> Copiar</button>
-                    </div>
-                    <div class="cantada-item">
-                        <p class="cantada-text" id="cantadaText3">"Se você for metade do tempo tão imprevisível pessoalmente quanto parece nas fotos, nossa conversa vai ser um perigo."</p>
-                        <button class="btn-copy-small" data-copy-from="cantadaText3"><i class="fa-regular fa-copy"></i> Copiar</button>
+
+                    <div class="desf-options-stack">
+                        <!-- Option 1: Curiosidade Extrema -->
+                        <div class="desf-option-card">
+                            <div class="desf-card-header">
+                                <span class="desf-tag tag-curiosity"><i class="fa-solid fa-eye"></i> Curiosidade Extrema</span>
+                                <span class="desf-rate">Taxa de Resposta: 94%</span>
+                            </div>
+                            <p class="desf-text" id="desfText1">"Você não vai acreditar em quem eu acabei de ver e que me fez lembrar exatamente de você."</p>
+                            <div class="desf-card-footer">
+                                <span class="desf-reason">Gera lacuna obsessiva na mente dela. Impossível ignorar.</span>
+                                <button class="btn-copy-small" data-copy-from="desfText1"><i class="fa-regular fa-copy"></i> Copiar</button>
+                            </div>
+                        </div>
+
+                        <!-- Option 2: Falso Engano Elegante -->
+                        <div class="desf-option-card">
+                            <div class="desf-card-header">
+                                <span class="desf-tag tag-misdirect"><i class="fa-solid fa-shuffle"></i> Falso Engano Estratégico</span>
+                                <span class="desf-rate">Taxa de Resposta: 89%</span>
+                            </div>
+                            <p class="desf-text" id="desfText2">"Achei seu conselho ótimo, acabei fechando exatamente aquele lugar. Deu super certo."</p>
+                            <div class="desf-card-footer">
+                                <span class="desf-reason">Faz ela se perguntar 'Que conselho? Ele mandou pra pessoa errada?' e responder na hora.</span>
+                                <button class="btn-copy-small" data-copy-from="desfText2"><i class="fa-regular fa-copy"></i> Copiar</button>
+                            </div>
+                        </div>
+
+                        <!-- Option 3: Quebra de Frame / Desapego -->
+                        <div class="desf-option-card">
+                            <div class="desf-card-header">
+                                <span class="desf-tag tag-frame"><i class="fa-solid fa-crown"></i> Desqualificação com Humor</span>
+                                <span class="desf-rate">Taxa de Resposta: 91%</span>
+                            </div>
+                            <p class="desf-text" id="desfText3">"Tava revendo as conversas aqui e percebi que você bateu o recorde estadual de vácuo dramático. Parabéns pelo troféu."</p>
+                            <div class="desf-card-footer">
+                                <span class="desf-reason">Brinca com o silêncio dela sem se colocar em posição de vítima ou cobrador.</span>
+                                <button class="btn-copy-small" data-copy-from="desfText3"><i class="fa-regular fa-copy"></i> Copiar</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <button class="btn-generate-new-cantadas" id="btnGenerateNewCantadas">
-                    <i class="fa-solid fa-arrows-rotate"></i>
-                    <span>Gerar Outras Opções</span>
-                </button>
             </div>
             </section>
 
