@@ -23,8 +23,8 @@
         <!-- Top App Bar -->
         <header class="app-header">
             <div class="brand">
-                <div class="brand-crest">
-                    <i class="fa-solid fa-fire"></i>
+                <div class="brand-crest brand-crest-premium">
+                    <i class="fa-solid fa-eye"></i>
                 </div>
                 <div class="brand-text">
                     <span class="brand-tag">ORDEM OCULTA</span>
@@ -45,88 +45,123 @@
             <section id="tab-scanner" class="tab-pane active">
                 <!-- VIEW 1: HOME COM OS 3 CARDS DE FERRAMENTAS (Padrão PuxeAssunto) -->
                 <div id="view-hub" class="hub-container">
+                    <!-- HERO PREMIUM DE BOAS-VINDAS -->
+                    <div class="pm-hero">
+                        <div class="pm-hero-glow"></div>
+                        <div class="pm-hero-row">
+                            <div class="pm-hero-emblem"></div>
+                            <div class="pm-hero-text">
+                                <span class="pm-kicker"><i class="fa-solid fa-crown"></i> MEMBRO DA ORDEM</span>
+                                <h2 class="pm-hero-title">Você nunca mais vai <span class="gradient">travar numa conversa.</span></h2>
+                            </div>
+                        </div>
+                        <p class="pm-hero-desc">4 inteligências táticas treinadas em psicologia da atração, trabalhando para você 24h por dia. Escolha a sua missão de agora:</p>
+                        <div class="pm-trust-row">
+                            <span><i class="fa-solid fa-shield-halved"></i> 100% sigiloso</span>
+                            <span><i class="fa-solid fa-bolt"></i> Resposta em segundos</span>
+                            <span><i class="fa-solid fa-brain"></i> IA calibrada</span>
+                        </div>
+                    </div>
+
+                    <!-- GUIA RÁPIDO: QUAL FERRAMENTA USAR -->
+                    <div class="pm-mission-guide">
+                        <div class="pm-guide-title"><i class="fa-solid fa-compass"></i> QUAL É A SUA SITUAÇÃO AGORA?</div>
+                        <div class="pm-guide-chips">
+                            <button class="pm-chip" data-action="open-oraculo"><i class="fa-solid fa-camera"></i> Quero puxar assunto</button>
+                            <button class="pm-chip" data-action="open-coach"><i class="fa-solid fa-chess-king"></i> Não sei o que responder</button>
+                            <button class="pm-chip" data-action="open-desfibrilador"><i class="fa-solid fa-heart-pulse"></i> Ela sumiu</button>
+                            <button class="pm-chip" data-action="open-friendzone"><i class="fa-solid fa-door-open"></i> Virei "o amigo"</button>
+                        </div>
+                    </div>
+
                     <div class="hub-header-tabs">
-                        <button class="hub-tab-btn active" data-hub-tab="tools">Ferramentas</button>
-                        <button class="hub-tab-btn" data-hub-tab="history">Histórico</button>
+                        <button class="hub-tab-btn active" data-hub-tab="tools"><i class="fa-solid fa-chess-rook"></i> Ferramentas</button>
+                        <button class="hub-tab-btn" data-hub-tab="history"><i class="fa-solid fa-clock-rotate-left"></i> Minhas Consultas</button>
                     </div>
 
                     <div class="hub-tools-list" id="hubToolsList">
-                        <!-- Card 1: Sugestão de Respostas / O Oráculo -->
-                        <div class="hub-tool-card card-oraculo" data-action="open-oraculo">
-                            <div class="tool-card-left">
-                                <div class="tool-mascot mascot-oraculo">
-                                    <i class="fa-solid fa-heart-pulse"></i>
-                                    <span class="mascot-bubble">oi, sumido kkk<br>saudades...</span>
-                                </div>
+                        <!-- Card 1: O Oráculo (Scanner de Prints) -->
+                        <div class="hub-tool-card pm-tool-card card-oraculo" data-action="open-oraculo">
+                            <div class="pm-tool-cover" style="--cover: url('assets/card-oraculo.jpg');">
+                                <span class="pm-tool-tag tag-red"><i class="fa-solid fa-infinity"></i> ILIMITADO</span>
+                                <span class="pm-tool-number">01</span>
                             </div>
-                            <div class="tool-card-body">
-                                <h3 class="tool-card-title">Sugestão de Respostas</h3>
-                                <p class="tool-card-desc">Envie um print, receba uma análise profunda e sugestões de respostas magnéticas.</p>
-                                <button class="btn-tool-action btn-red" data-action="open-oraculo">
-                                    <span>Enviar print</span>
+                            <div class="tool-card-body pm-tool-body">
+                                <span class="pm-tool-kicker">O ORÁCULO · SCANNER DE PRINTS</span>
+                                <h3 class="tool-card-title">Mande o print. Receba a resposta que ela não consegue ignorar.</h3>
+                                <p class="tool-card-desc">A IA lê o story, a foto ou a conversa, encontra o gancho escondido que você não viu e te entrega <strong>3 respostas prontas</strong>, calibradas para a fase exata da conversa.</p>
+                                <div class="pm-when"><i class="fa-solid fa-location-crosshairs"></i> <span><strong>Use quando:</strong> quer puxar assunto do zero, ela respondeu seco ou você travou sem saber o que mandar.</span></div>
+                                <button class="btn-tool-action pm-btn pm-btn-red" data-action="open-oraculo">
+                                    <span>Escanear print agora</span>
                                     <i class="fa-solid fa-arrow-right"></i>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Card 2: Descrever Situação (Coach de Emergência com Trava de Créditos) -->
-                        <div class="hub-tool-card card-coach" data-action="open-coach">
-                            <div class="tool-card-left">
-                                <div class="tool-mascot mascot-coach">
-                                    <i class="fa-solid fa-brain"></i>
-                                </div>
+                        <!-- Card 2: Coach de Emergência -->
+                        <div class="hub-tool-card pm-tool-card card-coach" data-action="open-coach">
+                            <div class="pm-tool-cover" style="--cover: url('assets/card-coach.jpg');">
+                                <span class="pm-tool-tag tag-purple"><i class="fa-solid fa-fire"></i> MAIS USADO</span>
+                                <span class="pm-tool-number">02</span>
                             </div>
-                            <div class="tool-card-body">
-                                <div class="tool-badge-row">
-                                    <span class="badge-hot">COACH DE EMERGÊNCIA</span>
-                                </div>
-                                <h3 class="tool-card-title">Descrever Situação</h3>
-                                <p class="tool-card-desc">Conte o que está rolando e converse com a IA treinada até descobrir o que mandar.</p>
-                                <button class="btn-tool-action btn-purple" data-action="open-coach">
-                                    <span>Contar situação</span>
+                            <div class="tool-card-body pm-tool-body">
+                                <span class="pm-tool-kicker">COACH DE EMERGÊNCIA · ESTRATEGISTA 24H</span>
+                                <h3 class="tool-card-title">Um estrategista frio ao seu lado no momento em que você mais erraria.</h3>
+                                <p class="tool-card-desc">Conte o que está acontecendo com as suas palavras. O Coach diagnostica o jogo dela, te dá <strong>o texto exato para mandar</strong> e continua com você rodada após rodada até a situação virar.</p>
+                                <div class="pm-when"><i class="fa-solid fa-location-crosshairs"></i> <span><strong>Use quando:</strong> ela te testou, visualizou e não respondeu, mudou do nada ou você está prestes a mandar algo no impulso.</span></div>
+                                <button class="btn-tool-action pm-btn pm-btn-purple" data-action="open-coach">
+                                    <span>Falar com o Coach</span>
                                     <i class="fa-solid fa-arrow-right"></i>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Card 3: O Desfibrilador (Recuperação de Vácuo & Ghosting) -->
-                        <div class="hub-tool-card card-desfibrilador" data-action="open-desfibrilador">
-                            <div class="tool-card-left">
-                                <div class="tool-mascot mascot-desfibrilador">
-                                    <i class="fa-solid fa-heart-crack"></i>
-                                </div>
+                        <!-- Card 3: O Desfibrilador -->
+                        <div class="hub-tool-card pm-tool-card card-desfibrilador" data-action="open-desfibrilador">
+                            <div class="pm-tool-cover" style="--cover: url('assets/card-desfibrilador.jpg');">
+                                <span class="pm-tool-tag tag-gold"><i class="fa-solid fa-bolt"></i> ANTI-GHOSTING</span>
+                                <span class="pm-tool-number">03</span>
                             </div>
-                            <div class="tool-card-body">
-                                <div class="tool-badge-row">
-                                    <span class="badge-shock">ANTI-GHOSTING</span>
-                                </div>
-                                <h3 class="tool-card-title">O Desfibrilador</h3>
-                                <p class="tool-card-desc">Ela parou de responder há dias ou semanas? Reative a conversa sem mandar o previsível "e aí sumida".</p>
-                                <button class="btn-tool-action btn-shock" data-action="open-desfibrilador">
-                                    <span>Reviver conversa</span>
+                            <div class="tool-card-body pm-tool-body">
+                                <span class="pm-tool-kicker">O DESFIBRILADOR · RESSUSCITAR CONVERSAS</span>
+                                <h3 class="tool-card-title">Ela sumiu? A conversa não morreu. Ela só precisa de um choque.</h3>
+                                <p class="tool-card-desc">Esqueça o "e aí, sumida?" que grita carência. Gere <strong>3 gatilhos de curiosidade</strong> que fazem ela voltar a responder por vontade própria, sem você parecer que estava esperando.</p>
+                                <div class="pm-when"><i class="fa-solid fa-location-crosshairs"></i> <span><strong>Use quando:</strong> ela parou de responder há horas, dias, semanas ou até meses.</span></div>
+                                <button class="btn-tool-action pm-btn pm-btn-gold" data-action="open-desfibrilador">
+                                    <span>Reviver a conversa</span>
                                     <i class="fa-solid fa-arrow-right"></i>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Card 4: A Rota de Fuga (Protocolo Anti-Friendzone) -->
-                        <div class="hub-tool-card card-friendzone" data-action="open-friendzone">
-                            <div class="tool-card-left">
-                                <div class="tool-mascot mascot-friendzone">
-                                    <i class="fa-solid fa-person-walking-arrow-right"></i>
-                                </div>
+                        <!-- Card 4: A Rota de Fuga -->
+                        <div class="hub-tool-card pm-tool-card card-friendzone" data-action="open-friendzone">
+                            <div class="pm-tool-cover" style="--cover: url('assets/card-friendzone.jpg');">
+                                <span class="pm-tool-tag tag-emerald"><i class="fa-solid fa-door-open"></i> ANTI-FRIENDZONE</span>
+                                <span class="pm-tool-number">04</span>
                             </div>
-                            <div class="tool-card-body">
-                                <div class="tool-badge-row">
-                                    <span class="badge-fz">ANTI-FRIENDZONE</span>
-                                </div>
-                                <h3 class="tool-card-title">A Rota de Fuga</h3>
-                                <p class="tool-card-desc">Ela te chamou de "amigo", "fofo" ou falou de outro cara? Corte a validação e vire o jogo na hora.</p>
-                                <button class="btn-tool-action btn-fz" data-action="open-friendzone">
-                                    <span>Desarmar friendzone</span>
+                            <div class="tool-card-body pm-tool-body">
+                                <span class="pm-tool-kicker">A ROTA DE FUGA · QUEBRA DE FRAME</span>
+                                <h3 class="tool-card-title">"Você é como um irmão pra mim." Nunca mais engula essa calado.</h3>
+                                <p class="tool-card-desc">Cole a frase em que ela te chamou de amigo, de fofo ou desabafou sobre outro cara. A IA gera a resposta que <strong>tira você do papel de ombro amigo</strong> e devolve a tensão para a conversa.</p>
+                                <div class="pm-when"><i class="fa-solid fa-location-crosshairs"></i> <span><strong>Use quando:</strong> ela te trata como confidente, pede conselho sobre outro cara ou diz que "você merece alguém melhor".</span></div>
+                                <button class="btn-tool-action pm-btn pm-btn-emerald" data-action="open-friendzone">
+                                    <span>Sair da friendzone</span>
                                     <i class="fa-solid fa-arrow-right"></i>
                                 </button>
                             </div>
+                        </div>
+
+                        <!-- Gatilho do Plano Anual na Home -->
+                        <div class="pm-annual-strip" data-goto-plans="1">
+                            <div class="pm-annual-left">
+                                <i class="fa-solid fa-crown"></i>
+                            </div>
+                            <div class="pm-annual-text">
+                                <strong>Membros PRO não ficam sem munição no meio da conversa.</strong>
+                                <span>40 créditos todo mês + scans ilimitados por <b>R$ 0,54/dia</b>.</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right pm-annual-arrow"></i>
                         </div>
                     </div>
 
@@ -150,11 +185,14 @@
                     </div>
                 
                 <div class="scanner-hero">
+                    <div class="pm-view-banner" style="--cover: url('assets/card-oraculo.jpg');">
+                        <span class="pm-view-banner-tag"><i class="fa-solid fa-eye"></i> VISÃO COMPUTACIONAL ATIVA</span>
+                    </div>
                     <div class="badge-phase">
-                        <i class="fa-solid fa-crosshairs"></i> PASSO 1: SELECIONE A FASE
+                        <i class="fa-solid fa-crosshairs"></i> PASSO 1: ESCOLHA O MOMENTO DA CONVERSA
                     </div>
                     <h2 class="section-heading">Onde você <span class="gradient">está travado?</span></h2>
-                    <p class="section-desc">Toque na fase da conversa que você quer destravar. O Oráculo calibrará a visão computacional para esse objetivo.</p>
+                    <p class="section-desc">Cada fase da conquista exige uma jogada diferente. Na dúvida, deixe no <strong>Auto-Diagnóstico</strong>: o Oráculo lê o print e descobre sozinho em que ponto vocês estão.</p>
                 </div>
 
                 <!-- 4 Stacked Full-Width Phase Cards (De fora a fora) -->
@@ -280,8 +318,8 @@
                             <i class="fa-solid fa-crosshairs upload-icon-center"></i>
                         </div>
                         <h3 class="upload-title">Toque para carregar o print da fase</h3>
-                        <p class="upload-subtitle">Ou cole diretamente da área de transferência (Ctrl+V)</p>
-                        <span class="upload-badge"><i class="fa-solid fa-shield-halved"></i> LGPD · Processamento Efêmero (Sem armazenamento)</span>
+                        <p class="upload-subtitle">Story, foto do perfil ou print da conversa. Também dá pra colar direto (Ctrl+V).</p>
+                        <span class="upload-badge"><i class="fa-solid fa-shield-halved"></i> Sigilo total · O print é analisado e descartado na hora</span>
                     </div>
 
                     <!-- Image Preview & Laser Scan Animation -->
@@ -417,6 +455,16 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Dica de Uso Cruzado: Oráculo -> Coach -->
+                    <div class="pm-crosssell pm-cs-purple">
+                        <div class="pm-cs-icon"><i class="fa-solid fa-chess-king"></i></div>
+                        <div class="pm-cs-body">
+                            <strong>Ela respondeu? Não improvise o próximo passo.</strong>
+                            <p>É no segundo e terceiro movimento que a maioria dos homens perde a mulher. Leve a resposta dela para o <b>Coach de Emergência</b> e receba a continuação exata.</p>
+                            <button class="pm-cs-btn" data-action="open-coach">Continuar com o Coach <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -433,11 +481,16 @@
                 </div>
 
                 <div class="coach-hero">
-                    <div class="coach-avatar-crest">
-                        <i class="fa-solid fa-brain"></i>
+                    <div class="pm-view-banner" style="--cover: url('assets/card-coach.jpg');">
+                        <span class="pm-view-banner-tag"><i class="fa-solid fa-chess-king"></i> ESTRATEGISTA PESSOAL 24H</span>
                     </div>
-                    <h2 class="section-heading">Conselheiro <span class="gradient">de Emergência</span></h2>
-                    <p class="section-desc">Conte a situação exata em que você está travado com ela (vácuo, teste, dúvida de resposta). O Coach traçará a jogada de contra-ataque.</p>
+                    <h2 class="section-heading">Coach <span class="gradient">de Emergência</span></h2>
+                    <p class="section-desc">Antes de mandar qualquer coisa no impulso, fale com quem enxerga o jogo de fora. Conte a situação com detalhes: quanto mais contexto, mais cirúrgica é a jogada que o Coach monta pra você.</p>
+                    <div class="pm-steps-row">
+                        <div class="pm-step"><b>1</b><span>Você conta o que rolou</span></div>
+                        <div class="pm-step"><b>2</b><span>O Coach lê o jogo dela</span></div>
+                        <div class="pm-step"><b>3</b><span>Você recebe o texto exato</span></div>
+                    </div>
                 </div>
 
                 <!-- Chat / Situation Interface (Entrada Inicial) -->
@@ -458,6 +511,7 @@
                             <i class="fa-solid fa-paper-plane"></i>
                         </button>
                     </div>
+                    <p class="pm-micro-proof"><i class="fa-solid fa-lock"></i> Ninguém além de você vê essa conversa. Seja 100% sincero sobre o que aconteceu.</p>
                 </div>
 
                 <!-- Coach Response Box (Linha do Tempo Conversacional De Cima Para Baixo) -->
@@ -494,6 +548,16 @@
                         </div>
                     </div>
 
+                    <!-- Dica da Ordem: Lei da Abundância (aparece via JS quando o jogo dela persiste) -->
+                    <div class="pm-crosssell pm-cs-gold hidden" id="coachAbundanceTip">
+                        <div class="pm-cs-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+                        <div class="pm-cs-body">
+                            <strong>Lei da Abundância: nenhuma mulher vale a sua paz.</strong>
+                            <p>Se ela continua no joguinho, só responde quando quer ou já deixou claro que não está no mesmo ritmo, insistir derruba o seu valor. O homem de alto valor <b>abre outras portas</b> enquanto ela decide. Use o Oráculo para começar uma conversa nova hoje mesmo.</p>
+                            <button class="pm-cs-btn" data-action="open-oraculo">Abrir novas conversas com o Oráculo <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+
                     <div class="thread-reset-row">
                         <button class="btn-reset-thread" id="btnResetCoachThread">
                             <i class="fa-solid fa-arrow-rotate-left"></i>
@@ -516,11 +580,11 @@
                 </div>
 
                 <div class="desfibrilador-hero">
-                    <div class="desfibrilador-avatar-crest">
-                        <i class="fa-solid fa-bolt-lightning"></i>
+                    <div class="pm-view-banner" style="--cover: url('assets/card-desfibrilador.jpg');">
+                        <span class="pm-view-banner-tag"><i class="fa-solid fa-bolt"></i> PROTOCOLO ANTI-GHOSTING</span>
                     </div>
                     <h2 class="section-heading">O Desfibrilador <span class="gradient">de Conversas</span></h2>
-                    <p class="section-desc">Ressuscite o contato sem parecer carente. A IA formula uma mensagem de alto impacto psicológico que a obriga a responder.</p>
+                    <p class="section-desc">O silêncio dela não é um "não". Na maioria das vezes, a conversa só esfriou. A IA cria mensagens de curiosidade que <strong>reacendem o interesse</strong> sem cobrar, sem implorar e sem mostrar que você ficou esperando.</p>
                 </div>
 
                 <!-- Input Parameters -->
@@ -598,6 +662,16 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Regra de Ouro + Uso Cruzado -->
+                    <div class="pm-crosssell pm-cs-gold">
+                        <div class="pm-cs-icon"><i class="fa-solid fa-hourglass-half"></i></div>
+                        <div class="pm-cs-body">
+                            <strong>Regra de ouro: mande UMA mensagem e desapareça.</strong>
+                            <p>Se ela não responder em 48h, não mande outra. Volte sua energia para quem está investindo em você: <b>escaneie um story novo no Oráculo</b> e abra outra conversa. Abundância é o que faz ela voltar.</p>
+                            <button class="pm-cs-btn" data-action="open-oraculo">Abrir nova conversa no Oráculo <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -614,11 +688,11 @@
                 </div>
 
                 <div class="friendzone-hero">
-                    <div class="friendzone-avatar-crest">
-                        <i class="fa-solid fa-person-walking-arrow-right"></i>
+                    <div class="pm-view-banner" style="--cover: url('assets/card-friendzone.jpg');">
+                        <span class="pm-view-banner-tag"><i class="fa-solid fa-door-open"></i> PROTOCOLO ANTI-FRIENDZONE</span>
                     </div>
-                    <h2 class="section-heading">Rota de Fuga <span class="gradient">Anti-Friendzone</span></h2>
-                    <p class="section-desc">Corte a validação gratuita. Cole a frase onde ela te tratou como amigo, irmão ou desabafou sobre outro cara e receba o contra-ataque.</p>
+                    <h2 class="section-heading">A Rota de Fuga <span class="gradient">da Friendzone</span></h2>
+                    <p class="section-desc">Todo "você é um fofo" respondido com "obrigado" te afunda mais na amizade. Cole a frase dela e receba a resposta que <strong>corta a validação gratuita</strong>, gera tensão e te reposiciona como homem, não como ombro amigo.</p>
                 </div>
 
                 <!-- Input Interface (Entrada Inicial) -->
@@ -675,6 +749,16 @@
                         </div>
                     </div>
 
+                    <!-- Dica da Ordem: Saída com Dignidade (aparece via JS após rodadas de rejeição) -->
+                    <div class="pm-crosssell pm-cs-emerald hidden" id="fzAbundanceTip">
+                        <div class="pm-cs-icon"><i class="fa-solid fa-person-walking-arrow-right"></i></div>
+                        <div class="pm-cs-body">
+                            <strong>Às vezes, a melhor rota de fuga é a porta da frente.</strong>
+                            <p>Se ela insiste em te manter só como amigo, o movimento mais poderoso é parar de investir. A atenção que você dava a ela agora vai para quem te enxerga como homem. <b>O Oráculo te ajuda a abrir conversas novas</b> do jeito certo desde a primeira mensagem.</p>
+                            <button class="pm-cs-btn" data-action="open-oraculo">Começar do zero com outra pessoa <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+
                     <div class="thread-reset-row">
                         <button class="btn-reset-thread" id="btnResetFzThread">
                             <i class="fa-solid fa-arrow-rotate-left"></i>
@@ -690,9 +774,30 @@
                  ============================================================ -->
             <section id="tab-protocolos" class="tab-pane">
                 <div class="plans-hero">
-                    <span class="plans-badge"><i class="fa-solid fa-crown"></i> ACESSO ILIMITADO</span>
-                    <h2 class="plans-title">Desbloqueie o <span class="gradient">Poder Máximo</span></h2>
-                    <p class="plans-subtitle">Nunca mais fique sem saber o que responder. Tenha respostas e conselhos ilimitados no seu bolso.</p>
+                    <div class="pm-plans-emblem"></div>
+                    <span class="plans-badge"><i class="fa-solid fa-crown"></i> ACESSO DE MEMBRO PRO</span>
+                    <h2 class="plans-title">Pare de perder mulheres <span class="gradient">por uma mensagem errada.</span></h2>
+                    <p class="plans-subtitle">Uma resposta no momento certo muda tudo. Uma resposta errada encerra a conversa para sempre. Tenha um estrategista no bolso para cada vácuo, cada teste e cada convite.</p>
+                </div>
+
+                <!-- Por que o Anual: Ancoragem de Valor -->
+                <div class="pm-value-box">
+                    <div class="pm-value-title"><i class="fa-solid fa-scale-balanced"></i> FAÇA AS CONTAS</div>
+                    <div class="pm-value-grid">
+                        <div class="pm-value-item bad">
+                            <span>Um jantar que não aconteceu</span>
+                            <strong>R$ 150+</strong>
+                        </div>
+                        <div class="pm-value-item bad">
+                            <span>Mensal pago o ano inteiro</span>
+                            <strong>R$ 564</strong>
+                        </div>
+                        <div class="pm-value-item good">
+                            <span>Plano PRO Anual</span>
+                            <strong>R$ 0,54/dia</strong>
+                        </div>
+                    </div>
+                    <p class="pm-value-foot">No Anual você economiza <b>R$ 367</b> comparado ao Mensal e recebe <b>8x mais créditos</b> por mês. É menos que um café por semana para nunca mais ficar sem saber o que responder.</p>
                 </div>
 
                 <!-- Benefits List (Padrão PuxeAssunto) -->
@@ -805,6 +910,29 @@
                         <i class="fa-solid fa-shield-halved"></i>
                         <span>Garantia incondicional de 7 dias · Acesso imediato</span>
                     </div>
+
+                    <div class="pm-guarantee-card">
+                        <div class="pm-guarantee-seal"><span>7</span><small>DIAS</small></div>
+                        <div>
+                            <strong>Risco zero para você.</strong>
+                            <p>Use todas as ferramentas por 7 dias. Se não sentir que está conversando com mais segurança, você pede o reembolso direto pela Kiwify e recebe 100% do valor de volta. Sem perguntas.</p>
+                        </div>
+                    </div>
+
+                    <div class="pm-faq">
+                        <details>
+                            <summary>O que é um crédito?</summary>
+                            <p>Cada consulta ao Coach de Emergência ou à Rota de Fuga usa 1 crédito. O Oráculo (scanner de prints) e o Desfibrilador não gastam créditos.</p>
+                        </details>
+                        <details>
+                            <summary>Os créditos acumulam?</summary>
+                            <p>Os créditos do plano renovam todo mês. Se precisar de mais no meio do mês, você pode recarregar créditos avulsos no Arsenal a partir de R$ 9,90.</p>
+                        </details>
+                        <details>
+                            <summary>Ela vai saber que eu uso o app?</summary>
+                            <p>Não. Nada é publicado, compartilhado ou enviado para ela. Os prints são analisados e descartados na hora. Você só copia o texto e manda do seu jeito.</p>
+                        </details>
+                    </div>
                 </div>
             </section>
 
@@ -813,9 +941,9 @@
                  ============================================================ -->
             <section id="tab-arsenal" class="tab-pane">
                 <div class="tab-header">
-                    <span class="tab-tag"><i class="fa-solid fa-shield-halved"></i> UPGRADES DA ORDEM</span>
+                    <span class="tab-tag"><i class="fa-solid fa-shield-halved"></i> ARSENAL DA ORDEM</span>
                     <h2 class="tab-title">Arsenal <span class="gradient">Exclusivo</span></h2>
-                    <p class="tab-subtitle">Módulos avançados, upgrades secretos e ferramentas de domínio liberadas para acelerar seus resultados.</p>
+                    <p class="tab-subtitle">O conhecimento que separa quem depende da sorte de quem domina o jogo. Materiais de membro, liberados na hora e para sempre na sua conta.</p>
                 </div>
 
                 <div class="arsenal-feed">
@@ -832,7 +960,7 @@
                             </div>
                         </div>
                         <p class="arsenal-desc">
-                            Precisa de respostas imediatas e não quer assinar o anual agora? Escolha um pacote de créditos avulsos para continuar sua conversa:
+                            Os créditos acabaram justo quando ela respondeu? Não deixe a conversa esfriar. Recarregue agora e continue de onde parou com o Coach e a Rota de Fuga:
                         </p>
 
                         <!-- Seletor dos 3 Pacotes de Créditos -->
@@ -889,6 +1017,15 @@
                     <!-- E-book 1: Como Criar um Perfil Magnético (Leitura Direta no App) -->
                     <div class="arsenal-card featured ebook-card" id="card-perfil-magnetico">
                         <div class="arsenal-badge ebook-badge"><i class="fa-solid fa-book-open"></i> E-BOOK DIGITAL · LEITURA DIRETA NO APP</div>
+                        <div class="pm-book-showcase">
+                            <div class="pm-book-cover" style="--cover: url('assets/cover-perfil-magnetico.jpg');"><span>PERFIL<br>MAGNÉTICO</span></div>
+                            <ul class="pm-book-points">
+                                <li><i class="fa-solid fa-check"></i> 54 páginas · 6 capítulos</li>
+                                <li><i class="fa-solid fa-check"></i> 12 modelos de bio prontos</li>
+                                <li><i class="fa-solid fa-check"></i> Plano de ação de 7 dias</li>
+                                <li><i class="fa-solid fa-check"></i> Versão PDF para baixar</li>
+                            </ul>
+                        </div>
                         <div class="arsenal-header">
                             <div class="arsenal-icon-box ebook-icon">
                                 <i class="fa-solid fa-camera-retro"></i>
@@ -899,7 +1036,7 @@
                             </div>
                         </div>
                         <p class="arsenal-desc">
-                            Transforme seu Instagram em um ímã de respostas espontâneas. Aprenda as 5 fotos obrigatórias de alto valor social, a bio exata que instiga curiosidade e stories estratégicos sem ostentar falsamente. Leitura completa dentro do app.
+                            Ela olha o seu perfil antes de decidir se responde. Aprenda as 5 fotos obrigatórias de alto valor social, a bio que desperta curiosidade e os stories que fazem ela puxar assunto com você. Leitura completa dentro do app.
                         </p>
                         <div class="arsenal-price-row">
                             <div class="arsenal-price">
@@ -922,6 +1059,15 @@
                     <!-- E-book 2: A Mente Feminina Decodificada (Leitura Direta no App) -->
                     <div class="arsenal-card featured ebook-card" id="card-mente-feminina">
                         <div class="arsenal-badge ebook-badge"><i class="fa-solid fa-brain"></i> E-BOOK PSICOLÓGICO · LEITURA DIRETA NO APP</div>
+                        <div class="pm-book-showcase">
+                            <div class="pm-book-cover" style="--cover: url('assets/cover-mente-feminina.jpg');"><span>A MENTE<br>FEMININA</span></div>
+                            <ul class="pm-book-points">
+                                <li><i class="fa-solid fa-check"></i> 58 páginas · 6 capítulos</li>
+                                <li><i class="fa-solid fa-check"></i> Os testes que ela faz</li>
+                                <li><i class="fa-solid fa-check"></i> Sinais de interesse reais</li>
+                                <li><i class="fa-solid fa-check"></i> Versão PDF para baixar</li>
+                            </ul>
+                        </div>
                         <div class="arsenal-header">
                             <div class="arsenal-icon-box ebook-icon">
                                 <i class="fa-solid fa-puzzle-piece"></i>
@@ -932,7 +1078,7 @@
                             </div>
                         </div>
                         <p class="arsenal-desc">
-                            O manual definitivo sobre a psicologia feminina: decodifique os testes inconscientes de incongruência, por que ser o 'cara bonzinho' destrói a atração e quais gatilhos biológicos acionam o desejo e respeito imediato.
+                            Ela não diz o que sente: ela testa. Entenda os testes inconscientes, por que o "cara bonzinho" perde para o cara seguro e quais sinais mostram que ela está realmente interessada, para você parar de adivinhar.
                         </p>
                         <div class="arsenal-price-row">
                             <div class="arsenal-price">
@@ -955,6 +1101,15 @@
                     <!-- Curso em Vídeo: A Fórmula Secreta da Sedução (Área de Membros Kiwify) -->
                     <div class="arsenal-card featured video-card" id="card-formula-seducao">
                         <div class="arsenal-badge video-badge"><i class="fa-solid fa-circle-play"></i> 7 LIVROS + 10 AULAS GRAVADAS · KIWIFY</div>
+                        <div class="pm-book-showcase">
+                            <div class="pm-book-cover" style="--cover: url('assets/cover-formula-seducao.jpg');"><span>FÓRMULA<br>SECRETA</span></div>
+                            <ul class="pm-book-points">
+                                <li><i class="fa-solid fa-check"></i> 7 livros completos</li>
+                                <li><i class="fa-solid fa-check"></i> 10 aulas gravadas</li>
+                                <li><i class="fa-solid fa-check"></i> Área de membros Kiwify</li>
+                                <li><i class="fa-solid fa-check"></i> Acesso no celular ou PC</li>
+                            </ul>
+                        </div>
                         <div class="arsenal-header">
                             <div class="arsenal-icon-box video-icon">
                                 <i class="fa-solid fa-film"></i>
@@ -1029,9 +1184,9 @@
                                 <i class="fa-solid fa-xmark"></i>
                             </button>
                         </div>
-                        <span class="lock-badge">LIMITE DE CRÉDITOS ATINGIDO</span>
-                        <h3 class="lock-title">Não fique no vácuo agora.</h3>
-                        <p class="lock-desc">Seus créditos de consultoria acabaram. Desbloqueie o <strong>Plano PRO</strong> ou recarregue créditos avulsos para saber a jogada exata para responder ela imediatamente.</p>
+                        <span class="lock-badge">SEUS CRÉDITOS ACABARAM</span>
+                        <h3 class="lock-title">Ela está esperando a sua resposta.</h3>
+                        <p class="lock-desc">Cada minuto de demora esfria a conversa. Membros <strong>PRO</strong> recebem 40 créditos por mês e nunca ficam sem munição no momento decisivo. Escolha como quer continuar:</p>
 
                         <div class="lock-plan-cta-box">
                             <a href="https://pay.kiwify.com.br/mIglYN2" target="_blank" class="btn-lock-upgrade-pro">

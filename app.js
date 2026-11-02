@@ -220,6 +220,15 @@ document.addEventListener('DOMContentLoaded', () => {
         setupPlansTab();
         setupArsenalAndModals();
         setupCreditRecharge();
+
+        // Atalhos para a aba de Planos (gatilhos do Plano Anual espalhados pelo app)
+        document.querySelectorAll('[data-goto-plans]').forEach(el => {
+            el.addEventListener('click', () => {
+                triggerHaptic(20);
+                const plansNavBtn = document.querySelector('.nav-item[data-tab="tab-protocolos"]');
+                if (plansNavBtn) plansNavBtn.click();
+            });
+        });
         setupCopyButtons();
         updatePhaseBanner('auto');
         updateSubmodeUI();
@@ -492,7 +501,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         container.appendChild(responseCard);
+        evaluateAbundanceTip('coachAbundanceTip', round, [userText, botData.diagnosis, botData.actionGuide], 3);
         return responseCard;
+    }
+
+    // ==========================================================================
+    // LEI DA ABUNDÂNCIA: detecta quando ela está em joguinho / sem interesse
+    // e recomenda abrir novas conversas com o Oráculo (uso cruzado de ferramentas)
+    // ==========================================================================
+    const ABUNDANCE_SIGNALS = [
+        'joguinho', 'jogo dela', 'desinteress', 'sem interesse', 'não quer', 'nao quer', 'não está interessad',
+        'namorado', 'ficante', 'outro cara', 'bloqueou', 'bloqueio', 'só amigo', 'so amigo', 'só amizade',
+        'nunca ficaria', 'não rola', 'nao rola', 'não tô afim', 'nao to afim', 'sumiu de novo', 'visualizou e não',
+        'recue', 'recuar', 'desapego', 'pare de investir', 'parar de investir', 'seguir em frente', 'abundância'
+    ];
+
+    function evaluateAbundanceTip(tipId, round, texts, minRound) {
+        const tip = document.getElementById(tipId);
+        if (!tip) return;
+        const haystack = (texts || []).join(' ').toLowerCase();
+        const hasSignal = ABUNDANCE_SIGNALS.some(s => haystack.includes(s));
+        if (round >= minRound || (round >= 2 && hasSignal)) {
+            tip.classList.remove('hidden');
+        }
+    }
+
+    function hideAbundanceTip(tipId) {
+        const tip = document.getElementById(tipId);
+        if (tip) tip.classList.add('hidden');
     }
 
     // Setup do Coach de Emergência (Linha do Tempo 100% Sequencial De Cima Para Baixo & Persistência)
@@ -766,6 +802,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btnResetCoach.addEventListener('click', () => {
                 localStorage.removeItem('ordem_coach_history');
                 coachHistory = [];
+                hideAbundanceTip('coachAbundanceTip');
                 if (coachThreadFeed) coachThreadFeed.innerHTML = '';
                 if (responseContainer) responseContainer.classList.add('hidden');
                 if (initialInputContainer) initialInputContainer.classList.remove('hidden');
@@ -950,6 +987,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         container.appendChild(responseCard);
+        evaluateAbundanceTip('fzAbundanceTip', round, [userText, botData.reason], 3);
         return responseCard;
     }
 
@@ -1169,6 +1207,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btnReset.addEventListener('click', () => {
                 localStorage.removeItem('ordem_fz_history');
                 fzHistory = [];
+                hideAbundanceTip('fzAbundanceTip');
                 if (threadFeed) threadFeed.innerHTML = '';
                 if (responseBox) responseBox.classList.add('hidden');
                 if (initialInputContainer) initialInputContainer.classList.remove('hidden');
@@ -1633,7 +1672,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     navTitle: "Capa do Livro",
                     title: "Como Criar um Perfil Magnético",
                     html: `
-                        <div class="book-cover-view">
+                        <div class="book-cover-view"><div class="pm-reader-cover" style="--cover: url('assets/cover-perfil-magnetico.jpg');"></div>
                             <span class="book-cover-badge"><i class="fa-solid fa-crown"></i> ORDEM OCULTA · EDIÇÃO DEFINITIVA</span>
                             <div class="book-cover-crest">
                                 <i class="fa-solid fa-camera-retro"></i>
@@ -1846,6 +1885,86 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                         </div>
 
+                        <div class="tactical-script-card">
+                            <div class="script-card-header">
+                                <span class="script-label">MODELO 05 · ACADEMIA & DISCIPLINA</span>
+                            </div>
+                            <div class="script-text">
+                                Floripa 🌊 | Treino às 6h, trabalho às 8h.<br>
+                                Ainda tentando entender quem acorda tarde de propósito.
+                            </div>
+                        </div>
+
+                        <div class="tactical-script-card">
+                            <div class="script-card-header">
+                                <span class="script-label">MODELO 06 · TECNOLOGIA & HUMOR</span>
+                            </div>
+                            <div class="script-text">
+                                Dev em Recife 💻 Resolvo bugs de dia e crio outros à noite.<br>
+                                Melhor tapioca da cidade: aceito debates.
+                            </div>
+                        </div>
+
+                        <div class="tactical-script-card">
+                            <div class="script-card-header">
+                                <span class="script-label">MODELO 07 · MÚSICA & NOITE</span>
+                            </div>
+                            <div class="script-text">
+                                Porto Alegre • Violão ruim, playlist excelente. 🎸<br>
+                                Se você conhece um bar com música ao vivo boa, me conta.
+                            </div>
+                        </div>
+
+                        <div class="tactical-script-card">
+                            <div class="script-card-header">
+                                <span class="script-label">MODELO 08 · SAÚDE & PROPÓSITO</span>
+                            </div>
+                            <div class="script-text">
+                                Fisioterapeuta em Goiânia | Consertando costas alheias.<br>
+                                A minha ainda está na fila de espera.
+                            </div>
+                        </div>
+
+                        <div class="tactical-script-card">
+                            <div class="script-card-header">
+                                <span class="script-label">MODELO 09 · NEGÓCIOS & AMBIÇÃO</span>
+                            </div>
+                            <div class="script-text">
+                                SP • Construindo algo que ainda não cabe na bio. 📈<br>
+                                Café forte, decisões rápidas, finais de semana lentos.
+                            </div>
+                        </div>
+
+                        <div class="tactical-script-card">
+                            <div class="script-card-header">
+                                <span class="script-label">MODELO 10 · AVENTURA & NATUREZA</span>
+                            </div>
+                            <div class="script-text">
+                                Brasília ⛰️ Trilhas no fim de semana, planilhas na semana.<br>
+                                Procurando a cachoeira que ninguém postou ainda.
+                            </div>
+                        </div>
+
+                        <div class="tactical-script-card">
+                            <div class="script-card-header">
+                                <span class="script-label">MODELO 11 · MINIMALISTA MISTERIOSO</span>
+                            </div>
+                            <div class="script-text">
+                                Rio • Menos posts, mais histórias.<br>
+                                As melhores ficam pra contar pessoalmente.
+                            </div>
+                        </div>
+
+                        <div class="tactical-script-card">
+                            <div class="script-card-header">
+                                <span class="script-label">MODELO 12 · CULINÁRIA & CONVITE IMPLÍCITO</span>
+                            </div>
+                            <div class="script-text">
+                                Campinas 🍝 Faço a melhor carbonara que você ainda não provou.<br>
+                                Advogado nas horas vagas (ou o contrário).
+                            </div>
+                        </div>
+
                         <div class="reader-callout red">
                             <strong>⚠️ O Que Jamais Colocar na Bio:</strong>
                             Signo do zodíaco, frases bíblicas descontextualizadas, apelidos infantis, link para várias redes sociais acumuladas ou frases dizendo "Não mando mensagem primeiro". Isso grita insegurança.
@@ -2047,7 +2166,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     navTitle: "Capa do Livro",
                     title: "A Mente Feminina Decodificada",
                     html: `
-                        <div class="book-cover-view">
+                        <div class="book-cover-view"><div class="pm-reader-cover" style="--cover: url('assets/cover-mente-feminina.jpg');"></div>
                             <span class="book-cover-badge" style="background: rgba(139, 92, 246, 0.15); border-color: rgba(139, 92, 246, 0.4); color: #c4b5fd;">
                                 <i class="fa-solid fa-brain"></i> ORDEM OCULTA · MANUAL PSICOLÓGICO
                             </span>
@@ -2375,6 +2494,7 @@ document.addEventListener('DOMContentLoaded', () => {
             html: `
                 <div class="video-course-container">
                     <div class="course-hero-banner">
+                        <div class="pm-modal-cover" style="--cover: url('assets/cover-formula-seducao.jpg');"></div>
                         <span class="modal-badge-unlocked" style="margin-bottom: 8px;"><i class="fa-solid fa-circle-check"></i> REDIRECIONAMENTO OFICIAL · KIWIFY</span>
                         <h4>7 Livros Completos + 10 Aulas Gravadas</h4>
                         <p>Todo o conteúdo da <strong>Fórmula Secreta da Sedução</strong> (os 7 livros oficiais + as 10 vídeo-aulas explicativas sobre os livros) está hospedado diretamente na Área de Membros Oficial da Kiwify.</p>
