@@ -413,7 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Helper Global para Sincronização de Créditos
     function getGlobalCredits() {
-        return parseInt(localStorage.getItem('ordem_user_credits') || '5', 10);
+        return parseInt(localStorage.getItem('ordem_user_credits') || '10', 10);
     }
 
     function syncGlobalCredits(newCount) {
@@ -423,12 +423,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Suporte para renovação via URL (?reset=1 ou ?creditos=5)
+    // Suporte para renovação via URL (?reset=1 ou ?creditos=10)
     try {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('reset') || urlParams.has('renovar') || urlParams.has('creditos')) {
-            const val = urlParams.get('creditos') || '5';
-            syncGlobalCredits(parseInt(val, 10));
+            const val = urlParams.get('creditos') || urlParams.get('reset') || '10';
+            const num = parseInt(val, 10);
+            syncGlobalCredits(isNaN(num) || num <= 0 ? 10 : num);
             window.history.replaceState({}, document.title, window.location.pathname);
         }
     } catch (e) {}
