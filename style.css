@@ -4650,6 +4650,56 @@ body {
 .nav-item.active .nav-label { color: #fbbf24 !important; }
 .nav-item.active .nav-icon-wrapper { color: #fbbf24 !important; }
 
+/* ---------- Credenciais de Autoridade do Mestre (Ponto 4) ---------- */
+.pm-master-credentials {
+    margin: 14px 0 8px;
+    padding: 14px 14px 12px;
+    border-radius: 16px;
+    background: linear-gradient(145deg, rgba(245, 158, 11, 0.10) 0%, rgba(15, 14, 20, 0.96) 100%);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    box-shadow: 0 12px 28px -12px rgba(0, 0, 0, 0.75);
+    text-align: center;
+}
+.pm-cred-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+    color: #fbbf24;
+    margin-bottom: 10px;
+}
+.pm-cred-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+.pm-cred-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 6px;
+    border-radius: 11px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+}
+.pm-cred-item strong {
+    font-family: var(--font-heading);
+    font-size: 14px;
+    font-weight: 900;
+    background: var(--pm-gold-metal);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.pm-cred-item span {
+    font-size: 10px;
+    font-weight: 600;
+    color: #cbd5e1;
+    line-height: 1.2;
+}
+
 @media (max-width: 360px) {
     .pm-guide-chips { grid-template-columns: 1fr; }
     .pm-hero-title { font-size: 18px; }

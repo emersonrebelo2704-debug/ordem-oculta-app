@@ -18,15 +18,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Explicações Dinâmicas por Submodo & Fase
     const submodeExplanations = {
         story: {
-            auto: "<strong>Leitura de Story / Foto:</strong> O Mestre examina a foto ou story e determina se o melhor é uma invasão do zero, reacender a atração ou avançar.",
-            invasao: "<strong>Leitura de Story / Foto:</strong> O Mestre varre o cenário da foto (comida, taça, roupas, fundo) para criar uma quebra de padrão espontânea sem elogiar o corpo.",
-            conducao: "<strong>Leitura de Story:</strong> O Mestre analisa uma foto postada no meio da conversa para reacender a atração com um comentário desafiador.",
-            extracao: "<strong>Leitura de Story:</strong> O Mestre usa a imagem como desculpa para dizer que o Instagram corta conteúdos e pedir o WhatsApp.",
-            fechamento: "<strong>Leitura de Story:</strong> O Mestre usa o restaurante, bebida ou evento do story dela como pretexto exato para fazer o convite a dois."
+            auto: "<strong>Leitura de Story / Foto:</strong> O Mestre examina a foto ou story e determina se o melhor é uma abordagem inicial, reacender a atração ou avançar.",
+            invasao: "<strong>Leitura de Story / Foto:</strong> O Mestre varre o cenário da foto (comida, taça, roupas, fundo) para criar uma observação elegante e espontânea que foge dos elogios comuns.",
+            conducao: "<strong>Leitura de Story:</strong> O Mestre analisa uma foto postada no meio da conversa para reacender a atração com um comentário provocante.",
+            extracao: "<strong>Leitura de Story:</strong> O Mestre usa a imagem como pretexto natural para levar a conversa do Instagram para o WhatsApp.",
+            fechamento: "<strong>Leitura de Story:</strong> O Mestre usa o restaurante, bebida ou evento do story dela como gancho exato para fazer o convite a dois."
         },
         chat: {
-            auto: "<strong>Leitura da Conversa / Chat:</strong> O Mestre lê a DM, avalia quem mandou a última mensagem, se houve vácuo e diagnostica o momento exato.",
-            invasao: "<strong>Leitura da Conversa / Vácuo:</strong> O Mestre lê a DM anterior onde ela parou de responder e gera uma mensagem de reativação para quebrar o gelo sem parecer carente.",
+            auto: "<strong>Leitura da Conversa / Chat:</strong> O Mestre lê a conversa, avalia quem mandou a última mensagem, se houve silêncio e diagnostica o momento exato.",
+            invasao: "<strong>Leitura da Conversa / Retomada:</strong> O Mestre lê a conversa anterior e gera uma mensagem de abertura magnética sem demonstrar carência.",
             conducao: "<strong>Leitura da Conversa:</strong> O Mestre analisa o tom e tamanho da última mensagem dela para calibrar o ritmo e devolver uma resposta com tensão magnética.",
             extracao: "<strong>Leitura da Conversa:</strong> O Mestre identifica o ápice do diálogo para criar a ponte orgânica para o WhatsApp no momento perfeito.",
             fechamento: "<strong>Leitura da Conversa:</strong> O Mestre analisa a receptividade do chat e formula o convite fechado (dia, local e hora) eliminando desculpas."
@@ -38,8 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
         auto: {
             badge: "LEITURA DO MESTRE",
             title: "Modo Inteligente: Auto-Diagnóstico de Fase",
-            desc: "O olhar clínico do Mestre avalia todo o contexto visual e textual do print para diagnosticar em qual fase vocês estão (Invasão, Condução, Extração ou Fechamento) e aplicar a jogada cirúrgica.",
-            intel: { phase: "Auto-Diagnóstico", termometro: "Calculando...", gancho: "Leitura Tática" },
+            desc: "O olhar clínico do Mestre avalia todo o contexto visual e textual do print para diagnosticar em qual fase vocês estão (Abordagem, Condução, Transição ou Convite) e entregar a resposta exata.",
+            intel: { phase: "Auto-Diagnóstico", termometro: "Calculando...", gancho: "Leitura do Mestre" },
             responses: {
                 opt1: '"Aguardando o print para decodificar a fase exata..."',
                 opt2: '"Envie uma foto ou print de conversa para o Oráculo diagnosticar."',
@@ -54,9 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         invasao: {
             badge: "FASE I",
-            title: "A Invasão: Quebrar o Silêncio nos Stories & DMs",
-            desc: "O Oráculo busca 2 elementos inusitados de fundo no print para gerar um abridor descontraído, confiante e sem clichês de 'oi linda'.",
-            intel: { phase: "Fase I: A Invasão", termometro: "Gelo / Silêncio", gancho: "Cenário & Detalhe de Fundo" },
+            title: "A Abordagem Magnética: Quebrar o Gelo nos Stories & DMs",
+            desc: "O Mestre identifica detalhes sutis no cenário do print para criar uma abertura inteligente, charmosa e impossível de ser ignorada.",
+            intel: { phase: "Fase I: A Abordagem Magnética", termometro: "Abertura Inicial", gancho: "Cenário & Detalhe de Fundo" },
             responses: {
                 opt1: '"Você tem exatamente a cara de quem finge costume com viagens assim, mas se perde na primeira esquina."',
                 opt2: '"Três detalhes me chamaram atenção no fundo desse story, mas o segundo com certeza você achou que ninguém ia notar."',
@@ -64,59 +64,59 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             advice: {
                 opt1: "<strong>Quando usar:</strong> Perfeita se ela estiver bancando a inacessível. O humor desconcertante obriga ela a se justificar rindo, sem você parecer emocionado.",
-                opt2: "<strong>Quando usar:</strong> Excelente para quebrar o padrão dos caras que só elogiam a beleza. Cria curiosidade imediata e ela vai perguntar qual é o detalhe.",
-                opt3: "<strong>Quando usar:</strong> Use se houver contexto visual de restaurante/festa. Desarma a pose de perfeita mostrando que você é observador e audacioso."
+                opt2: "<strong>Quando usar:</strong> Excelente para se destacar dos homens comuns que só elogiam a beleza. Cria curiosidade imediata e ela vai perguntar qual é o detalhe.",
+                opt3: "<strong>Quando usar:</strong> Use se houver contexto visual de restaurante/festa. Desarma a pose mostrando que você é observador e confiante."
             },
             opt3Badge: "Avanço Seguro"
         },
         conducao: {
             badge: "FASE II",
-            title: "A Condução: Ritmo Magnético, Atração & Tensão",
-            desc: "O Mestre avalia a velocidade de resposta dela e o tamanho das mensagens para ditar o ritmo exato, evitar a friendzone e criar antecipação.",
-            intel: { phase: "Fase II: A Condução", termometro: "Curiosidade Média", gancho: "Desafio & Qualificação" },
+            title: "A Condução & Tensão: Ritmo Magnético e Atração",
+            desc: "O Mestre avalia a velocidade de resposta dela e o tamanho das mensagens para ditar o ritmo exato, evitar a zona de amizade e criar antecipação.",
+            intel: { phase: "Fase II: A Condução & Tensão", termometro: "Curiosidade Média", gancho: "Desafio & Qualificação" },
             responses: {
                 opt1: '"Se você for metade do tempo tão imprevisível pessoalmente quanto é por mensagem, nossa conversa vai ser um perigo."',
                 opt2: '"Geralmente quem demora para responder ou está fingindo desinteresse ou não aguenta 10 minutos de conversa afiada. Qual das duas é você?"',
                 opt3: '"Acho fascinante como você consegue sustentar uma pose de durona com cara de quem pede sobremesa antes do almoço."'
             },
             advice: {
-                opt1: "<strong>Quando usar:</strong> Quando a conversa estiver morna. Insinua atração e perigo sem você ser vulgar, deixando ela pensando em você.",
+                opt1: "<strong>Quando usar:</strong> Quando a conversa estiver morna. Insinua atração e perigo com classe, deixando ela pensando em você.",
                 opt2: "<strong>Quando usar:</strong> Se ela começou a demorar para responder ou mandou texto curto. Desafia o ego dela com elegância e sem desespero.",
-                opt3: "<strong>Quando usar:</strong> Excelente contraste entre humor e tensão sexual. Mostra que você enxerga através das defesas dela."
+                opt3: "<strong>Quando usar:</strong> Excelente contraste entre humor e tensão. Mostra que você enxerga através das defesas dela."
             },
             opt3Badge: "Tensão Ativa"
         },
         extracao: {
             badge: "FASE III",
-            title: "A Extração: A Ponte Natural para o WhatsApp",
-            desc: "Identifica o pico emocional da conversa no Instagram para transicionar para o número pessoal dela de forma fluida, sem pedir permissão.",
-            intel: { phase: "Fase III: A Extração", termometro: "Interesse Elevado", gancho: "Transição Situacional" },
+            title: "A Transição pro WhatsApp: A Ponte Natural",
+            desc: "Identifica o pico emocional da conversa no Instagram para transicionar para o número pessoal dela de forma fluida e natural.",
+            intel: { phase: "Fase III: A Transição pro WhatsApp", termometro: "Interesse Elevado", gancho: "Transição Situacional" },
             responses: {
                 opt1: '"Eu quase nunca abro a DM daqui durante a semana. Me manda um oi no WhatsApp que te conto o desfecho dessa história: (DDD) 9XXXX-XXXX."',
                 opt2: '"O Instagram vai cortar o áudio desse caso. Me passa seu número que te mando por lá antes que eu entre em reunião."',
                 opt3: '"Só troco ideia no WhatsApp com quem parece que vai sustentar uma conversa interessante pessoalmente. Você passou no teste preliminar."'
             },
             advice: {
-                opt1: "<strong>Quando usar:</strong> No auge de um assunto curioso. Você entrega seu número e inverte o papel: agora é ela quem tem que ir atrás de você.",
+                opt1: "<strong>Quando usar:</strong> No auge de um assunto curioso. Você entrega seu número e inverte o papel: agora é ela quem vai atrás de você.",
                 opt2: "<strong>Quando usar:</strong> O pretexto funcional perfeito. Áudios geram muito mais conexão e intimidade que texto na DM.",
-                opt3: "<strong>Quando usar:</strong> Se ela estiver muito investida na conversa. A qualificação sutil faz ela se sentir escolhida, aumentando o valor dela para você."
+                opt3: "<strong>Quando usar:</strong> Se ela estiver muito investida na conversa. A qualificação sutil faz ela se sentir escolhida, aumentando o seu valor."
             },
             opt3Badge: "Ponte WhatsApp"
         },
         fechamento: {
             badge: "FASE IV",
-            title: "O Fechamento: O Convite Blindado a Dois",
+            title: "O Convite a Dois: O Encontro Irrecusável",
             desc: "Prepara o terreno e formula o convite definitivo para sair a dois (barzinho, drinks, jantar), eliminando desculpas de 'vou ver na agenda'.",
-            intel: { phase: "Fase IV: O Fechamento", termometro: "Pronta pro Encontro", gancho: "Convite a Dois" },
+            intel: { phase: "Fase IV: O Convite a Dois", termometro: "Pronta pro Encontro", gancho: "Convite a Dois" },
             responses: {
                 opt1: '"Quinta-feira eu vou tomar um drink em um lugar que você provavelmente nunca foi. Às 20h30 eu passo pra te buscar ou você prefere ir direto?"',
                 opt2: '"Depois de você defender aquele assunto com tanta convicção, você me deve uma avaliação gastronômica. Sábado às 20h você é minha convidada."',
                 opt3: '"Sem problemas, eu também só saio com quem tem certeza da companhia. Se você conseguir vaga nessa sua agenda concorrida, me avisa até quarta."'
             },
             advice: {
-                opt1: "<strong>Quando usar:</strong> O convite assertivo definitivo. Dita dia, horário e clima com falsa escolha (buscar ou ir direto), sem dar margem para enrolação.",
+                opt1: "<strong>Quando usar:</strong> O convite assertivo definitivo. Dita dia, horário e clima com escolha direcionada (buscar ou ir direto), sem dar margem para enrolação.",
                 opt2: "<strong>Quando usar:</strong> Quando vocês brincaram sobre comida ou gostos. Usa a própria coerência dela como justificativa elegante para o encontro.",
-                opt3: "<strong>Quando usar:</strong> Retirada tática imediata se ela der desculpa de 'vou ver na agenda'. Mostra desapego de alto valor e faz ela reconsiderar na hora."
+                opt3: "<strong>Quando usar:</strong> Retirada elegante se ela der desculpa de 'vou ver na agenda'. Mostra desapego de alto valor e faz ela reconsiderar na hora."
             },
             opt3Badge: "Convite Cravado"
         }
@@ -125,34 +125,34 @@ document.addEventListener('DOMContentLoaded', () => {
     // Conteúdo dos 4 Guias para o Grimório
     const grimorioGuides = {
         '1': {
-            title: "Guia I: A Invasão (Abertura de Stories)",
-            rule: "Regra Anti-Gado: Nunca elogie a beleza ou o corpo dela.",
-            desc: "Mulheres atraentes recebem dezenas de mensagens por dia dizendo 'linda', 'maravilhosa' e emojis de fogo. O cérebro dela ignora no piloto automático. A invasão funciona atacando o contexto ao redor dela, nunca a pose.",
-            error: "Mandar 'Oi tudo bem?', reagir com palminha ou comentar 'Nossa que gata'. Ela visualiza e nunca responde.",
-            secret: "Aponte algo bizarro, engraçado ou curioso no ambiente da foto (um objeto estranho, um cachorro de fundo, a comida). Isso força uma resposta de defesa ou risada.",
+            title: "Guia I: A Abordagem Magnética (Abertura de Stories)",
+            rule: "Regra do Alto Valor: Nunca elogie apenas a beleza física logo na primeira mensagem.",
+            desc: "Mulheres atraentes recebem dezenas de mensagens por dia dizendo 'linda', 'maravilhosa' e emojis de fogo. O cérebro dela ignora no piloto automático. A abordagem magnética funciona observando o contexto ao redor dela, nunca a pose.",
+            error: "Mandar 'Oi tudo bem?', reagir com foguinho ou comentar 'Nossa que linda'. Ela visualiza e nunca responde.",
+            secret: "Aponte algo curioso, engraçado ou específico no ambiente da foto (um detalhe de fundo, a bebida, o lugar). Isso desperta uma resposta imediata de curiosidade ou risada.",
             script: '"Você tem cara de quem pediu esse drink só pela cor do copo e não deu 2 goles."'
         },
         '2': {
-            title: "Guia II: A Condução (O Ritmo Magnético)",
-            rule: "Regra do Espelhamento Invertido: Quem responde rápido demais parece desocupado; quem demora dias parece forçado.",
+            title: "Guia II: A Condução & Tensão (O Ritmo Magnético)",
+            rule: "Regra do Espelhamento Invertido: Quem responde rápido demais parece ansioso; quem demora dias perde o timing.",
             desc: "O desejo não nasce enquanto você conversa — ele nasce no intervalo entre uma mensagem e outra. Controlar o tempo e a densidade das respostas faz você ocupar a mente dela.",
-            error: "Mandar parágrafos gigantes para respostas monossilábicas dela. Isso entrega todo o seu valor de graça.",
-            secret: "Responda sempre com 70% do tamanho da mensagem dela e adicione uma pitada de desafio leve para ela se qualificar.",
+            error: "Mandar parágrafos gigantes para respostas curtas dela. Isso entrega toda a sua atenção de graça.",
+            secret: "Responda sempre com 70% do tamanho da mensagem dela e adicione uma pitada de desafio leve para ela investir na conversa.",
             script: '"Geralmente quem fala pouco por mensagem ou é muito interessante pessoalmente ou é monótona. Qual das duas é você?"'
         },
         '3': {
-            title: "Guia III: A Extração (Transição para o WhatsApp)",
-            rule: "Regra do Pretexto Orgânico: Nunca peça o número como um favor.",
-            desc: "O Instagram é uma vitrine pública cheia de distrações. O WhatsApp é a sala de estar íntima. A transição deve parecer a consequência lógica de uma conversa que ficou boa demais para a DM.",
-            error: "Dizer 'Me passa seu Whats pra gente conversar melhor?'. Soa como um formulário burocrático.",
-            secret: "Use um gancho de mídia (um áudio que o Instagram cortaria, uma foto, uma recomendação) ou entregue seu número primeiro em tom confiante.",
-            script: '"Eu odeio o teclado do Instagram. Me manda um oi no WhatsApp que te conto o resto: (DDD) 9XXXX-XXXX."'
+            title: "Guia III: A Transição pro WhatsApp (A Ponte Natural)",
+            rule: "Regra do Pretexto Orgânico: Nunca peça o número como se estivesse pedindo um favor.",
+            desc: "O Instagram é uma vitrine pública cheia de distrações. O WhatsApp é um ambiente íntimo. A transição deve parecer a consequência natural de uma conversa que ficou boa demais para a DM.",
+            error: "Dizer 'Me passa seu Whats pra gente conversar melhor?'. Soa como uma entrevista formal.",
+            secret: "Use um gancho funcional (mandar a localização de um lugar, um áudio que o Instagram cortaria ou uma foto) ou entregue seu número com naturalidade.",
+            script: '"Eu quase não abro o direct durante o dia. Me manda um oi no WhatsApp que te conto o resto: (DDD) 9XXXX-XXXX."'
         },
         '4': {
-            title: "Guia IV: O Fechamento (O Convite a Dois)",
-            rule: "Regra da Escolha Fechada: Nunca pergunte 'quando você pode sair?'. Dite o dia, o horário e o clima.",
-            desc: "O objetivo final de toda interação não é ser amigo virtual. É sentar na frente dela, olho no olho, com um drink na mão. O fechamento precisa ser natural, específico e de baixa pressão.",
-            error: "Ficar meses conversando sobre o tempo sem nunca propor um encontro, até virar o 'amigo fofoqueiro' dela.",
+            title: "Guia IV: O Convite a Dois (O Fechamento)",
+            rule: "Regra da Escolha Direcionada: Nunca pergunte 'quando você pode sair?'. Sugira o dia, o horário e a experiência.",
+            desc: "O objetivo final de toda interação não é ser um amigo virtual. É sentar na frente dela, olho no olho, com um bom drink. O convite precisa ser natural, específico e de baixa pressão.",
+            error: "Ficar semanas conversando sobre rotina sem nunca propor um encontro, até cair na zona de amizade.",
             secret: "Proponha algo que você já iria fazer e convide-a para fazer parte da experiência. Dê duas alternativas de horário e local definidos.",
             script: '"Quinta às 20h30 eu vou tomar um vinho excelente no centro. Você é minha convidada de honra. Te pego ou nos vemos lá?"'
         }
@@ -781,20 +781,20 @@ Responda EXCLUSIVAMENTE em JSON puro:
         const btnDevReset = document.getElementById('btnDevResetCredits');
         if (btnDevReset) {
             btnDevReset.addEventListener('click', () => {
-                syncGlobalCredits(5);
+                syncGlobalCredits(10);
                 hidePaywallLock();
-                showToast('⚡ 5 Créditos renovados com sucesso!');
+                showToast('⚡ 10 Créditos renovados com sucesso!');
             });
         }
 
-        // Clique no contador de créditos do cabeçalho recarrega +5 no modo teste
+        // Clique no contador de créditos do cabeçalho recarrega +10 no modo teste
         const headerCreditsBadge = document.getElementById('headerCreditsBadge');
         if (headerCreditsBadge) {
             headerCreditsBadge.style.cursor = 'pointer';
-            headerCreditsBadge.title = 'Clique para recarregar +5 créditos no modo teste';
+            headerCreditsBadge.title = 'Clique para recarregar +10 créditos no modo teste';
             headerCreditsBadge.addEventListener('click', () => {
                 const current = getGlobalCredits();
-                const nextCredits = current <= 0 ? 5 : current + 5;
+                const nextCredits = current <= 0 ? 10 : current + 10;
                 syncGlobalCredits(nextCredits);
                 hidePaywallLock();
                 showToast(`⚡ Créditos recarregados! Saldo atual: ${nextCredits}`);
@@ -1543,6 +1543,37 @@ Responda EXCLUSIVAMENTE em JSON puro:
         });
     }
 
+    // Compressor invisível de imagem (reduz peso de prints mobile em até 80% e corta tokens de visão pela metade)
+    function compressPrintDataUrl(rawDataUrl, maxDim = 960, quality = 0.78) {
+        return new Promise((resolve) => {
+            try {
+                const img = new Image();
+                img.onload = () => {
+                    let { width, height } = img;
+                    if (width > maxDim || height > maxDim) {
+                        if (width > height) {
+                            height = Math.round((height * maxDim) / width);
+                            width = maxDim;
+                        } else {
+                            width = Math.round((width * maxDim) / height);
+                            height = maxDim;
+                        }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                };
+                img.onerror = () => resolve(rawDataUrl);
+                img.src = rawDataUrl;
+            } catch (e) {
+                resolve(rawDataUrl);
+            }
+        });
+    }
+
     function handleFile(file) {
         if (!file.type.startsWith('image/')) {
             showToast('Envie apenas arquivos de imagem.');
@@ -1551,9 +1582,10 @@ Responda EXCLUSIVAMENTE em JSON puro:
 
         state.selectedFile = file;
         const reader = new FileReader();
-        reader.onload = (e) => {
-            state.selectedBase64 = e.target.result;
-            elements.previewImg.src = state.selectedBase64;
+        reader.onload = async (e) => {
+            const rawDataUrl = e.target.result;
+            elements.previewImg.src = rawDataUrl;
+            state.selectedBase64 = await compressPrintDataUrl(rawDataUrl);
             elements.uploadPlaceholder.classList.add('hidden');
             elements.previewWrapper.classList.remove('hidden');
             elements.btnScan.disabled = false;
