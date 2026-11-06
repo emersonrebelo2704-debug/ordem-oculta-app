@@ -4150,7 +4150,7 @@ body {
 
 /* ---------- Header com emblema ---------- */
 .brand-crest.brand-crest-premium {
-    background: url('assets/hero-emblem.jpg?v=5') center/cover no-repeat, #0b0b0f;
+    background: url('assets/hero-emblem.jpg?v=6') center/cover no-repeat, #0b0b0f;
     border: 1px solid rgba(245, 158, 11, 0.45);
     box-shadow: 0 0 18px rgba(245, 158, 11, 0.25);
     border-radius: 50%;
@@ -4193,7 +4193,7 @@ body {
     flex-shrink: 0;
     width: 62px; height: 62px;
     border-radius: 50%;
-    background: url('assets/hero-emblem.jpg?v=5') center/cover no-repeat, #0b0b0f;
+    background: url('assets/hero-emblem.jpg?v=6') center/cover no-repeat, #0b0b0f;
     border: 1.5px solid rgba(245, 158, 11, 0.55);
     box-shadow: 0 0 24px rgba(245, 158, 11, 0.3), 0 0 0 4px rgba(245, 158, 11, 0.06);
     animation: pmEmblemPulse 4s ease-in-out infinite;
@@ -4507,7 +4507,7 @@ body {
     width: 84px; height: 84px;
     margin: 0 auto 14px;
     border-radius: 50%;
-    background: url('assets/hero-emblem.jpg?v=5') center/cover no-repeat, #0b0b0f;
+    background: url('assets/hero-emblem.jpg?v=6') center/cover no-repeat, #0b0b0f;
     border: 1.5px solid rgba(245, 158, 11, 0.6);
     animation: pmEmblemPulse 4s ease-in-out infinite;
 }
