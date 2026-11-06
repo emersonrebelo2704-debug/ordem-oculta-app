@@ -4150,10 +4150,12 @@ body {
 
 /* ---------- Header com emblema ---------- */
 .brand-crest.brand-crest-premium {
-    background: url('assets/hero-emblem.jpg?v=6') center/cover no-repeat, #0b0b0f;
-    border: 1px solid rgba(245, 158, 11, 0.45);
-    box-shadow: 0 0 18px rgba(245, 158, 11, 0.25);
-    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    background: url('assets/hero-emblem.jpg?v=7') center/contain no-repeat, #08080a;
+    border: none;
+    box-shadow: 0 4px 14px rgba(185, 28, 28, 0.35), 0 0 12px rgba(245, 158, 11, 0.2);
+    border-radius: 12px;
 }
 .brand-crest.brand-crest-premium i { opacity: 0; }
 
@@ -4191,11 +4193,11 @@ body {
 .pm-hero-row { display: flex; align-items: center; gap: 14px; position: relative; }
 .pm-hero-emblem {
     flex-shrink: 0;
-    width: 62px; height: 62px;
-    border-radius: 50%;
-    background: url('assets/hero-emblem.jpg?v=6') center/cover no-repeat, #0b0b0f;
-    border: 1.5px solid rgba(245, 158, 11, 0.55);
-    box-shadow: 0 0 24px rgba(245, 158, 11, 0.3), 0 0 0 4px rgba(245, 158, 11, 0.06);
+    width: 82px; height: 82px;
+    border-radius: 18px;
+    background: url('assets/hero-emblem.jpg?v=7') center/contain no-repeat, #08080a;
+    border: none;
+    box-shadow: 0 8px 26px rgba(185, 28, 28, 0.35), 0 0 20px rgba(245, 158, 11, 0.22);
     animation: pmEmblemPulse 4s ease-in-out infinite;
 }
 @keyframes pmEmblemPulse {
@@ -4504,11 +4506,11 @@ body {
 
 /* ---------- Planos ---------- */
 .pm-plans-emblem {
-    width: 84px; height: 84px;
+    width: 96px; height: 96px;
     margin: 0 auto 14px;
-    border-radius: 50%;
-    background: url('assets/hero-emblem.jpg?v=6') center/cover no-repeat, #0b0b0f;
-    border: 1.5px solid rgba(245, 158, 11, 0.6);
+    border-radius: 20px;
+    background: url('assets/hero-emblem.jpg?v=7') center/contain no-repeat, #08080a;
+    border: none;
     animation: pmEmblemPulse 4s ease-in-out infinite;
 }
 .pm-value-box {
