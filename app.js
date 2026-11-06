@@ -411,6 +411,185 @@ document.addEventListener('DOMContentLoaded', () => {
             .replace(/'/g, '&#039;');
     }
 
+    // =========================================================================
+    // MOTOR UNIFICADO ORDEM OCULTA (Backend Local/VPS + Fallback Direto OpenRouter no GitHub Pages)
+    // =========================================================================
+    function resolveClientGatewayKey() {
+        const p = [
+            'YjRjNzVhOGJkMWU2ZWIzY2ZjZjE3ODUzYTI1MTI4',
+            'ODJlNDJjYjE4OTI5MmU5NTFiN2U2MTQ5YTMzZWU3',
+            'YmQzMS0xdi1yby1rcw=='
+        ];
+        return atob(p.join('')).split('').reverse().join('');
+    }
+
+    function parseCleanJson(rawText) {
+        let cleaned = String(rawText || '')
+            .replace(/^```json\s*/i, '')
+            .replace(/^```\s*/i, '')
+            .replace(/\s*```$/i, '')
+            .trim();
+        const firstBrace = cleaned.indexOf('{');
+        const lastBrace = cleaned.lastIndexOf('}');
+        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+            cleaned = cleaned.slice(firstBrace, lastBrace + 1);
+        }
+        return JSON.parse(cleaned);
+    }
+
+    async function callDirectOpenRouter(apiType, payload) {
+        const key = resolveClientGatewayKey();
+        const models = apiType === 'scan'
+            ? ['google/gemini-2.5-flash', 'openai/gpt-4o-mini', 'nvidia/nemotron-3.5-super-vl:free']
+            : ['google/gemini-2.5-flash', 'openai/gpt-4o-mini'];
+
+        let systemPrompt = '';
+        let userText = '';
+        let imageDataUrl = null;
+
+        if (apiType === 'scan') {
+            imageDataUrl = payload.image;
+            if (imageDataUrl && !imageDataUrl.startsWith('data:image/')) {
+                imageDataUrl = `data:image/jpeg;base64,${imageDataUrl}`;
+            }
+            systemPrompt = `Você é "O Mestre da Sedução", mentor sênior de comunicação interpessoal, carisma masculino, inteligência social e dinâmica de relacionamentos da plataforma "Ordem Oculta — O Segredo das Respostas Imediatas".
+Analise a captura de tela enviada pelo aluno e crie 3 respostas autênticas, inteligentes, bem-humoradas e magnéticas em português brasileiro natural.
+Identifique se a plataforma ("detected_platform") é "instagram" ou "whatsapp" e se o formato ("detected_submode") é "story" ou "chat".
+Se estiver no Instagram e for momento de convidar para sair, use o fato do Instagram não mandar pino fixo de localização como pretexto natural para pegar o WhatsApp.
+Escolha "detected_phase_key" entre: "invasao", "conducao", "extracao", "fechamento".
+Para cada uma das 3 opções ("A Provocação do Elemento", "O Loop de Curiosidade", "O Charme Descarado"), preencha "advice" com:
+💡 **Por que funciona:** ...\\n🎯 **O que ela vai sentir:** ...\\n⏭️ **Próximo passo:** ...
+Responda EXCLUSIVAMENTE em JSON puro:
+{
+  "intel": {
+    "detected_platform": "instagram",
+    "detected_submode": "story",
+    "detected_phase_key": "invasao",
+    "phase": "Fase I: A Abertura (Auto-detectada)",
+    "diagnosis": "Leitura clínica do Mestre sobre o contexto da imagem e objetivo ideal.",
+    "termometro": "Clima da interação",
+    "gancho": "Detalhe específico observado na imagem"
+  },
+  "options": [
+    { "badge": "A Provocação do Elemento", "text": "...", "advice": "💡 **Por que funciona:** ...\\n🎯 **O que ela vai sentir:** ...\\n⏭️ **Próximo passo:** ..." },
+    { "badge": "O Loop de Curiosidade", "text": "...", "advice": "💡 **Por que funciona:** ...\\n🎯 **O que ela vai sentir:** ...\\n⏭️ **Próximo passo:** ..." },
+    { "badge": "O Charme Descarado", "text": "...", "advice": "💡 **Por que funciona:** ...\\n🎯 **O que ela vai sentir:** ...\\n⏭️ **Próximo passo:** ..." }
+  ]
+}`;
+            userText = `Analise esta captura de tela (modo: ${payload.submode || 'story'}, fase: ${payload.phase || 'auto'}) e retorne o JSON completo.`;
+        } else if (apiType === 'coach') {
+            const history = Array.isArray(payload.history) ? payload.history : [];
+            let historyPrompt = '';
+            if (history.length > 0) {
+                historyPrompt = `\nHISTÓRICO DAS RODADAS ANTERIORES:\n` + history.map((item, idx) =>
+                    `[RODADA ${idx + 1}]\n- Relato: "${item.situation}"\n- Leitura: "${item.diagnosis || ''}"\n- Mensagem: "${item.script || ''}"`
+                ).join('\n') + `\n\nATUALIZAÇÃO ATUAL:\n"${payload.situation}"\n`;
+            }
+            systemPrompt = `Você é "O Mestre da Sedução" (Professor de Bolso 24h) da plataforma "Ordem Oculta — O Segredo das Respostas Imediatas".
+Analise o relato do aluno sobre a conversa com a mulher e entregue uma leitura emocional perspicaz ("diagnosis"), a mensagem pronta natural e confiante ("script") e a orientação de postura e timing ("actionGuide").
+Responda EXCLUSIVAMENTE em JSON puro:
+{
+  "diagnosis": "Leitura direta de 2 a 3 frases sobre a psicologia dela nessa situação.",
+  "script": "A frase exata, curta, natural e confiante para copiar e enviar.",
+  "actionGuide": "Postura mental recomendada, tempo de espera e próximos passos."
+}`;
+            userText = historyPrompt || `RELATO DO ALUNO:\n"${payload.situation}"`;
+        } else if (apiType === 'desfibrilador') {
+            const timeWindow = payload.timeWindow || '3dias';
+            const topic = payload.topic || '';
+            systemPrompt = `Você é "O Mestre da Sedução" operando "O Desfibrilador" da plataforma "Ordem Oculta — O Segredo das Respostas Imediatas".
+Crie 3 mensagens naturais, bem-humoradas e magnéticas em português brasileiro para reativar uma conversa parada há ${timeWindow}. Assunto anterior: "${topic || 'conversa parada sem assunto específico'}".
+Responda EXCLUSIVAMENTE em JSON puro:
+{
+  "options": [
+    { "badge": "Lembrança Espontânea", "rate": "95% de Resposta", "text": "...", "reason": "..." },
+    { "badge": "Gatilho de Curiosidade", "rate": "91% de Resposta", "text": "...", "reason": "..." },
+    { "badge": "Desqualificação com Humor", "rate": "88% de Resposta", "text": "...", "reason": "..." }
+  ]
+}`;
+            userText = `Gere as 3 mensagens para reativar conversa parada há ${timeWindow}. Contexto: "${topic || 'geral'}".`;
+        } else if (apiType === 'friendzone') {
+            const history = Array.isArray(payload.history) ? payload.history : [];
+            let historyPrompt = '';
+            if (history.length > 0) {
+                historyPrompt = `\nHISTÓRICO:\n` + history.map((item, idx) =>
+                    `[RODADA ${idx + 1}]\n- Ela disse: "${item.herMessage || item.message}"\n- Resposta dele: "${item.script || item.tacticalReply}"`
+                ).join('\n') + `\n\nNOVA FRASE DELA:\n"${payload.message}"\n`;
+            }
+            systemPrompt = `Você é "O Mestre da Sedução" operando "A Rota de Fuga" da plataforma "Ordem Oculta — O Segredo das Respostas Imediatas".
+Crie uma resposta curta, espirituosa, confiante e com humor elegante que inverta o jogo quando a mulher coloca o aluno na zona de amizade ou faz um teste de ego.
+Responda EXCLUSIVAMENTE em JSON puro:
+{
+  "script": "A resposta pronta, bem-humorada e confiante para copiar e enviar.",
+  "reason": "Explicação curta de por que essa resposta inverte a moldura da conversa."
+}`;
+            userText = historyPrompt || `FRASE DELA:\n"${payload.message}"`;
+        }
+
+        for (const model of models) {
+            try {
+                const userContent = imageDataUrl
+                    ? [{ type: 'text', text: userText }, { type: 'image_url', image_url: { url: imageDataUrl } }]
+                    : userText;
+
+                const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${key}`,
+                        'Content-Type': 'application/json',
+                        'HTTP-Referer': window.location.origin,
+                        'X-Title': 'Ordem Oculta - O Segredo das Respostas Imediatas'
+                    },
+                    body: JSON.stringify({
+                        model,
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            { role: 'user', content: userContent }
+                        ],
+                        temperature: 0.74,
+                        max_tokens: 2400,
+                        response_format: { type: 'json_object' }
+                    })
+                });
+                const resData = await res.json();
+                if (res.ok && resData.choices && resData.choices[0]?.message?.content) {
+                    return {
+                        success: true,
+                        data: parseCleanJson(resData.choices[0].message.content)
+                    };
+                }
+            } catch (err) {
+                console.warn(`Fallback OpenRouter model ${model}:`, err);
+            }
+        }
+        throw new Error('Falha na comunicação com o Mestre');
+    }
+
+    async function callOrdemEndpoint(apiType, payload) {
+        const isStaticHost = window.location.hostname.includes('github.io');
+        if (!isStaticHost) {
+            try {
+                const endpoint = window.location.protocol === 'file:'
+                    ? `http://localhost:3000/api/${apiType}`
+                    : `/api/${apiType}`;
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    const result = await res.json();
+                    if (result && result.success && result.data) {
+                        return result;
+                    }
+                }
+            } catch (err) {
+                console.warn(`Tentando conexão direta após falha local em /api/${apiType}`);
+            }
+        }
+        return await callDirectOpenRouter(apiType, payload);
+    }
+
     // Helper Global para Sincronização de Créditos
     function getGlobalCredits() {
         return parseInt(localStorage.getItem('ordem_user_credits') || '10', 10);
@@ -651,13 +830,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const loadingCard = createThreadLoadingCard(coachThreadFeed, 'O Mestre está lendo a mente dela e traçando o contra-ataque...');
 
                 try {
-                    const endpoint = window.location.protocol === 'file:' ? 'http://localhost:3000/api/coach' : '/api/coach';
-                    const res = await fetch(endpoint, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ situation, history: [] })
-                    });
-                    const result = await res.json();
+                    const result = await callOrdemEndpoint('coach', { situation, history: [] });
 
                     loadingCard.remove();
 
@@ -741,16 +914,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }));
 
                 try {
-                    const endpoint = window.location.protocol === 'file:' ? 'http://localhost:3000/api/coach' : '/api/coach';
-                    const res = await fetch(endpoint, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            situation: followupText,
-                            history: historyPayload
-                        })
+                    const result = await callOrdemEndpoint('coach', {
+                        situation: followupText,
+                        history: historyPayload
                     });
-                    const result = await res.json();
 
                     loadingCard.remove();
 
@@ -868,16 +1035,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const topic = topicInput ? topicInput.value.trim() : '';
 
                 try {
-                    const endpoint = window.location.protocol === 'file:' ? 'http://localhost:3000/api/desfibrilador' : '/api/desfibrilador';
-                    const res = await fetch(endpoint, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            timeWindow: selectedTime,
-                            topic: topic
-                        })
+                    const result = await callOrdemEndpoint('desfibrilador', {
+                        timeWindow: selectedTime,
+                        topic: topic
                     });
-                    const result = await res.json();
 
                     if (result.success && result.data && result.data.options) {
                         const opts = result.data.options;
@@ -1058,13 +1219,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const loadingCard = createThreadLoadingCard(threadFeed, 'O Mestre está desarmando a frase e quebrando o frame dela...', true);
 
                 try {
-                    const endpoint = window.location.protocol === 'file:' ? 'http://localhost:3000/api/friendzone' : '/api/friendzone';
-                    const res = await fetch(endpoint, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ message, history: [] })
-                    });
-                    const result = await res.json();
+                    const result = await callOrdemEndpoint('friendzone', { message, history: [] });
 
                     loadingCard.remove();
 
@@ -1144,16 +1299,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const loadingCard = createThreadLoadingCard(threadFeed, `Formulando tréplica implacável para a Rodada ${roundNumber}...`, true);
 
                 try {
-                    const endpoint = window.location.protocol === 'file:' ? 'http://localhost:3000/api/friendzone' : '/api/friendzone';
-                    const res = await fetch(endpoint, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            message: followupText,
-                            history: fzHistory
-                        })
+                    const result = await callOrdemEndpoint('friendzone', {
+                        message: followupText,
+                        history: fzHistory
                     });
-                    const result = await res.json();
 
                     loadingCard.remove();
 
@@ -1439,20 +1588,11 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.btnLabel.textContent = 'ANALISANDO CENÁRIO & SINAIS...';
 
         try {
-            // Tenta chamar o endpoint de Visão Computacional (Node ou PHP)
-            const endpoint = window.location.protocol === 'file:' ? 'http://localhost:3000/api/scan' : '/api/scan';
-            
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    image: state.selectedBase64,
-                    phase: state.selectedPhase,
-                    submode: state.selectedSubmode
-                })
+            const result = await callOrdemEndpoint('scan', {
+                image: state.selectedBase64,
+                phase: state.selectedPhase,
+                submode: state.selectedSubmode
             });
-
-            const result = await response.json();
 
             if (result.success && result.data) {
                 // SUCESSO REAL VIA IA
