@@ -733,6 +733,12 @@ Responda EXCLUSIVAMENTE em JSON puro:
 
         syncGlobalCredits(getGlobalCredits());
 
+        // Limpa cache de layout antigo do Coach uma única vez na v11 para exibir a caixa limpa igual ao Anti-Friendzone
+        if (localStorage.getItem('ordem_coach_layout_v11') !== '1') {
+            localStorage.removeItem('ordem_coach_history');
+            localStorage.setItem('ordem_coach_layout_v11', '1');
+        }
+
         // Restaura histórico persistido do Coach no localStorage
         function restoreCoachHistory() {
             try {
