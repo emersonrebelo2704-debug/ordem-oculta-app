@@ -18,28 +18,28 @@ document.addEventListener('DOMContentLoaded', () => {
     // Explicações Dinâmicas por Submodo & Fase
     const submodeExplanations = {
         story: {
-            auto: "<strong>Visão no Story / Foto:</strong> A IA examina a foto ou story e determina se o melhor é uma invasão do zero, reacender a atração ou avançar.",
-            invasao: "<strong>Visão no Story / Foto:</strong> A IA varre o cenário da foto (comida, taça, roupas, fundo) para criar uma quebra de padrão espontânea sem elogiar o corpo.",
-            conducao: "<strong>Visão no Story:</strong> A IA analisa uma foto postada no meio da conversa para reacender a atração com um comentário desafiador.",
-            extracao: "<strong>Visão no Story:</strong> A IA usa a imagem como desculpa para dizer que o Instagram corta conteúdos e pedir o WhatsApp.",
-            fechamento: "<strong>Visão no Story:</strong> A IA usa o restaurante, bebida ou evento do story dela como pretexto exato para fazer o convite a dois."
+            auto: "<strong>Leitura de Story / Foto:</strong> O Mestre examina a foto ou story e determina se o melhor é uma invasão do zero, reacender a atração ou avançar.",
+            invasao: "<strong>Leitura de Story / Foto:</strong> O Mestre varre o cenário da foto (comida, taça, roupas, fundo) para criar uma quebra de padrão espontânea sem elogiar o corpo.",
+            conducao: "<strong>Leitura de Story:</strong> O Mestre analisa uma foto postada no meio da conversa para reacender a atração com um comentário desafiador.",
+            extracao: "<strong>Leitura de Story:</strong> O Mestre usa a imagem como desculpa para dizer que o Instagram corta conteúdos e pedir o WhatsApp.",
+            fechamento: "<strong>Leitura de Story:</strong> O Mestre usa o restaurante, bebida ou evento do story dela como pretexto exato para fazer o convite a dois."
         },
         chat: {
-            auto: "<strong>Visão na Conversa / Chat:</strong> A IA lê a DM, avalia quem mandou a última mensagem, se houve vácuo e diagnostica o momento exato.",
-            invasao: "<strong>Visão na Conversa / Vácuo:</strong> A IA lê a DM anterior onde ela parou de responder e gera uma mensagem de reativação para quebrar o gelo sem parecer carente.",
-            conducao: "<strong>Visão na Conversa:</strong> A IA analisa o tom e tamanho da última mensagem dela para calibrar o ritmo e devolver uma resposta com tensão magnética.",
-            extracao: "<strong>Visão na Conversa:</strong> A IA identifica o ápice do diálogo para criar a ponte orgânica para o WhatsApp no momento perfeito.",
-            fechamento: "<strong>Visão na Conversa:</strong> A IA analisa a receptividade do chat e formula o convite fechado (dia, local e hora) eliminando desculpas."
+            auto: "<strong>Leitura da Conversa / Chat:</strong> O Mestre lê a DM, avalia quem mandou a última mensagem, se houve vácuo e diagnostica o momento exato.",
+            invasao: "<strong>Leitura da Conversa / Vácuo:</strong> O Mestre lê a DM anterior onde ela parou de responder e gera uma mensagem de reativação para quebrar o gelo sem parecer carente.",
+            conducao: "<strong>Leitura da Conversa:</strong> O Mestre analisa o tom e tamanho da última mensagem dela para calibrar o ritmo e devolver uma resposta com tensão magnética.",
+            extracao: "<strong>Leitura da Conversa:</strong> O Mestre identifica o ápice do diálogo para criar a ponte orgânica para o WhatsApp no momento perfeito.",
+            fechamento: "<strong>Leitura da Conversa:</strong> O Mestre analisa a receptividade do chat e formula o convite fechado (dia, local e hora) eliminando desculpas."
         }
     };
 
     // Dados das 4 Fases para o Oráculo
     const phaseDefinitions = {
         auto: {
-            badge: "IA AUTOMÁTICA",
+            badge: "LEITURA DO MESTRE",
             title: "Modo Inteligente: Auto-Diagnóstico de Fase",
-            desc: "A visão computacional avalia todo o contexto visual e textual do print para diagnosticar em qual fase vocês estão (Invasão, Condução, Extração ou Fechamento) e aplicar a jogada cirúrgica.",
-            intel: { phase: "Auto-Diagnóstico", termometro: "Calculando...", gancho: "Visão Computacional" },
+            desc: "O olhar clínico do Mestre avalia todo o contexto visual e textual do print para diagnosticar em qual fase vocês estão (Invasão, Condução, Extração ou Fechamento) e aplicar a jogada cirúrgica.",
+            intel: { phase: "Auto-Diagnóstico", termometro: "Calculando...", gancho: "Leitura Tática" },
             responses: {
                 opt1: '"Aguardando o print para decodificar a fase exata..."',
                 opt2: '"Envie uma foto ou print de conversa para o Oráculo diagnosticar."',
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         invasao: {
             badge: "FASE I",
             title: "A Invasão: Quebrar o Silêncio nos Stories & DMs",
-            desc: "A visão computacional busca 2 elementos inusitados de fundo no print para gerar um abridor descontraído, confiante e sem clichês de 'oi linda'.",
+            desc: "O Oráculo busca 2 elementos inusitados de fundo no print para gerar um abridor descontraído, confiante e sem clichês de 'oi linda'.",
             intel: { phase: "Fase I: A Invasão", termometro: "Gelo / Silêncio", gancho: "Cenário & Detalhe de Fundo" },
             responses: {
                 opt1: '"Você tem exatamente a cara de quem finge costume com viagens assim, mas se perde na primeira esquina."',
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
         conducao: {
             badge: "FASE II",
             title: "A Condução: Ritmo Magnético, Atração & Tensão",
-            desc: "A IA avalia a velocidade de resposta dela e o tamanho das mensagens para ditar o ritmo exato, evitar a friendzone e criar antecipação.",
+            desc: "O Mestre avalia a velocidade de resposta dela e o tamanho das mensagens para ditar o ritmo exato, evitar a friendzone e criar antecipação.",
             intel: { phase: "Fase II: A Condução", termometro: "Curiosidade Média", gancho: "Desafio & Qualificação" },
             responses: {
                 opt1: '"Se você for metade do tempo tão imprevisível pessoalmente quanto é por mensagem, nossa conversa vai ser um perigo."',
@@ -468,9 +468,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="coach-response-header">
                 <div class="coach-header-left">
                     <span class="coach-status-dot"></span>
-                    <span class="coach-name">PARECER DO COACH (ETAPA ${round})</span>
+                    <span class="coach-name">PARECER DO MESTRE (ETAPA ${round})</span>
                 </div>
-                <span class="coach-badge-tactic">DIAGNÓSTICO FRIO</span>
+                <span class="coach-badge-tactic">LEITURA PSICOLÓGICA</span>
             </div>
 
             <div class="coach-diagnosis-box">
@@ -639,7 +639,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 btnAskCoach.disabled = true;
-                btnAskCoach.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Consultando Coach...</span>';
+                btnAskCoach.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Consultando o Mestre...</span>';
                 triggerHaptic(30);
 
                 // Alterna visão: esconde entrada inicial e mostra a timeline de respostas
@@ -648,7 +648,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (coachThreadFeed) coachThreadFeed.innerHTML = '';
 
                 // Mostra balão do usuário e card de carregamento na linha do tempo
-                const loadingCard = createThreadLoadingCard(coachThreadFeed, 'Coach analisando a dinâmica friamente...');
+                const loadingCard = createThreadLoadingCard(coachThreadFeed, 'O Mestre está lendo a mente dela e traçando o contra-ataque...');
 
                 try {
                     const endpoint = window.location.protocol === 'file:' ? 'http://localhost:3000/api/coach' : '/api/coach';
@@ -724,14 +724,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 btnCoachFollowup.disabled = true;
-                btnCoachFollowup.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Consultando Coach...</span>';
+                btnCoachFollowup.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Consultando o Mestre...</span>';
                 triggerHaptic(30);
 
                 if (coachFollowupInput) coachFollowupInput.value = '';
 
                 // Mostra o card de carregamento logo abaixo na timeline
                 const roundNumber = coachHistory.length + 1;
-                const loadingCard = createThreadLoadingCard(coachThreadFeed, `Coach formulando o próximo passo da Etapa ${roundNumber}...`);
+                const loadingCard = createThreadLoadingCard(coachThreadFeed, `O Mestre está formulando o próximo passo da Etapa ${roundNumber}...`);
 
                 // Formata histórico para o backend
                 const historyPayload = coachHistory.map(item => ({
@@ -863,7 +863,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btnShock.addEventListener('click', async () => {
                 triggerHaptic(40);
                 btnShock.disabled = true;
-                btnShock.innerHTML = '<i class="fa-solid fa-bolt fa-fade"></i><span>DISPARANDO IA TÁTICA...</span>';
+                btnShock.innerHTML = '<i class="fa-solid fa-bolt fa-fade"></i><span>FORMULANDO CHOQUE TÁTICO...</span>';
 
                 const topic = topicInput ? topicInput.value.trim() : '';
 
@@ -1055,7 +1055,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (responseBox) responseBox.classList.remove('hidden');
                 if (threadFeed) threadFeed.innerHTML = '';
 
-                const loadingCard = createThreadLoadingCard(threadFeed, 'Desarmando frase e quebrando frame com IA...', true);
+                const loadingCard = createThreadLoadingCard(threadFeed, 'O Mestre está desarmando a frase e quebrando o frame dela...', true);
 
                 try {
                     const endpoint = window.location.protocol === 'file:' ? 'http://localhost:3000/api/friendzone' : '/api/friendzone';
@@ -1457,7 +1457,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result.success && result.data) {
                 // SUCESSO REAL VIA IA
                 renderRealAIResponse(result.data);
-                showToast('Decodificação REAL da IA concluída!');
+                showToast('Decodificação do Mestre concluída!');
             } else if (result.needs_key) {
                 // Chave ainda não preenchida no config.php
                 applyPhaseResponses(state.selectedPhase);
