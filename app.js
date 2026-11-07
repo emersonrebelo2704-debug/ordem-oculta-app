@@ -2893,27 +2893,51 @@ Responda EXCLUSIVAMENTE em JSON puro:
         showToast('Livro preparado com sucesso!');
     };
 
+    // Mapa Centralizado de Links de Checkout da Kiwify (Ofertas do mesmo Produto contam para a Placa de 100k)
+    const KIWIFY_CHECKOUT_LINKS = {
+        plan_anual: 'https://pay.kiwify.com.br/mIglYN2',      // Oferta Plano Anual PRO (R$ 197,00)
+        plan_trimestral: 'https://pay.kiwify.com.br/mIglYN2', // Oferta Plano Trimestral (R$ 127,00)
+        plan_mensal: 'https://pay.kiwify.com.br/mIglYN2',     // Oferta Plano Mensal Base (R$ 47,00)
+        credits_10: 'https://pay.kiwify.com.br/mIglYN2',      // Oferta +10 Créditos (R$ 9,90)
+        credits_15: 'https://pay.kiwify.com.br/mIglYN2',      // Oferta +15 Créditos (R$ 14,90)
+        credits_20: 'https://pay.kiwify.com.br/mIglYN2',      // Oferta +20 Créditos (R$ 19,90)
+        mod_perfil_magnetico: 'https://pay.kiwify.com.br/mIglYN2', // Oferta E-book Perfil Magnético (R$ 27,90)
+        mod_mente_feminina: 'https://pay.kiwify.com.br/mIglYN2',   // Oferta E-book Mente Feminina (R$ 19,90)
+        mod_formula_seducao: 'https://pay.kiwify.com.br/mIglYN2'   // Oferta Curso Fórmula da Sedução (R$ 47,00)
+    };
+
     function setupArsenalAndModals() {
+        // Limpa desbloqueios de simulação antigos para garantir trava real de pagamento
+        if (!localStorage.getItem('ordem_strict_paywall_v13')) {
+            localStorage.removeItem('ordem_unlocked_modules');
+            localStorage.setItem('ordem_strict_paywall_v13', '1');
+        }
+
         let unlockedModules = JSON.parse(localStorage.getItem('ordem_unlocked_modules') || '[]');
 
-        // Checa se veio da Kiwify ou de query param (?unlocked=perfil-magnetico ou ?unlock_all=1)
+        // Checa se veio do redirecionamento pós-compra da Kiwify (?unlocked=perfil-magnetico ou ?unlock_all=1)
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('unlocked')) {
             const mod = urlParams.get('unlocked');
             if (!unlockedModules.includes(mod)) {
                 unlockedModules.push(mod);
                 localStorage.setItem('ordem_unlocked_modules', JSON.stringify(unlockedModules));
-                showToast(`Módulo "${mod}" liberado com sucesso!`);
+                showToast(`Pagamento confirmado! Módulo liberado com sucesso.`);
             }
         }
         if (urlParams.has('unlock_all') || urlParams.has('pago')) {
             unlockedModules = ['perfil-magnetico', 'mente-feminina', 'formula-seducao'];
             localStorage.setItem('ordem_unlocked_modules', JSON.stringify(unlockedModules));
-            showToast('Todos os módulos do Arsenal foram liberados!');
+            showToast('Pagamento confirmado! Todos os módulos do Arsenal foram liberados.');
+        }
+
+        // Oculta botões de teste em produção (só exibe se ?dev=1 estiver na URL)
+        const devToolsBox = document.querySelector('.arsenal-dev-tools');
+        if (devToolsBox && !urlParams.has('dev')) {
+            devToolsBox.style.display = 'none';
         }
 
         function updateUnlockedUI() {
-            // Re-escaneia todos os botões do DOM
             const allBuyBtns = document.querySelectorAll('.btn-buy');
             const allAccessBtns = document.querySelectorAll('.btn-arsenal-access');
 
@@ -2931,31 +2955,66 @@ Responda EXCLUSIVAMENTE em JSON puro:
         }
         updateUnlockedUI();
 
-        // Quando o usuário volta à aba do app após o pagamento na Kiwify, atualiza imediatamente
+        // Verifica via Webhook (api.php?action=verify-vip) se o e-mail do comprador teve pagamento aprovado na Kiwify
+        async function checkWebhookUnlock(silent = true) {
+            const savedEmail = localStorage.getItem('ordem_buyer_email') || '';
+            if (!savedEmail) return false;
+            try {
+                const res = await fetch(`api.php?action=verify-vip&email=${encodeURIComponent(savedEmail)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: savedEmail })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.vip && data.member) {
+                        const unlockedFromServer = Array.isArray(data.member.modules) ? data.member.modules : [];
+                        let changed = false;
+                        unlockedFromServer.forEach(m => {
+                            if (!unlockedModules.includes(m)) {
+                                unlockedModules.push(m);
+                                changed = true;
+                            }
+                        });
+                        if (data.member.credits_added && !localStorage.getItem(`credit_tx_${data.member.updated_at}`)) {
+                            localStorage.setItem(`credit_tx_${data.member.updated_at}`, '1');
+                            syncGlobalCredits(getGlobalCredits() + parseInt(data.member.credits_added, 10));
+                            showToast(`+${data.member.credits_added} créditos confirmados via Kiwify!`);
+                        }
+                        if (changed) {
+                            localStorage.setItem('ordem_unlocked_modules', JSON.stringify(unlockedModules));
+                            updateUnlockedUI();
+                            showToast('Pagamento confirmado na Kiwify! Acesso liberado.');
+                            return true;
+                        }
+                    }
+                }
+            } catch (e) {}
+            if (!silent) {
+                showToast('Aguardando confirmação do pagamento pela Kiwify...');
+            }
+            return false;
+        }
+
+        // Quando o usuário volta à aba do app após o pagamento na Kiwify, consulta o Webhook real (NÃO desbloqueia sem pagar)
         window.addEventListener('focus', () => {
             unlockedModules = JSON.parse(localStorage.getItem('ordem_unlocked_modules') || '[]');
             updateUnlockedUI();
+            checkWebhookUnlock(true);
         });
 
-        // Clique no Botão de Compra/Desbloqueio (Abre Kiwify e simula liberação para o retorno)
+        // Clique no Botão de Compra/Desbloqueio (Abre Kiwify SEM desbloquear de graça)
         document.querySelectorAll('.btn-buy').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 triggerHaptic(20);
                 const modId = btn.dataset.module;
-                const checkoutUrl = btn.dataset.checkout || 'https://pay.kiwify.com.br/mIglYN2';
+                const mapKey = `mod_${(modId || '').replace(/-/g, '_')}`;
+                const checkoutUrl = KIWIFY_CHECKOUT_LINKS[mapKey] || btn.dataset.checkout || 'https://pay.kiwify.com.br/mIglYN2';
 
-                // Abre o checkout da Kiwify
+                // Abre o checkout da Kiwify sem liberar o botão antes da confirmação do pagamento
                 window.open(checkoutUrl, '_blank');
-
-                // Libera o módulo na conta local para que, ao voltar, o botão já seja verde
-                if (!unlockedModules.includes(modId)) {
-                    unlockedModules.push(modId);
-                    localStorage.setItem('ordem_unlocked_modules', JSON.stringify(unlockedModules));
-                }
-
-                showToast('Pagamento iniciado na Kiwify! Módulo liberado.');
-                updateUnlockedUI();
+                showToast('Redirecionando para o checkout seguro da Kiwify. O acesso libera após o pagamento.');
             });
         });
 

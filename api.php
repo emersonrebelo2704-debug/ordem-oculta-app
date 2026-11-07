@@ -297,17 +297,47 @@ if ($action === 'kiwify-webhook') {
     $customerEmail = strtolower(trim((string)($body['Customer']['email'] ?? ($body['email'] ?? ''))));
     $customerName = trim((string)($body['Customer']['full_name'] ?? ($body['name'] ?? 'Membro Ordem Oculta')));
     $productName = strtolower(trim((string)($body['Product']['product_name'] ?? ($body['product_name'] ?? 'Ordem Oculta'))));
+    $offerName = strtolower(trim((string)($body['Subscription']['plan']['name'] ?? ($body['Commissions']['product_name'] ?? ($body['offer_name'] ?? '')))));
+    $combinedTitle = $productName . ' ' . $offerName;
 
     $dbFile = __DIR__ . '/.vip_members.json';
     $members = file_exists($dbFile) ? (json_decode((string)file_get_contents($dbFile), true) ?: []) : [];
 
     if ($customerEmail !== '' && in_array($status, ['paid', 'approved', 'order_approved'], true)) {
-        $planType = (strpos($productName, 'anual') !== false || strpos($productName, 'vital') !== false) ? 'anual' : 'mensal';
+        $existing = $members[$customerEmail] ?? ['modules' => [], 'credits_added' => 0];
+        $modules = is_array($existing['modules'] ?? null) ? $existing['modules'] : [];
+        $creditsAdded = 0;
+
+        if (strpos($combinedTitle, 'perfil') !== false || strpos($combinedTitle, 'magnetico') !== false || strpos($combinedTitle, 'magnético') !== false) {
+            $modules[] = 'perfil-magnetico';
+        }
+        if (strpos($combinedTitle, 'mente') !== false || strpos($combinedTitle, 'feminina') !== false) {
+            $modules[] = 'mente-feminina';
+        }
+        if (strpos($combinedTitle, 'formula') !== false || strpos($combinedTitle, 'fórmula') !== false) {
+            $modules[] = 'formula-seducao';
+        }
+        if (strpos($combinedTitle, 'anual') !== false || strpos($combinedTitle, 'pro') !== false) {
+            $modules = ['perfil-magnetico', 'mente-feminina', 'formula-seducao'];
+            $creditsAdded = 40;
+        } elseif (strpos($combinedTitle, 'trimestral') !== false) {
+            $creditsAdded = 20;
+        } elseif (strpos($combinedTitle, '20 cr') !== false) {
+            $creditsAdded = 20;
+        } elseif (strpos($combinedTitle, '15 cr') !== false) {
+            $creditsAdded = 15;
+        } elseif (strpos($combinedTitle, '10 cr') !== false) {
+            $creditsAdded = 10;
+        }
+
+        $planType = (strpos($combinedTitle, 'anual') !== false || strpos($combinedTitle, 'vital') !== false) ? 'anual' : 'mensal';
         $members[$customerEmail] = [
             'name' => $customerName,
             'email' => $customerEmail,
             'plan' => $planType,
-            'product' => $productName,
+            'product' => trim($combinedTitle),
+            'modules' => array_values(array_unique($modules)),
+            'credits_added' => $creditsAdded,
             'status' => 'active',
             'updated_at' => gmdate('c')
         ];
