@@ -293,7 +293,68 @@ PROMPT;
 }
 
 if ($action === 'kiwify-webhook') {
-    echo json_encode(['success' => true, 'message' => 'Webhook processado com sucesso']);
+    $status = strtolower((string)($body['order_status'] ?? ($body['status'] ?? ($body['webhook_event_type'] ?? ''))));
+    $customerEmail = strtolower(trim((string)($body['Customer']['email'] ?? ($body['email'] ?? ''))));
+    $customerName = trim((string)($body['Customer']['full_name'] ?? ($body['name'] ?? 'Membro Ordem Oculta')));
+    $productName = strtolower(trim((string)($body['Product']['product_name'] ?? ($body['product_name'] ?? 'Ordem Oculta'))));
+
+    $dbFile = __DIR__ . '/.vip_members.json';
+    $members = file_exists($dbFile) ? (json_decode((string)file_get_contents($dbFile), true) ?: []) : [];
+
+    if ($customerEmail !== '' && in_array($status, ['paid', 'approved', 'order_approved'], true)) {
+        $planType = (strpos($productName, 'anual') !== false || strpos($productName, 'vital') !== false) ? 'anual' : 'mensal';
+        $members[$customerEmail] = [
+            'name' => $customerName,
+            'email' => $customerEmail,
+            'plan' => $planType,
+            'product' => $productName,
+            'status' => 'active',
+            'updated_at' => gmdate('c')
+        ];
+        @file_put_contents($dbFile, json_encode($members, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
+    }
+
+    // Repassa automaticamente o evento de venda para o VeroTrack (que dispara o Facebook CAPI oficial)
+    if (!empty($rawInput)) {
+        $vtCh = curl_init('https://api.pontoideal.online/webhooks/kiwify');
+        curl_setopt_array($vtCh, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_POSTFIELDS => $rawInput,
+            CURLOPT_CONNECTTIMEOUT => 4,
+            CURLOPT_TIMEOUT => 8,
+            CURLOPT_SSL_VERIFYPEER => false
+        ]);
+        $vtRes = curl_exec($vtCh);
+        $vtCode = curl_getinfo($vtCh, CURLINFO_HTTP_CODE);
+        curl_close($vtCh);
+    }
+
+    echo json_encode([
+        'success' => true,
+        'message' => 'Webhook Kiwify processado, acesso liberado e VeroTrack/CAPI notificado',
+        'email' => $customerEmail,
+        'verotrack_http' => $vtCode ?? null
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($action === 'verify-vip') {
+    $email = strtolower(trim((string)($body['email'] ?? ($_GET['email'] ?? ''))));
+    $dbFile = __DIR__ . '/.vip_members.json';
+    $members = file_exists($dbFile) ? (json_decode((string)file_get_contents($dbFile), true) ?: []) : [];
+
+    if ($email !== '' && isset($members[$email])) {
+        echo json_encode([
+            'success' => true,
+            'vip' => true,
+            'member' => $members[$email]
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    echo json_encode(['success' => true, 'vip' => false]);
     exit;
 }
 

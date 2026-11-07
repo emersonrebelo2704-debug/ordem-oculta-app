@@ -1,6 +1,66 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <!-- Meta Pixel Code + Sincronização VeroTrack (_fbp, _fbc, external_id, eventID) -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    (function() {
+      function getCookie(n) {
+        var parts = document.cookie ? document.cookie.split('; ') : [];
+        for (var i = 0; i < parts.length; i++) {
+          if (parts[i].indexOf(n + '=') === 0) return decodeURIComponent(parts[i].slice(n.length + 1));
+        }
+        return null;
+      }
+      function setCookie(n, v) {
+        document.cookie = n + '=' + encodeURIComponent(v) + ';path=/;max-age=33696000;SameSite=Lax;domain=.pontoideal.online;Secure';
+      }
+      var S = {};
+      try { S = JSON.parse(localStorage.getItem('vt_state') || 'null') || {}; } catch (e) {}
+      var now = Date.now();
+      var params = new URLSearchParams(location.search);
+      var urlFbclid = params.get('fbclid');
+      var expired = !S.sid || !S.seen || (now - S.seen > 2592000000);
+      var newClick = urlFbclid && S.fbclid && urlFbclid !== S.fbclid;
+      if (expired || newClick) {
+        var cSid = getCookie('vt_sid');
+        S = {
+          sid: (!expired && !newClick && cSid) ? cSid : ('vt_' + Array.from(crypto.getRandomValues(new Uint8Array(12)), function(b){return ('0'+b.toString(16)).slice(-2);}).join('')),
+          utm: {},
+          landing: location.href
+        };
+      }
+      S.sid = S.sid || getCookie('vt_sid') || ('vt_' + Date.now().toString(36));
+      S.seen = now;
+      if (urlFbclid) {
+        S.fbclid = urlFbclid;
+        var exFbc = getCookie('_fbc') || S.fbc;
+        S.fbc = (!exFbc || exFbc.split('.').slice(3).join('.') !== urlFbclid) ? ('fb.1.' + now + '.' + urlFbclid) : exFbc;
+      } else {
+        S.fbc = getCookie('_fbc') || S.fbc || null;
+      }
+      S.fbp = getCookie('_fbp') || S.fbp || ('fb.1.' + now + '.' + Math.floor(1e9 + Math.random() * 9e9));
+      setCookie('_fbp', S.fbp);
+      if (S.fbc) setCookie('_fbc', S.fbc);
+      setCookie('vt_sid', S.sid);
+      window.__vtPvId = 'pv_app_' + S.sid;
+      S.pvSent = S.pvSent || {};
+      var alreadyPv = !!S.pvSent['app'];
+      S.pvSent['app'] = 1;
+      try { localStorage.setItem('vt_state', JSON.stringify(S)); } catch (e) {}
+      fbq('init', '1819887748981541', { external_id: S.sid });
+      if (!alreadyPv) {
+        fbq('track', 'PageView', {}, { eventID: window.__vtPvId });
+      }
+    })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ordem Oculta — O Segredo das Respostas Imediatas</title>
@@ -1243,5 +1303,7 @@
     </div>
 
     <script src="app.js?v=12.0"></script>
+    <!-- VeroTrack Tracker -->
+    <script src="https://api.pontoideal.online/vt.js" data-page="upsell" defer></script>
 </body>
 </html>
