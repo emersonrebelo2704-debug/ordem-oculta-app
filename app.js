@@ -566,12 +566,19 @@ Responda EXCLUSIVAMENTE em JSON puro:
     }
 
     async function callOrdemEndpoint(apiType, payload) {
-        const isStaticHost = window.location.hostname.includes('github.io');
-        if (!isStaticHost) {
+        const host = window.location.hostname || '';
+        const isLocalNode = host === 'localhost' || host === '127.0.0.1' || window.location.protocol === 'file:';
+        const isGithub = host.includes('github.io');
+
+        // 1. Rota Principal Blindada (Motor PHP na TurboCloud + Cloudflare ou Node Local)
+        const serverEndpoints = isLocalNode
+            ? [`http://localhost:3000/api/${apiType}`, `api.php?action=${apiType}`]
+            : isGithub
+                ? [`https://pontoideal.online/app/api.php?action=${apiType}`]
+                : [`api.php?action=${apiType}`, `/api/${apiType}`];
+
+        for (const endpoint of serverEndpoints) {
             try {
-                const endpoint = window.location.protocol === 'file:'
-                    ? `http://localhost:3000/api/${apiType}`
-                    : `/api/${apiType}`;
                 const res = await fetch(endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -584,9 +591,11 @@ Responda EXCLUSIVAMENTE em JSON puro:
                     }
                 }
             } catch (err) {
-                console.warn(`Tentando conexão direta após falha local em /api/${apiType}`);
+                console.warn(`Redundância ativada após tentativa em ${endpoint}`);
             }
         }
+
+        // 2. Redundância Automática Anti-Queda (se houver pico extremo no servidor)
         return await callDirectOpenRouter(apiType, payload);
     }
 
