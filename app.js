@@ -2898,12 +2898,12 @@ Responda EXCLUSIVAMENTE em JSON puro:
         plan_anual: 'https://pay.kiwify.com.br/ZvKHa3Z',      // Oferta Plano Anual PRO (R$ 197,90)
         plan_trimestral: 'https://pay.kiwify.com.br/Q3mXfsV', // Oferta Plano Trimestral (R$ 97,90)
         plan_mensal: 'https://pay.kiwify.com.br/8X6hibI',     // Oferta Plano Mensal Base (R$ 37,90)
-        credits_10: 'https://pay.kiwify.com.br/mIglYN2',      // Oferta +10 Créditos (R$ 9,90)
-        credits_15: 'https://pay.kiwify.com.br/mIglYN2',      // Oferta +15 Créditos (R$ 14,90)
-        credits_20: 'https://pay.kiwify.com.br/mIglYN2',      // Oferta +20 Créditos (R$ 19,90)
-        mod_perfil_magnetico: 'https://pay.kiwify.com.br/mIglYN2', // Oferta E-book Perfil Magnético (R$ 27,90)
-        mod_mente_feminina: 'https://pay.kiwify.com.br/mIglYN2',   // Oferta E-book Mente Feminina (R$ 19,90)
-        mod_formula_seducao: 'https://pay.kiwify.com.br/mIglYN2'   // Oferta Curso Fórmula da Sedução (R$ 47,00)
+        credits_10: 'https://pay.kiwify.com.br/yp8dlI0',      // Oferta +10 Créditos (R$ 9,90)
+        credits_15: 'https://pay.kiwify.com.br/txHkp23',      // Oferta +15 Créditos (R$ 14,90)
+        credits_20: 'https://pay.kiwify.com.br/QSrs23E',      // Oferta +20 Créditos (R$ 19,90)
+        mod_perfil_magnetico: 'https://pay.kiwify.com.br/HUaTvIz', // Oferta Livro Perfil Magnético (R$ 27,90)
+        mod_mente_feminina: 'https://pay.kiwify.com.br/rVaoZJY',   // Oferta Livro Mente Feminina (R$ 19,90)
+        mod_formula_seducao: 'https://pay.kiwify.com.br/dizOxuj'   // Oferta Curso Fórmula da Sedução (R$ 47,00)
     };
 
     function setupArsenalAndModals() {
@@ -3104,8 +3104,8 @@ Responda EXCLUSIVAMENTE em JSON puro:
                             </button>
                         </div>
                         <button class="btn-download-pdf-app" id="btnDownloadFullBook">
-                            <i class="fa-solid fa-file-pdf"></i>
-                            <span>BAIXAR LIVRO COMPLETO EM PDF (${data.pdfFile})</span>
+                            <i class="fa-solid fa-cloud-arrow-down"></i>
+                            <span>SALVAR EDIÇÃO OFICIAL PARA LEITURA OFFLINE</span>
                         </button>
                     </div>
                 </div>

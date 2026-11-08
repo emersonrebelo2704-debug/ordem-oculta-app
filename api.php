@@ -298,7 +298,9 @@ if ($action === 'kiwify-webhook') {
     $customerName = trim((string)($body['Customer']['full_name'] ?? ($body['name'] ?? 'Membro Ordem Oculta')));
     $productName = strtolower(trim((string)($body['Product']['product_name'] ?? ($body['product_name'] ?? 'Ordem Oculta'))));
     $offerName = strtolower(trim((string)($body['Subscription']['plan']['name'] ?? ($body['Commissions']['product_name'] ?? ($body['offer_name'] ?? '')))));
-    $combinedTitle = $productName . ' ' . $offerName;
+    $bumpsJson = strtolower(json_encode($body['OrderBumps'] ?? ($body['order_bumps'] ?? []), JSON_UNESCAPED_UNICODE));
+    $amountCents = (int)($body['Commissions']['charge_amount'] ?? ($body['amount'] ?? 0));
+    $combinedTitle = $productName . ' ' . $offerName . ' ' . $bumpsJson;
 
     $dbFile = __DIR__ . '/.vip_members.json';
     $members = file_exists($dbFile) ? (json_decode((string)file_get_contents($dbFile), true) ?: []) : [];
@@ -306,9 +308,9 @@ if ($action === 'kiwify-webhook') {
     if ($customerEmail !== '' && in_array($status, ['paid', 'approved', 'order_approved'], true)) {
         $existing = $members[$customerEmail] ?? ['modules' => [], 'credits_added' => 0];
         $modules = is_array($existing['modules'] ?? null) ? $existing['modules'] : [];
-        $creditsAdded = 0;
+        $creditsAdded = (int)($existing['credits_added'] ?? 0);
 
-        if (strpos($combinedTitle, 'perfil') !== false || strpos($combinedTitle, 'magnetico') !== false || strpos($combinedTitle, 'magnético') !== false) {
+        if (strpos($combinedTitle, 'perfil') !== false || strpos($combinedTitle, 'magnetico') !== false || strpos($combinedTitle, 'magnético') !== false || strpos($combinedTitle, 'bio') !== false) {
             $modules[] = 'perfil-magnetico';
         }
         if (strpos($combinedTitle, 'mente') !== false || strpos($combinedTitle, 'feminina') !== false) {
@@ -319,15 +321,15 @@ if ($action === 'kiwify-webhook') {
         }
         if (strpos($combinedTitle, 'anual') !== false || strpos($combinedTitle, 'pro') !== false) {
             $modules = ['perfil-magnetico', 'mente-feminina', 'formula-seducao'];
-            $creditsAdded = 40;
+            $creditsAdded += 40;
         } elseif (strpos($combinedTitle, 'trimestral') !== false) {
-            $creditsAdded = 20;
-        } elseif (strpos($combinedTitle, '20 cr') !== false) {
-            $creditsAdded = 20;
-        } elseif (strpos($combinedTitle, '15 cr') !== false) {
-            $creditsAdded = 15;
-        } elseif (strpos($combinedTitle, '10 cr') !== false) {
-            $creditsAdded = 10;
+            $creditsAdded += 20;
+        } elseif (strpos($combinedTitle, '20 cr') !== false || strpos($combinedTitle, 'valor3') !== false || (strpos($combinedTitle, 'cr') !== false && $amountCents === 1990)) {
+            $creditsAdded += 20;
+        } elseif (strpos($combinedTitle, '15 cr') !== false || strpos($combinedTitle, 'valor2') !== false || (strpos($combinedTitle, 'cr') !== false && $amountCents === 1490)) {
+            $creditsAdded += 15;
+        } elseif (strpos($combinedTitle, '10 cr') !== false || strpos($combinedTitle, 'pacote de cr') !== false || (strpos($combinedTitle, 'cr') !== false && $amountCents === 990)) {
+            $creditsAdded += 10;
         }
 
         $planType = (strpos($combinedTitle, 'anual') !== false || strpos($combinedTitle, 'vital') !== false) ? 'anual' : 'mensal';
