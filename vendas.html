@@ -557,15 +557,15 @@
 
         /* Plan Selector Cards (Alinhamento Cirúrgico) */
         .tsl-plan-opt {
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 136px;
             align-items: center;
-            gap: 14px;
-            padding: 15px 18px;
+            gap: 16px;
+            padding: 16px 20px;
             border-radius: 14px;
             border: 1px solid var(--border-subtle);
             background: rgba(255, 255, 255, 0.03);
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             cursor: pointer;
             transition: all 0.2s ease;
         }
@@ -574,7 +574,6 @@
             background: rgba(245, 158, 11, 0.10);
         }
         .tsl-plan-left {
-            flex: 1;
             min-width: 0;
             text-align: left;
         }
@@ -582,7 +581,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             margin-bottom: 4px;
         }
         .tsl-plan-name {
@@ -599,6 +598,7 @@
             white-space: nowrap;
             letter-spacing: 0.4px;
             line-height: 1.2;
+            flex-shrink: 0;
         }
         .tsl-plan-desc {
             font-size: 13px;
@@ -607,26 +607,30 @@
         }
         .tsl-plan-right {
             text-align: right;
-            flex-shrink: 0;
+            width: 136px;
             white-space: nowrap;
             padding-left: 14px;
             border-left: 1px solid rgba(255, 255, 255, 0.08);
-            min-width: 116px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: center;
         }
         .tsl-plan-price {
-            display: block;
+            display: inline-block;
             color: #ffffff;
             font-size: 19px;
             font-weight: 900;
             font-family: 'Outfit', sans-serif;
-            white-space: nowrap;
+            white-space: nowrap !important;
+             word-break: keep-all;
             line-height: 1.15;
         }
         .tsl-plan-period {
             font-size: 11px;
             color: var(--text-muted);
-            white-space: nowrap;
-            margin-top: 2px;
+            white-space: nowrap !important;
+            margin-top: 3px;
         }
 
         /* Guarantee */
@@ -1037,22 +1041,22 @@
                 </div>
 
                 <!-- Opção 1: Mensal (Pré-selecionado para conversão rápida) -->
-                <div class="tsl-plan-opt active" data-url="https://pay.kiwify.com.br/8X6hibI" data-price="37,90" data-label="LIBERAR ACESSO MENSAL · R$ 37,90" onclick="selectTslPlan(this)">
+                <div class="tsl-plan-opt active" data-url="https://pay.kiwify.com.br/8X6hibI" data-price="37,90" data-label="LIBERAR ACESSO MENSAL · R$&#160;37,90" onclick="selectTslPlan(this)">
                     <div class="tsl-plan-left">
                         <div class="tsl-plan-title-row">
                             <span class="tsl-plan-name">Plano Mensal Base</span>
-                            <span class="tsl-plan-badge" style="background:rgba(16,185,129,0.2); color:#6ee7b7;">ACESSO IMEDIATO</span>
+                            <span class="tsl-plan-badge" style="background:rgba(16,185,129,0.2); color:#6ee7b7;">10 CRÉDITOS/MÊS</span>
                         </div>
-                        <div class="tsl-plan-desc">Oráculo Ilimitado + 10 Créditos/mês</div>
+                        <div class="tsl-plan-desc">Oráculo Ilimitado + Acesso Imediato às 4 Ferramentas</div>
                     </div>
                     <div class="tsl-plan-right">
-                        <strong class="tsl-plan-price">R$&nbsp;37,90</strong>
+                        <strong class="tsl-plan-price">R$&#160;37,90</strong>
                         <div class="tsl-plan-period">por mês</div>
                     </div>
                 </div>
 
                 <!-- Opção 2: Trimestral -->
-                <div class="tsl-plan-opt" data-url="https://pay.kiwify.com.br/Q3mXfsV" data-price="97,90" data-label="LIBERAR ACESSO TRIMESTRAL · R$ 97,90" onclick="selectTslPlan(this)">
+                <div class="tsl-plan-opt" data-url="https://pay.kiwify.com.br/Q3mXfsV" data-price="97,90" data-label="LIBERAR ACESSO TRIMESTRAL · R$&#160;97,90" onclick="selectTslPlan(this)">
                     <div class="tsl-plan-left">
                         <div class="tsl-plan-title-row">
                             <span class="tsl-plan-name">Plano Trimestral</span>
@@ -1061,22 +1065,22 @@
                         <div class="tsl-plan-desc">Oráculo Ilimitado + Dobro de Créditos (3 Meses)</div>
                     </div>
                     <div class="tsl-plan-right">
-                        <strong class="tsl-plan-price">R$&nbsp;97,90</strong>
-                        <div class="tsl-plan-period">equiv. R$&nbsp;32,63/mês</div>
+                        <strong class="tsl-plan-price">R$&#160;97,90</strong>
+                        <div class="tsl-plan-period">equiv. R$&#160;32,63/mês</div>
                     </div>
                 </div>
 
                 <!-- Opção 3: Anual PRO -->
-                <div class="tsl-plan-opt" id="tslPlanAnual" data-url="https://pay.kiwify.com.br/ZvKHa3Z" data-price="197,90" data-label="LIBERAR ACESSO ANUAL PRO · R$ 197,90" onclick="selectTslPlan(this)">
+                <div class="tsl-plan-opt" id="tslPlanAnual" data-url="https://pay.kiwify.com.br/ZvKHa3Z" data-price="197,90" data-label="LIBERAR ACESSO ANUAL PRO · R$&#160;197,90" onclick="selectTslPlan(this)">
                     <div class="tsl-plan-left">
                         <div class="tsl-plan-title-row">
                             <span class="tsl-plan-name">Plano PRO / Anual</span>
-                            <span class="tsl-plan-badge" style="background:linear-gradient(135deg,#f59e0b,#dc2626); color:#fff;">MAIS VANTAJOSO · 40 CRÉDITOS/MÊS</span>
+                            <span class="tsl-plan-badge" style="background:linear-gradient(135deg,#f59e0b,#dc2626); color:#fff;">40 CRÉDITOS/MÊS</span>
                         </div>
-                        <div class="tsl-plan-desc">1 Ano Completo · Equivale a apenas R$&nbsp;16,49/mês</div>
+                        <div class="tsl-plan-desc">1 Ano Completo · Mais Vantajoso (R$&#160;16,49/mês)</div>
                     </div>
                     <div class="tsl-plan-right">
-                        <strong class="tsl-plan-price" style="color:var(--gold-light);">R$&nbsp;197,90</strong>
+                        <strong class="tsl-plan-price" style="color:var(--gold-light);">R$&#160;197,90</strong>
                         <div class="tsl-plan-period">por ano</div>
                     </div>
                 </div>
