@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <!-- Meta Pixel Code + Sincronização VeroTrack (_fbp, _fbc, external_id, eventID) -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    (function() {
+      function getCookie(n) {
+        var parts = document.cookie ? document.cookie.split('; ') : [];
+        for (var i = 0; i < parts.length; i++) {
+          if (parts[i].indexOf(n + '=') === 0) return decodeURIComponent(parts[i].slice(n.length + 1));
+        }
+        return null;
+      }
+      function setCookie(n, v) {
+        document.cookie = n + '=' + encodeURIComponent(v) + ';path=/;max-age=33696000;SameSite=Lax;domain=.pontoideal.online;Secure';
+      }
+      var S = {};
+      try { S = JSON.parse(localStorage.getItem('vt_state') || 'null') || {}; } catch (e) {}
+      var now = Date.now();
+      var params = new URLSearchParams(location.search);
+      var urlFbclid = params.get('fbclid');
+      var expired = !S.sid || !S.seen || (now - S.seen > 2592000000);
+      var newClick = urlFbclid && S.fbclid && urlFbclid !== S.fbclid;
+      if (expired || newClick) {
+        var cSid = getCookie('vt_sid');
+        S = {
+          sid: (!expired && !newClick && cSid) ? cSid : ('vt_' + Array.from(crypto.getRandomValues(new Uint8Array(12)), function(b){return ('0'+b.toString(16)).slice(-2);}).join('')),
+          utm: {},
+          landing: location.href
+        };
+      }
+      S.sid = S.sid || getCookie('vt_sid') || ('vt_' + Date.now().toString(36));
+      S.seen = now;
+      if (urlFbclid) {
+        S.fbclid = urlFbclid;
+        var exFbc = getCookie('_fbc') || S.fbc;
+        S.fbc = (!exFbc || exFbc.split('.').slice(3).join('.') !== urlFbclid) ? ('fb.1.' + now + '.' + urlFbclid) : exFbc;
+      } else {
+        S.fbc = getCookie('_fbc') || S.fbc || null;
+      }
+      S.fbp = getCookie('_fbp') || S.fbp || ('fb.1.' + now + '.' + Math.floor(1e9 + Math.random() * 9e9));
+      setCookie('_fbp', S.fbp);
+      if (S.fbc) setCookie('_fbc', S.fbc);
+      setCookie('vt_sid', S.sid);
+      window.__vtPvId = 'pv_front_' + S.sid;
+      S.pvSent = S.pvSent || {};
+      var alreadyPv = !!S.pvSent['front'];
+      S.pvSent['front'] = 1;
+      try { localStorage.setItem('vt_state', JSON.stringify(S)); } catch (e) {}
+      fbq('init', '1819887748981541', { external_id: S.sid });
+      if (!alreadyPv) {
+        fbq('track', 'PageView', {}, { eventID: window.__vtPvId });
+      }
+    })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ordem Oculta — O Aplicativo Secreto das Respostas Imediatas</title>
+    <meta name="description" content="Envie o print do Story ou da conversa e receba em 5 segundos as 3 respostas exatas para despertar interesse, pegar o WhatsApp e marcar o encontro.">
+    <meta name="theme-color" content="#08080a">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-dark: #070709;
+            --bg-card: #111116;
+            --bg-elevated: #17171f;
+            --gold: #f59e0b;
+            --gold-light: #fde68a;
+            --crimson: #dc2626;
+            --crimson-dark: #7f1d1d;
+            --emerald: #10b981;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-gold: rgba(245, 158, 11, 0.35);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-dark);
+            background-image:
+                radial-gradient(circle at 50% 0%, rgba(153, 27, 27, 0.22), transparent 55%),
+                radial-gradient(circle at 50% 45%, rgba(245, 158, 11, 0.07), transparent 60%);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 90px;
+        }
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Top Ribbon */
+        .top-bar {
+            background: linear-gradient(90deg, #450a0a, #7f1d1d, #450a0a);
+            border-bottom: 1px solid rgba(245, 158, 11, 0.3);
+            text-align: center;
+            padding: 9px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            color: #fef2f2;
+            text-transform: uppercase;
+        }
+        .top-bar span { color: var(--gold-light); }
+
+        /* Hero / Carta Real */
+        .hero {
+            padding: 36px 0 28px;
+            text-align: center;
+        }
+        .wax-seal-wrapper {
+            position: relative;
+            width: 112px;
+            height: 112px;
+            margin: 0 auto 18px;
+            border-radius: 50%;
+            padding: 3px;
+            background: linear-gradient(135deg, #fbbf24, #991b1b, #fbbf24);
+            box-shadow: 0 0 35px rgba(220, 38, 38, 0.35), 0 0 15px rgba(245, 158, 11, 0.25);
+        }
+        .wax-seal-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            display: block;
+        }
+        .eyebrow-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid var(--border-gold);
+            color: var(--gold-light);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.2px;
+            padding: 6px 14px;
+            border-radius: 99px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        h1.hero-headline {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(27px, 6.2vw, 40px);
+            font-weight: 900;
+            line-height: 1.15;
+            letter-spacing: -0.5px;
+            margin-bottom: 16px;
+            color: #ffffff;
+        }
+        h1.hero-headline .gold {
+            background: linear-gradient(135deg, #fde68a 0%, #f59e0b 55%, #d97706 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-sub {
+            font-size: 16px;
+            color: #cbd5e1;
+            max-width: 580px;
+            margin: 0 auto 24px;
+            font-weight: 400;
+        }
+        .hero-sub strong { color: #ffffff; }
+
+        /* Live Scanner Demo Mockup (Apresentando o Produto sem Esconder Nada) */
+        .app-live-showcase {
+            background: linear-gradient(180deg, rgba(23, 23, 31, 0.95), rgba(14, 14, 19, 0.98));
+            border: 1px solid var(--border-gold);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 24px 0;
+            text-align: left;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
+        }
+        .showcase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 14px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .showcase-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 13px;
+            letter-spacing: 0.8px;
+            color: var(--gold-light);
+            text-transform: uppercase;
+        }
+        .live-pill {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: #34d399;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 99px;
+        }
+        .step-flow {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+        .flow-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 14px 16px;
+        }
+        .flow-step-tag {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 4px;
+            display: block;
+        }
+        .flow-box h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .flow-box p {
+            font-size: 13.5px;
+            color: var(--text-muted);
+        }
+        .sample-reply-card {
+            background: rgba(245, 158, 11, 0.07);
+            border-left: 3px solid var(--gold);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-top: 10px;
+        }
+        .sample-reply-card .badge {
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--gold-light);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+        .sample-reply-card .quote {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 5px 0;
+            font-style: italic;
+        }
+        .sample-reply-card .why {
+            font-size: 12px;
+            color: #cbd5e1;
+        }
+
+        /* CTA Button */
+        .btn-cta-gold {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+            color: #09090b;
+            font-family: 'Outfit', sans-serif;
+            font-size: 17px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            padding: 18px 24px;
+            border-radius: 14px;
+            text-decoration: none;
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.35);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid #fde68a;
+        }
+        .btn-cta-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 36px rgba(245, 158, 11, 0.5);
+        }
+        .micro-trust {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .micro-trust i { color: var(--gold); margin-right: 4px; }
+
+        /* Carta de Vendas / Copy Editorial */
+        .sales-letter-box {
+            background: rgba(17, 17, 22, 0.85);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 28px 22px;
+            margin: 32px 0;
+        }
+        .letter-salutation {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            font-style: italic;
+            color: var(--gold-light);
+            margin-bottom: 14px;
+        }
+        .sales-letter-box p {
+            font-size: 15.5px;
+            color: #e2e8f0;
+            margin-bottom: 16px;
+        }
+        .sales-letter-box strong { color: #ffffff; }
+        .highlight-quote {
+            border-left: 3px solid var(--crimson);
+            background: rgba(220, 38, 38, 0.08);
+            padding: 14px 16px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+            font-size: 15px;
+            color: #f8fafc;
+        }
+
+        /* As 4 Ferramentas Reais do Aplicativo */
+        .section-heading {
+            text-align: center;
+            margin: 40px 0 24px;
+        }
+        .section-heading .tag {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--gold);
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .section-heading h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(23px, 5vw, 32px);
+            font-weight: 900;
+            line-height: 1.2;
+        }
+        .tools-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .tool-showcase-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+        }
+        .tool-img-banner {
+            height: 175px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        .tool-img-banner::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(7,7,9,0.1) 0%, rgba(17,17,22,0.96) 100%);
+        }
+        .tool-badge-floating {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 2;
+            background: rgba(9, 9, 11, 0.85);
+            border: 1px solid var(--border-gold);
+            color: var(--gold-light);
+            font-size: 10px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 99px;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+        .tool-body {
+            padding: 18px 20px 22px;
+        }
+        .tool-body h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .tool-body p {
+            font-size: 14.5px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+        .tool-bullets {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .tool-bullets li {
+            font-size: 13.5px;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tool-bullets li i { color: var(--gold); font-size: 12px; }
+
+        /* As 4 Fases + Grimório Incluso */
+        .phases-box {
+            background: linear-gradient(180deg, rgba(127, 29, 29, 0.16), rgba(17, 17, 22, 0.95));
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            border-radius: 18px;
+            padding: 24px 20px;
+            margin: 34px 0;
+        }
+        .phase-item {
+            display: flex;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .phase-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .phase-num {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid var(--border-gold);
+            color: var(--gold-light);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .phase-item h4 { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 3px; }
+        .phase-item p { font-size: 13.5px; color: var(--text-muted); }
+
+        /* Offer Box */
+        .offer-card {
+            background: linear-gradient(180deg, #16161e 0%, #0d0d12 100%);
+            border: 2px solid var(--gold);
+            border-radius: 22px;
+            padding: 30px 22px;
+            margin: 36px 0;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(245, 158, 11, 0.18);
+        }
+        .offer-stack {
+            text-align: left;
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .stack-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.03);
+            padding: 11px 14px;
+            border-radius: 10px;
+            font-size: 13.5px;
+        }
+        .stack-row strong { color: #fff; }
+        .stack-row .val { color: var(--gold-light); font-weight: 700; font-size: 12.5px; }
+        .price-anchor {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 10px;
+        }
+        .price-anchor del { color: #ef4444; }
+        .price-big {
+            font-family: 'Outfit', sans-serif;
+            font-size: 54px;
+            font-weight: 900;
+            color: #fff;
+            line-height: 1;
+            margin: 8px 0 6px;
+        }
+        .price-big small { font-size: 22px; color: var(--gold-light); }
+        .price-note { font-size: 13px; color: #cbd5e1; margin-bottom: 22px; }
+
+        /* Guarantee */
+        .guarantee-box {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 28px 0;
+        }
+        .guarantee-badge {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(245, 158, 11, 0.14);
+            border: 2px solid var(--gold);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            color: var(--gold-light);
+            line-height: 1;
+        }
+        .guarantee-badge span { font-size: 22px; }
+        .guarantee-badge small { font-size: 9px; }
+
+        /* Sticky Mobile CTA */
+        .sticky-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(9, 9, 12, 0.94);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border-gold);
+            padding: 12px 16px;
+            z-index: 99;
+        }
+        .sticky-inner {
+            max-width: 680px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .sticky-price {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.2;
+        }
+        .sticky-price strong {
+            display: block;
+            font-size: 16px;
+            color: #fff;
+        }
+        .sticky-btn {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #09090b;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 14px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <i class="fa-solid fa-crown"></i> CONVOCAÇÃO OFICIAL · <span>APLICATIVO ORDEM OCULTA LIBERADO</span>
+    </div>
+
+    <div class="container">
+        <!-- HERO COM LACRE DE CERA / SINETE REAL -->
+        <header class="hero">
+            <div class="wax-seal-wrapper">
+                <img src="assets/hero-emblem.jpg" alt="Lacre de Cera Real Ordem Oculta">
+            </div>
+
+            <div class="eyebrow-badge">
+                <i class="fa-solid fa-mobile-screen-button"></i> NÃO É UM CURSO LONGO · É UM APLICATIVO DE BOLSO 24H
+            </div>
+
+            <h1 class="hero-headline">
+                Suba o Print do Story ou da Conversa e Receba em <span class="gold">5 Segundos</span> a Resposta Exata Que Faz Ela Querer Te Ver
+            </h1>
+
+            <p class="hero-sub">
+                Chega de travar olhando para a tela sem saber o que responder. O <strong>Aplicativo Ordem Oculta</strong> analisa a foto ou mensagem dela em tempo real e entrega <strong>3 respostas prontas para copiar e colar</strong> — calibradas para despertar curiosidade, pegar o WhatsApp e marcar o encontro.
+            </p>
+
+            <!-- DEMONSTRAÇÃO VISUAL DIRETA DO PRODUTO -->
+            <div class="app-live-showcase">
+                <div class="showcase-header">
+                    <div class="showcase-title">
+                        <i class="fa-solid fa-eye"></i> COMO O APLICATIVO FUNCIONA NA PRÁTICA
+                    </div>
+                    <span class="live-pill">● 5 Segundos</span>
+                </div>
+
+                <div class="step-flow">
+                    <div class="flow-box">
+                        <span class="flow-step-tag">PASSO 1 · VOCÊ TIRA O PRINT</span>
+                        <h4>Ela postou um Story provocante ou mandou uma mensagem seca no WhatsApp</h4>
+                        <p>Você abre o aplicativo Ordem Oculta no seu celular (sem precisar instalar nada da loja) e envia a captura de tela ou cola o texto dela.</p>
+                    </div>
+
+                    <div class="flow-box">
+                        <span class="flow-step-tag">PASSO 2 · LEITURA OCULTA DE CENÁRIO</span>
+                        <h4>O Oráculo escaneia cada detalhe invisível para os outros homens</h4>
+                        <p>Ele identifica a plataforma (Instagram ou WhatsApp), lê a linguagem corporal, a bebida na mesa, o fundo da foto ou o teste psicológico por trás da frase dela.</p>
+                    </div>
+
+                    <div class="flow-box">
+                        <span class="flow-step-tag">PASSO 3 · COPIE E ENVIE COM 1 TOQUE</span>
+                        <h4>Você recebe 3 abordagens prontas na hora:</h4>
+                        <div class="sample-reply-card">
+                            <div class="badge"><i class="fa-solid fa-bolt"></i> EXEMPLO REAL GERADO PELO ORÁCULO:</div>
+                            <div class="quote">"Três detalhes me chamaram atenção no fundo desse story, mas o segundo com certeza você achou que ninguém ia notar."</div>
+                            <div class="why">💡 <strong>Por que funciona:</strong> Foge de elogios clichês ("linda", foguinho) e ativa um loop imediato de curiosidade — ela responde perguntando qual é o detalhe.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <a href="#oferta" class="btn-cta-gold">
+                <span>QUERO ACESSAR O APLICATIVO AGORA</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+            <div class="micro-trust">
+                <span><i class="fa-solid fa-bolt"></i> Acesso imediato no celular</span>
+                <span><i class="fa-solid fa-user-secret"></i> 100% discreto e anônimo</span>
+                <span><i class="fa-solid fa-shield-halved"></i> Garantia de 7 dias</span>
+            </div>
+        </header>
+
+        <!-- CARTA DE VENDAS DIRETA (POR QUE O APLICATIVO EXISTE) -->
+        <section class="sales-letter-box">
+            <div class="letter-salutation">Caro futuro membro da Ordem,</div>
+            <p>
+                Seja honesto consigo mesmo: quantas vezes você já viu o Story de uma mulher extremamente atraente, abriu a caixa de mensagem... e fechou sem mandar nada porque tudo o que vinha na cabeça parecia comum demais?
+            </p>
+            <p>
+                Ou pior: você começou a conversar, o papo estava indo bem, e de repente <strong>ela visualizou e sumiu</strong> — ou mandou uma resposta curta que matou o assunto.
+            </p>
+            <div class="highlight-quote">
+                <strong>A verdade brutal:</strong> Uma mulher bonita tem 30 homens mandando <em>"Oi, tudo bem?"</em> e emojis de foguinho todos os dias. Quando você responde no improviso, você compete no mesmo balde que eles.
+            </div>
+            <p>
+                E você não tem tempo nem paciência para assistir 40 horas de aulas teóricas quando o seu celular está vibrando <strong>agora</strong> esperando uma resposta.
+            </p>
+            <p>
+                Foi por isso que nós criamos o <strong>Aplicativo Ordem Oculta</strong>: em vez de teoria, colocamos um estrategista sênior de inteligência social e sedução direto no seu bolso, pronto para ler a conversa por você e te dar a frase exata em segundos.
+            </p>
+        </section>
+
+        <!-- VITRINE DAS 4 FERRAMENTAS REAIS DO APLICATIVO -->
+        <div class="section-heading">
+            <span class="tag">POR DENTRO DA PLATAFORMA</span>
+            <h2>As 4 Armas Que Você Recebe Assim Que Entra no Aplicativo</h2>
+        </div>
+
+        <div class="tools-grid">
+            <!-- Ferramenta 1 -->
+            <article class="tool-showcase-card">
+                <div class="tool-img-banner" style="background-image: url('assets/card-oraculo.jpg');">
+                    <span class="tool-badge-floating"><i class="fa-solid fa-camera"></i> FERRAMENTA 01 · VISÃO COMPUTACIONAL</span>
+                </div>
+                <div class="tool-body">
+                    <h3>1. O Oráculo (Scanner de Prints & Stories)</h3>
+                    <p>Suba o print de qualquer Story, foto do feed ou conversa no Instagram/WhatsApp. O Oráculo examina os elementos visuais e entrega 3 respostas magnéticas prontas para copiar.</p>
+                    <ul class="tool-bullets">
+                        <li><i class="fa-solid fa-check"></i> Detecta sozinho se é Story para puxar assunto ou conversa em andamento</li>
+                        <li><i class="fa-solid fa-check"></i> Gera 3 estilos: Provocação do Elemento, Loop de Curiosidade e Charme Descarado</li>
+                        <li><i class="fa-solid fa-check"></i> Explica o gatilho psicológico e o próximo passo após ela responder</li>
+                    </ul>
+                </div>
+            </article>
+
+            <!-- Ferramenta 2 -->
+            <article class="tool-showcase-card">
+                <div class="tool-img-banner" style="background-image: url('assets/card-coach.jpg');">
+                    <span class="tool-badge-floating"><i class="fa-solid fa-user-tie"></i> FERRAMENTA 02 · MENTORIA EM TEMPO REAL</span>
+                </div>
+                <div class="tool-body">
+                    <h3>2. O Mestre da Sedução (Mentor de Bolso 24h)</h3>
+                    <p>Não tem print e quer descrever a situação? Conte com suas palavras o que aconteceu ("ela desmarcou em cima da hora", "está respondendo frio") e receba a leitura clínica + a mensagem exata.</p>
+                    <ul class="tool-bullets">
+                        <li><i class="fa-solid fa-check"></i> Mantém a memória da conversa rodada após rodada conforme ela responde</li>
+                        <li><i class="fa-solid fa-check"></i> Orienta o tempo exato de espera antes de enviar a mensagem</li>
+                    </ul>
+                </div>
+            </article>
+
+            <!-- Ferramenta 3 -->
+            <article class="tool-showcase-card">
+                <div class="tool-img-banner" style="background-image: url('assets/card-desfibrilador.jpg');">
+                    <span class="tool-badge-floating"><i class="fa-solid fa-bolt"></i> FERRAMENTA 03 · ANTI-VÁCUO</span>
+                </div>
+                <div class="tool-body">
+                    <h3>3. O Desfibrilador de Conversas</h3>
+                    <p>Ela parou de responder há 24 horas, 3 dias ou mais de 1 semana? Informe o tempo e o último assunto para gerar 3 mensagens leves que reabrem o papo sem cobrar atenção e sem parecer carente.</p>
+                </div>
+            </article>
+
+            <!-- Ferramenta 4 -->
+            <article class="tool-showcase-card">
+                <div class="tool-img-banner" style="background-image: url('assets/card-friendzone.jpg');">
+                    <span class="tool-badge-floating"><i class="fa-solid fa-fire"></i> FERRAMENTA 04 · INVERSÃO DE JOGO</span>
+                </div>
+                <div class="tool-body">
+                    <h3>4. A Rota de Fuga (Quebra de Friendzone & Testes)</h3>
+                    <p>Ela te chamou de "amigo", "fofo" ou fez um teste para ver se você fica inseguro? Cole a frase dela e receba uma réplica elegante e bem-humorada que vira a mesa na mesma hora.</p>
+                </div>
+            </article>
+        </div>
+
+        <!-- AS 4 FASES + O GRIMÓRIO INCLUSO -->
+        <section class="phases-box">
+            <div class="section-heading" style="margin-top: 0;">
+                <span class="tag">MÉTODO COMPLETO INTEGRADO</span>
+                <h2>Calibrado Para as 4 Fases da Conquista (+ Grimório Incluso)</h2>
+            </div>
+
+            <div class="phase-item">
+                <div class="phase-num">I</div>
+                <div>
+                    <h4>Fase I: A Abordagem Magnética</h4>
+                    <p>Como quebrar o gelo nos Stories e DMs usando detalhes do cenário que fazem ela responder rindo em minutos.</p>
+                </div>
+            </div>
+            <div class="phase-item">
+                <div class="phase-num">II</div>
+                <div>
+                    <h4>Fase II: A Condução & Tensão</h4>
+                    <p>Como manter o ritmo da conversa, gerar curiosidade e evitar que o papo vire uma entrevista monótona.</p>
+                </div>
+            </div>
+            <div class="phase-item">
+                <div class="phase-num">III</div>
+                <div>
+                    <h4>Fase III: A Transição pro WhatsApp</h4>
+                    <p>A ponte natural para tirar ela da DM do Instagram e levar para o WhatsApp sem parecer que está pedindo um favor.</p>
+                </div>
+            </div>
+            <div class="phase-item">
+                <div class="phase-num">IV</div>
+                <div>
+                    <h4>Fase IV: O Convite a Dois</h4>
+                    <p>Como propor o encontro presencial (dia, local e horário) eliminando a clássica desculpa do "vou ver na minha agenda".</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- OFERTA DIRETA -->
+        <section class="offer-card" id="oferta">
+            <div class="eyebrow-badge" style="margin-bottom: 10px;">
+                <i class="fa-solid fa-key"></i> ACESSO IMEDIATO À PLATAFORMA
+            </div>
+            <h2 style="font-family:'Outfit',sans-serif; font-size:26px; font-weight:900;">
+                Ative Seu Acesso ao Aplicativo Ordem Oculta Hoje
+            </h2>
+
+            <div class="offer-stack">
+                <div class="stack-row">
+                    <strong><i class="fa-solid fa-check" style="color:var(--emerald);"></i> Ferramenta 1: O Oráculo (Scanner de Prints Ilimitado)</strong>
+                    <span class="val">Incluso</span>
+                </div>
+                <div class="stack-row">
+                    <strong><i class="fa-solid fa-check" style="color:var(--emerald);"></i> Ferramenta 2: O Mestre da Sedução (Mentor 24h)</strong>
+                    <span class="val">Incluso</span>
+                </div>
+                <div class="stack-row">
+                    <strong><i class="fa-solid fa-check" style="color:var(--emerald);"></i> Ferramenta 3: O Desfibrilador Anti-Vácuo</strong>
+                    <span class="val">Incluso</span>
+                </div>
+                <div class="stack-row">
+                    <strong><i class="fa-solid fa-check" style="color:var(--emerald);"></i> Ferramenta 4: A Rota de Fuga (Anti-Friendzone)</strong>
+                    <span class="val">Incluso</span>
+                </div>
+                <div class="stack-row">
+                    <strong><i class="fa-solid fa-gift" style="color:var(--gold);"></i> Bônus: O Grimório Completo das 4 Fases no App</strong>
+                    <span class="val">Grátis Hoje</span>
+                </div>
+            </div>
+
+            <p class="price-anchor">De <del>R$ 197,00</del> por apenas:</p>
+            <div class="price-big"><small>R$</small> 47<small>,00</small></div>
+            <p class="price-note">Liberação instantânea no seu celular · Pix ou Cartão na Kiwify</p>
+
+            <a href="https://pay.kiwify.com.br/mIglYN2" class="btn-cta-gold">
+                <i class="fa-solid fa-lock-open"></i>
+                <span>LIBERAR MEU ACESSO AO APLICATIVO AGORA</span>
+            </a>
+
+            <div class="micro-trust" style="margin-top:16px;">
+                <span><i class="fa-solid fa-shield-halved"></i> Ambiente Criptografado Kiwify</span>
+                <span><i class="fa-solid fa-bolt"></i> Receba o acesso em segundos</span>
+            </div>
+        </section>
+
+        <!-- GARANTIA DE 7 DIAS -->
+        <div class="guarantee-box">
+            <div class="guarantee-badge">
+                <span>7</span>
+                <small>DIAS</small>
+            </div>
+            <div>
+                <h4 style="font-size:16px; font-weight:800; color:#fff; margin-bottom:4px;">Teste o Aplicativo por 7 Dias Sem Risco</h4>
+                <p style="font-size:13.5px; color:var(--text-muted);">
+                    Entre no aplicativo, escaneie seus prints reais, use o Mestre da Sedução e envie as respostas. Se em até 7 dias você não destravar suas conversas, basta pedir reembolso com 1 clique na Kiwify e devolvemos 100% do seu dinheiro.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- BARRA FIXA MOBILE -->
+    <div class="sticky-bar">
+        <div class="sticky-inner">
+            <div class="sticky-price">
+                Acesso Imediato ao App
+                <strong>R$ 47,00</strong>
+            </div>
+            <a href="https://pay.kiwify.com.br/mIglYN2" class="sticky-btn">
+                ACESSAR O APP AGORA <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- VeroTrack Tracker -->
+    <script src="https://api.pontoideal.online/vt.js" data-page="front" defer></script>
+</body>
+</html>
