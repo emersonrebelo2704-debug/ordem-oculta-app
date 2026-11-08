@@ -2895,9 +2895,9 @@ Responda EXCLUSIVAMENTE em JSON puro:
 
     // Mapa Centralizado de Links de Checkout da Kiwify (Ofertas do mesmo Produto contam para a Placa de 100k)
     const KIWIFY_CHECKOUT_LINKS = {
-        plan_anual: 'https://pay.kiwify.com.br/mIglYN2',      // Oferta Plano Anual PRO (R$ 197,00)
-        plan_trimestral: 'https://pay.kiwify.com.br/mIglYN2', // Oferta Plano Trimestral (R$ 127,00)
-        plan_mensal: 'https://pay.kiwify.com.br/mIglYN2',     // Oferta Plano Mensal Base (R$ 47,00)
+        plan_anual: 'https://pay.kiwify.com.br/ZvKHa3Z',      // Oferta Plano Anual PRO (R$ 197,90)
+        plan_trimestral: 'https://pay.kiwify.com.br/Q3mXfsV', // Oferta Plano Trimestral (R$ 97,90)
+        plan_mensal: 'https://pay.kiwify.com.br/8X6hibI',     // Oferta Plano Mensal Base (R$ 37,90)
         credits_10: 'https://pay.kiwify.com.br/mIglYN2',      // Oferta +10 Créditos (R$ 9,90)
         credits_15: 'https://pay.kiwify.com.br/mIglYN2',      // Oferta +15 Créditos (R$ 14,90)
         credits_20: 'https://pay.kiwify.com.br/mIglYN2',      // Oferta +20 Créditos (R$ 19,90)
