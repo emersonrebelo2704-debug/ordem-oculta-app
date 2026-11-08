@@ -159,10 +159,11 @@
             font-family: 'Outfit', sans-serif;
             font-size: clamp(27px, 6.2vw, 40px);
             font-weight: 900;
-            line-height: 1.15;
+            line-height: 1.18;
             letter-spacing: -0.5px;
             margin-bottom: 16px;
             color: #ffffff;
+            text-wrap: balance;
         }
         h1.hero-headline .gold {
             background: linear-gradient(135deg, #fde68a 0%, #f59e0b 55%, #d97706 100%);
@@ -172,9 +173,10 @@
         .hero-sub {
             font-size: 16px;
             color: #cbd5e1;
-            max-width: 580px;
+            max-width: 600px;
             margin: 0 auto 24px;
             font-weight: 400;
+            text-wrap: pretty;
         }
         .hero-sub strong { color: #ffffff; }
 
@@ -357,7 +359,10 @@
             font-family: 'Outfit', sans-serif;
             font-size: clamp(23px, 5vw, 32px);
             font-weight: 900;
-            line-height: 1.2;
+            line-height: 1.22;
+            text-wrap: balance;
+            max-width: 680px;
+            margin: 0 auto;
         }
         .tools-grid {
             display: flex;
@@ -370,6 +375,8 @@
             border-radius: 18px;
             overflow: hidden;
             box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
         }
         .tool-img-banner {
             height: 175px;
@@ -397,9 +404,13 @@
             border-radius: 99px;
             letter-spacing: 0.8px;
             text-transform: uppercase;
+            white-space: nowrap;
         }
         .tool-body {
             padding: 18px 20px 22px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
         .tool-body h3 {
             font-family: 'Outfit', sans-serif;
@@ -407,28 +418,40 @@
             font-weight: 800;
             color: #fff;
             margin-bottom: 8px;
+            line-height: 1.25;
+            text-wrap: balance;
         }
         .tool-body p {
             font-size: 14.5px;
             color: var(--text-muted);
-            margin-bottom: 12px;
+            margin-bottom: 14px;
+            line-height: 1.55;
+            text-wrap: pretty;
         }
         .tool-bullets {
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
+            margin-top: auto;
         }
         .tool-bullets li {
             font-size: 13.5px;
             color: #e2e8f0;
             display: flex;
-            align-items: center;
-            gap: 8px;
+            align-items: flex-start;
+            gap: 9px;
+            line-height: 1.45;
+            text-align: left;
         }
-        .tool-bullets li i { color: var(--gold); font-size: 12px; }
+        .tool-bullets li i {
+            color: var(--gold);
+            font-size: 12px;
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
 
-        /* As 4 Fases + Grimório Incluso */
+        /* As 4 Fases Integradas */
         .phases-box {
             background: linear-gradient(180deg, rgba(127, 29, 29, 0.16), rgba(17, 17, 22, 0.95));
             border: 1px solid rgba(220, 38, 38, 0.3);
@@ -438,9 +461,11 @@
         }
         .phase-item {
             display: flex;
+            align-items: flex-start;
             gap: 14px;
             padding: 14px 0;
             border-bottom: 1px solid var(--border-subtle);
+            text-align: left;
         }
         .phase-item:last-child { border-bottom: none; padding-bottom: 0; }
         .phase-num {
@@ -457,9 +482,10 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            margin-top: 2px;
         }
-        .phase-item h4 { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 3px; }
-        .phase-item p { font-size: 13.5px; color: var(--text-muted); }
+        .phase-item h4 { font-size: 15.5px; font-weight: 800; color: #fff; margin-bottom: 4px; line-height: 1.3; }
+        .phase-item p { font-size: 13.5px; color: var(--text-muted); line-height: 1.5; text-wrap: pretty; }
 
         /* Offer Box */
         .offer-card {
@@ -473,7 +499,7 @@
         }
         .offer-stack {
             text-align: left;
-            margin: 20px 0;
+            margin: 22px 0;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -482,13 +508,36 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 14px;
             background: rgba(255,255,255,0.03);
-            padding: 11px 14px;
-            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 12px 16px;
+            border-radius: 12px;
             font-size: 13.5px;
         }
-        .stack-row strong { color: #fff; }
-        .stack-row .val { color: var(--gold-light); font-weight: 700; font-size: 12.5px; }
+        .stack-row strong {
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            line-height: 1.35;
+            text-align: left;
+        }
+        .stack-row strong i {
+            flex-shrink: 0;
+            font-size: 14px;
+        }
+        .stack-row .val {
+            color: var(--gold-light);
+            font-weight: 800;
+            font-size: 12.5px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            padding: 3px 10px;
+            border-radius: 99px;
+        }
         .price-anchor {
             font-size: 14px;
             color: var(--text-muted);
@@ -505,6 +554,80 @@
         }
         .price-big small { font-size: 22px; color: var(--gold-light); }
         .price-note { font-size: 13px; color: #cbd5e1; margin-bottom: 22px; }
+
+        /* Plan Selector Cards (Alinhamento Cirúrgico) */
+        .tsl-plan-opt {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            padding: 15px 18px;
+            border-radius: 14px;
+            border: 1px solid var(--border-subtle);
+            background: rgba(255, 255, 255, 0.03);
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .tsl-plan-opt.active {
+            border: 2px solid var(--gold);
+            background: rgba(245, 158, 11, 0.10);
+        }
+        .tsl-plan-left {
+            flex: 1;
+            min-width: 0;
+            text-align: left;
+        }
+        .tsl-plan-title-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 4px;
+        }
+        .tsl-plan-name {
+            color: #ffffff;
+            font-size: 15.5px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .tsl-plan-badge {
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 9px;
+            border-radius: 99px;
+            white-space: nowrap;
+            letter-spacing: 0.4px;
+            line-height: 1.2;
+        }
+        .tsl-plan-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.35;
+        }
+        .tsl-plan-right {
+            text-align: right;
+            flex-shrink: 0;
+            white-space: nowrap;
+            padding-left: 14px;
+            border-left: 1px solid rgba(255, 255, 255, 0.08);
+            min-width: 116px;
+        }
+        .tsl-plan-price {
+            display: block;
+            color: #ffffff;
+            font-size: 19px;
+            font-weight: 900;
+            font-family: 'Outfit', sans-serif;
+            white-space: nowrap;
+            line-height: 1.15;
+        }
+        .tsl-plan-period {
+            font-size: 11px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            margin-top: 2px;
+        }
 
         /* Guarantee */
         .guarantee-box {
@@ -578,6 +701,104 @@
             text-transform: uppercase;
             white-space: nowrap;
         }
+
+        /* RESPONSIVIDADE DESKTOP (PC / TELAS GRANDES) */
+        @media (min-width: 860px) {
+            body {
+                padding-bottom: 50px;
+            }
+            .container {
+                max-width: 1060px;
+                padding: 0 32px;
+            }
+            .hero {
+                padding: 52px 0 36px;
+            }
+            h1.hero-headline {
+                font-size: 46px;
+                max-width: 880px;
+                margin: 0 auto 18px;
+            }
+            .hero-sub {
+                font-size: 18px;
+                max-width: 740px;
+                margin: 0 auto 32px;
+            }
+            .app-live-showcase {
+                padding: 28px 30px;
+                margin: 32px 0;
+            }
+            .step-flow {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 18px;
+                align-items: stretch;
+            }
+            .flow-box {
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                padding: 20px 22px;
+            }
+            .flow-box:nth-child(3) {
+                grid-column: 1 / -1;
+            }
+            .hero .btn-cta-gold {
+                max-width: 520px;
+                margin: 0 auto;
+                font-size: 18px;
+                padding: 20px 32px;
+            }
+            .sales-letter-box {
+                max-width: 820px;
+                margin: 44px auto;
+                padding: 38px 42px;
+            }
+            .sales-letter-box p {
+                font-size: 16.5px;
+                line-height: 1.75;
+            }
+            .tools-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 24px;
+            }
+            .tool-img-banner {
+                height: 235px;
+                background-position: center 25%;
+            }
+            .tool-body {
+                padding: 22px 24px 26px;
+            }
+            .phases-box {
+                padding: 36px 38px;
+                margin: 48px 0;
+            }
+            .phases-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px 32px;
+            }
+            .phase-item {
+                border-bottom: none;
+                background: rgba(255, 255, 255, 0.025);
+                border: 1px solid var(--border-subtle);
+                border-radius: 14px;
+                padding: 18px 20px;
+            }
+            .offer-card {
+                max-width: 740px;
+                margin: 48px auto;
+                padding: 40px 42px;
+            }
+            .guarantee-box {
+                max-width: 740px;
+                margin: 32px auto;
+                padding: 26px 30px;
+            }
+            .sticky-bar {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -590,7 +811,7 @@
         <!-- HERO COM LACRE DE CERA / SINETE REAL -->
         <header class="hero">
             <div class="wax-seal-wrapper">
-                <img src="assets/hero-emblem.jpg" alt="Lacre de Cera Real Ordem Oculta">
+                <img src="/app/assets/hero-emblem.jpg" alt="Lacre de Cera Real Ordem Oculta">
             </div>
 
             <div class="eyebrow-badge">
@@ -629,11 +850,11 @@
 
                     <div class="flow-box">
                         <span class="flow-step-tag">PASSO 3 · COPIE E ENVIE COM 1 TOQUE</span>
-                        <h4>Você recebe 3 abordagens prontas na hora:</h4>
+                        <h4>Você recebe 3 abordagens cirúrgicas na hora:</h4>
                         <div class="sample-reply-card">
-                            <div class="badge"><i class="fa-solid fa-bolt"></i> EXEMPLO REAL GERADO PELO ORÁCULO:</div>
-                            <div class="quote">"Três detalhes me chamaram atenção no fundo desse story, mas o segundo com certeza você achou que ninguém ia notar."</div>
-                            <div class="why">💡 <strong>Por que funciona:</strong> Foge de elogios clichês ("linda", foguinho) e ativa um loop imediato de curiosidade — ela responde perguntando qual é o detalhe.</div>
+                            <div class="badge"><i class="fa-solid fa-eye"></i> CENÁRIO DETECTADO: TAÇA DE VINHO NA SEXTA À NOITE</div>
+                            <div class="quote">"Taça de vinho nessa sexta só tem duas explicações: ou você está brindando uma notícia muito boa, ou está tentando sobreviver à semana. Qual das duas eu preciso comemorar com você?"</div>
+                            <div class="why" style="margin-top:6px;">🔥 <strong>A reação dela na hora:</strong> <em>"Hahaha a segunda opção com certeza! Mereço um drink de verdade hoje 🍷"</em></div>
                         </div>
                     </div>
                 </div>
@@ -679,7 +900,7 @@
         <div class="tools-grid">
             <!-- Ferramenta 1 -->
             <article class="tool-showcase-card">
-                <div class="tool-img-banner" style="background-image: url('assets/card-oraculo.jpg');">
+                <div class="tool-img-banner" style="background-image: url('/app/assets/card-oraculo.jpg');">
                     <span class="tool-badge-floating"><i class="fa-solid fa-camera"></i> FERRAMENTA 01 · VISÃO COMPUTACIONAL</span>
                 </div>
                 <div class="tool-body">
@@ -695,7 +916,7 @@
 
             <!-- Ferramenta 2 -->
             <article class="tool-showcase-card">
-                <div class="tool-img-banner" style="background-image: url('assets/card-coach.jpg');">
+                <div class="tool-img-banner" style="background-image: url('/app/assets/card-coach.jpg');">
                     <span class="tool-badge-floating"><i class="fa-solid fa-user-tie"></i> FERRAMENTA 02 · MENTORIA EM TEMPO REAL</span>
                 </div>
                 <div class="tool-body">
@@ -710,60 +931,70 @@
 
             <!-- Ferramenta 3 -->
             <article class="tool-showcase-card">
-                <div class="tool-img-banner" style="background-image: url('assets/card-desfibrilador.jpg');">
+                <div class="tool-img-banner" style="background-image: url('/app/assets/card-desfibrilador.jpg');">
                     <span class="tool-badge-floating"><i class="fa-solid fa-bolt"></i> FERRAMENTA 03 · ANTI-VÁCUO</span>
                 </div>
                 <div class="tool-body">
                     <h3>3. O Desfibrilador de Conversas</h3>
                     <p>Ela parou de responder há 24 horas, 3 dias ou mais de 1 semana? Informe o tempo e o último assunto para gerar 3 mensagens leves que reabrem o papo sem cobrar atenção e sem parecer carente.</p>
+                    <ul class="tool-bullets">
+                        <li><i class="fa-solid fa-check"></i> Calibrado por tempo de sumiço (24h, 3 dias, 7 dias ou mais de 1 mês)</li>
+                        <li><i class="fa-solid fa-check"></i> Reativa o interesse dela sem usar o clássico "e aí, sumida?"</li>
+                    </ul>
                 </div>
             </article>
 
             <!-- Ferramenta 4 -->
             <article class="tool-showcase-card">
-                <div class="tool-img-banner" style="background-image: url('assets/card-friendzone.jpg');">
+                <div class="tool-img-banner" style="background-image: url('/app/assets/card-friendzone.jpg');">
                     <span class="tool-badge-floating"><i class="fa-solid fa-fire"></i> FERRAMENTA 04 · INVERSÃO DE JOGO</span>
                 </div>
                 <div class="tool-body">
                     <h3>4. A Rota de Fuga (Quebra de Friendzone & Testes)</h3>
                     <p>Ela te chamou de "amigo", "fofo" ou fez um teste para ver se você fica inseguro? Cole a frase dela e receba uma réplica elegante e bem-humorada que vira a mesa na mesma hora.</p>
+                    <ul class="tool-bullets">
+                        <li><i class="fa-solid fa-check"></i> Quebra imediata do papel de "ombro amigo" ou confidente</li>
+                        <li><i class="fa-solid fa-check"></i> Devolve a tensão e o respeito masculino para a conversa em 1 frase</li>
+                    </ul>
                 </div>
             </article>
         </div>
 
-        <!-- AS 4 FASES + O GRIMÓRIO INCLUSO -->
+        <!-- AS 4 FASES INTEGRADAS NO ORÁCULO -->
         <section class="phases-box">
             <div class="section-heading" style="margin-top: 0;">
-                <span class="tag">MÉTODO COMPLETO INTEGRADO</span>
-                <h2>Calibrado Para as 4 Fases da Conquista (+ Grimório Incluso)</h2>
+                <span class="tag">RADAR TÁTICO INTEGRADO AO ORÁCULO</span>
+                <h2>Calibrado Para as 4 Fases da Conquista (Com Auto-Diagnóstico)</h2>
             </div>
 
-            <div class="phase-item">
-                <div class="phase-num">I</div>
-                <div>
-                    <h4>Fase I: A Abordagem Magnética</h4>
-                    <p>Como quebrar o gelo nos Stories e DMs usando detalhes do cenário que fazem ela responder rindo em minutos.</p>
+            <div class="phases-grid">
+                <div class="phase-item">
+                    <div class="phase-num">I</div>
+                    <div>
+                        <h4>Fase I: A Abordagem Magnética</h4>
+                        <p>Como quebrar o gelo nos Stories e DMs usando detalhes do cenário que fazem ela responder rindo em minutos.</p>
+                    </div>
                 </div>
-            </div>
-            <div class="phase-item">
-                <div class="phase-num">II</div>
-                <div>
-                    <h4>Fase II: A Condução & Tensão</h4>
-                    <p>Como manter o ritmo da conversa, gerar curiosidade e evitar que o papo vire uma entrevista monótona.</p>
+                <div class="phase-item">
+                    <div class="phase-num">II</div>
+                    <div>
+                        <h4>Fase II: A Condução & Tensão</h4>
+                        <p>Como manter o ritmo da conversa, gerar curiosidade e evitar que o papo vire uma entrevista monótona.</p>
+                    </div>
                 </div>
-            </div>
-            <div class="phase-item">
-                <div class="phase-num">III</div>
-                <div>
-                    <h4>Fase III: A Transição pro WhatsApp</h4>
-                    <p>A ponte natural para tirar ela da DM do Instagram e levar para o WhatsApp sem parecer que está pedindo um favor.</p>
+                <div class="phase-item">
+                    <div class="phase-num">III</div>
+                    <div>
+                        <h4>Fase III: A Transição pro WhatsApp</h4>
+                        <p>A ponte natural para tirar ela da DM do Instagram e levar para o WhatsApp sem parecer que está pedindo um favor.</p>
+                    </div>
                 </div>
-            </div>
-            <div class="phase-item">
-                <div class="phase-num">IV</div>
-                <div>
-                    <h4>Fase IV: O Convite a Dois</h4>
-                    <p>Como propor o encontro presencial (dia, local e horário) eliminando a clássica desculpa do "vou ver na minha agenda".</p>
+                <div class="phase-item">
+                    <div class="phase-num">IV</div>
+                    <div>
+                        <h4>Fase IV: O Convite a Dois</h4>
+                        <p>Como propor o encontro presencial (dia, local e horário) eliminando a clássica desculpa do "vou ver na minha agenda".</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -773,87 +1004,87 @@
             <div class="eyebrow-badge" style="margin-bottom: 10px;">
                 <i class="fa-solid fa-key"></i> ACESSO IMEDIATO À PLATAFORMA
             </div>
-            <h2 style="font-family:'Outfit',sans-serif; font-size:26px; font-weight:900;">
+            <h2 style="font-family:'Outfit',sans-serif; font-size:26px; font-weight:900; text-wrap:balance;">
                 Ative Seu Acesso ao Aplicativo Ordem Oculta Hoje
             </h2>
 
             <div class="offer-stack">
                 <div class="stack-row">
-                    <strong><i class="fa-solid fa-check" style="color:var(--emerald);"></i> Ferramenta 1: O Oráculo (Scanner de Prints Ilimitado)</strong>
+                    <strong><i class="fa-solid fa-check" style="color:var(--emerald);"></i> <span>Ferramenta 1: O Oráculo (Scanner de Prints Ilimitado)</span></strong>
                     <span class="val">Incluso</span>
                 </div>
                 <div class="stack-row">
-                    <strong><i class="fa-solid fa-check" style="color:var(--emerald);"></i> Ferramenta 2: O Mestre da Sedução (Mentor 24h)</strong>
+                    <strong><i class="fa-solid fa-check" style="color:var(--emerald);"></i> <span>Ferramenta 2: O Mestre da Sedução (Mentor 24h)</span></strong>
                     <span class="val">Incluso</span>
                 </div>
                 <div class="stack-row">
-                    <strong><i class="fa-solid fa-check" style="color:var(--emerald);"></i> Ferramenta 3: O Desfibrilador Anti-Vácuo</strong>
+                    <strong><i class="fa-solid fa-check" style="color:var(--emerald);"></i> <span>Ferramenta 3: O Desfibrilador Anti-Vácuo</span></strong>
                     <span class="val">Incluso</span>
                 </div>
                 <div class="stack-row">
-                    <strong><i class="fa-solid fa-check" style="color:var(--emerald);"></i> Ferramenta 4: A Rota de Fuga (Anti-Friendzone)</strong>
+                    <strong><i class="fa-solid fa-check" style="color:var(--emerald);"></i> <span>Ferramenta 4: A Rota de Fuga (Anti-Friendzone)</span></strong>
                     <span class="val">Incluso</span>
                 </div>
                 <div class="stack-row">
-                    <strong><i class="fa-solid fa-gift" style="color:var(--gold);"></i> Bônus: O Grimório Completo das 4 Fases no App</strong>
+                    <strong><i class="fa-solid fa-gift" style="color:var(--gold);"></i> <span>Bônus: Radar Auto-Diagnóstico de 4 Fases (Do Story ao Encontro)</span></strong>
                     <span class="val">Grátis Hoje</span>
                 </div>
             </div>
 
-            <div style="text-align:left; margin: 18px 0 16px;">
-                <div style="font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.8px; color:var(--gold-light); margin-bottom:10px; text-align:center;">
+            <div style="text-align:left; margin: 22px 0 18px;">
+                <div style="font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.8px; color:var(--gold-light); margin-bottom:12px; text-align:center;">
                     <i class="fa-solid fa-sliders"></i> Escolha Seu Plano de Acesso:
                 </div>
 
                 <!-- Opção 1: Mensal (Pré-selecionado para conversão rápida) -->
-                <div class="tsl-plan-opt active" data-url="https://pay.kiwify.com.br/8X6hibI" data-price="37,90" data-label="LIBERAR ACESSO MENSAL · R$ 37,90" onclick="selectTslPlan(this)" style="display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-radius:14px; border:2px solid var(--gold); background:rgba(245,158,11,0.10); margin-bottom:10px; cursor:pointer; transition:all 0.2s;">
-                    <div>
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <strong style="color:#fff; font-size:15px;">Plano Mensal Base</strong>
-                            <span style="background:rgba(16,185,129,0.2); color:#6ee7b7; font-size:10px; font-weight:800; padding:2px 8px; border-radius:99px;">ACESSO IMEDIATO</span>
+                <div class="tsl-plan-opt active" data-url="https://pay.kiwify.com.br/8X6hibI" data-price="37,90" data-label="LIBERAR ACESSO MENSAL · R$ 37,90" onclick="selectTslPlan(this)">
+                    <div class="tsl-plan-left">
+                        <div class="tsl-plan-title-row">
+                            <span class="tsl-plan-name">Plano Mensal Base</span>
+                            <span class="tsl-plan-badge" style="background:rgba(16,185,129,0.2); color:#6ee7b7;">ACESSO IMEDIATO</span>
                         </div>
-                        <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Oráculo Ilimitado + 10 Créditos/mês</div>
+                        <div class="tsl-plan-desc">Oráculo Ilimitado + 10 Créditos/mês</div>
                     </div>
-                    <div style="text-align:right;">
-                        <strong style="color:#fff; font-size:18px; font-family:'Outfit',sans-serif;">R$ 37,90</strong>
-                        <div style="font-size:11px; color:var(--text-muted);">/mês</div>
+                    <div class="tsl-plan-right">
+                        <strong class="tsl-plan-price">R$&nbsp;37,90</strong>
+                        <div class="tsl-plan-period">por mês</div>
                     </div>
                 </div>
 
                 <!-- Opção 2: Trimestral -->
-                <div class="tsl-plan-opt" data-url="https://pay.kiwify.com.br/Q3mXfsV" data-price="97,90" data-label="LIBERAR ACESSO TRIMESTRAL · R$ 97,90" onclick="selectTslPlan(this)" style="display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-radius:14px; border:1px solid var(--border-subtle); background:rgba(255,255,255,0.03); margin-bottom:10px; cursor:pointer; transition:all 0.2s;">
-                    <div>
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <strong style="color:#fff; font-size:15px;">Plano Trimestral</strong>
-                            <span style="background:rgba(245,158,11,0.18); color:var(--gold-light); font-size:10px; font-weight:800; padding:2px 8px; border-radius:99px;">20 CRÉDITOS/MÊS</span>
+                <div class="tsl-plan-opt" data-url="https://pay.kiwify.com.br/Q3mXfsV" data-price="97,90" data-label="LIBERAR ACESSO TRIMESTRAL · R$ 97,90" onclick="selectTslPlan(this)">
+                    <div class="tsl-plan-left">
+                        <div class="tsl-plan-title-row">
+                            <span class="tsl-plan-name">Plano Trimestral</span>
+                            <span class="tsl-plan-badge" style="background:rgba(245,158,11,0.18); color:var(--gold-light);">20 CRÉDITOS/MÊS</span>
                         </div>
-                        <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Oráculo Ilimitado + Dobro de Créditos (3 Meses)</div>
+                        <div class="tsl-plan-desc">Oráculo Ilimitado + Dobro de Créditos (3 Meses)</div>
                     </div>
-                    <div style="text-align:right;">
-                        <strong style="color:#fff; font-size:18px; font-family:'Outfit',sans-serif;">R$ 97,90</strong>
-                        <div style="font-size:11px; color:var(--text-muted);">equiv. R$ 32,63/mês</div>
+                    <div class="tsl-plan-right">
+                        <strong class="tsl-plan-price">R$&nbsp;97,90</strong>
+                        <div class="tsl-plan-period">equiv. R$&nbsp;32,63/mês</div>
                     </div>
                 </div>
 
                 <!-- Opção 3: Anual PRO -->
-                <div class="tsl-plan-opt" id="tslPlanAnual" data-url="https://pay.kiwify.com.br/ZvKHa3Z" data-price="197,90" data-label="LIBERAR ACESSO ANUAL PRO · R$ 197,90" onclick="selectTslPlan(this)" style="display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-radius:14px; border:1px solid var(--border-subtle); background:rgba(255,255,255,0.03); cursor:pointer; transition:all 0.2s;">
-                    <div>
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <strong style="color:#fff; font-size:15px;">Plano PRO / Anual</strong>
-                            <span style="background:linear-gradient(135deg,#f59e0b,#dc2626); color:#fff; font-size:10px; font-weight:800; padding:2px 8px; border-radius:99px;">MAIS VANTAJOSO · 40 CRÉDITOS/MÊS</span>
+                <div class="tsl-plan-opt" id="tslPlanAnual" data-url="https://pay.kiwify.com.br/ZvKHa3Z" data-price="197,90" data-label="LIBERAR ACESSO ANUAL PRO · R$ 197,90" onclick="selectTslPlan(this)">
+                    <div class="tsl-plan-left">
+                        <div class="tsl-plan-title-row">
+                            <span class="tsl-plan-name">Plano PRO / Anual</span>
+                            <span class="tsl-plan-badge" style="background:linear-gradient(135deg,#f59e0b,#dc2626); color:#fff;">MAIS VANTAJOSO · 40 CRÉDITOS/MÊS</span>
                         </div>
-                        <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">1 Ano Completo · Equivale a apenas R$ 16,49/mês</div>
+                        <div class="tsl-plan-desc">1 Ano Completo · Equivale a apenas R$&nbsp;16,49/mês</div>
                     </div>
-                    <div style="text-align:right;">
-                        <strong style="color:var(--gold-light); font-size:18px; font-family:'Outfit',sans-serif;">R$ 197,90</strong>
-                        <div style="font-size:11px; color:var(--text-muted);">/ano</div>
+                    <div class="tsl-plan-right">
+                        <strong class="tsl-plan-price" style="color:var(--gold-light);">R$&nbsp;197,90</strong>
+                        <div class="tsl-plan-period">por ano</div>
                     </div>
                 </div>
             </div>
 
             <a href="https://pay.kiwify.com.br/8X6hibI" id="mainOfferCtaBtn" class="btn-cta-gold">
                 <i class="fa-solid fa-lock-open"></i>
-                <span id="mainOfferCtaText">LIBERAR ACESSO MENSAL · R$ 37,90</span>
+                <span id="mainOfferCtaText">LIBERAR ACESSO MENSAL · R$&nbsp;37,90</span>
             </a>
 
             <div class="micro-trust" style="margin-top:16px;">
@@ -868,9 +1099,9 @@
                 <span>7</span>
                 <small>DIAS</small>
             </div>
-            <div>
+            <div style="text-align:left;">
                 <h4 style="font-size:16px; font-weight:800; color:#fff; margin-bottom:4px;">Teste o Aplicativo por 7 Dias Sem Risco</h4>
-                <p style="font-size:13.5px; color:var(--text-muted);">
+                <p style="font-size:13.5px; color:var(--text-muted); line-height:1.5; text-wrap:pretty;">
                     Entre no aplicativo, escaneie seus prints reais, use o Mestre da Sedução e envie as respostas. Se em até 7 dias você não destravar suas conversas, basta pedir reembolso com 1 clique na Kiwify e devolvemos 100% do seu dinheiro.
                 </p>
             </div>
@@ -882,7 +1113,7 @@
         <div class="sticky-inner">
             <div class="sticky-price">
                 Acesso Imediato ao App
-                <strong id="stickyPriceText">R$ 37,90</strong>
+                <strong id="stickyPriceText">R$&nbsp;37,90</strong>
             </div>
             <a href="https://pay.kiwify.com.br/8X6hibI" id="stickyOfferCtaBtn" class="sticky-btn">
                 ACESSAR O APP AGORA <i class="fa-solid fa-arrow-right"></i>
@@ -894,11 +1125,9 @@
     function selectTslPlan(el) {
         var opts = document.querySelectorAll('.tsl-plan-opt');
         for (var i = 0; i < opts.length; i++) {
-            opts[i].style.border = '1px solid rgba(255, 255, 255, 0.08)';
-            opts[i].style.background = 'rgba(255, 255, 255, 0.03)';
+            opts[i].classList.remove('active');
         }
-        el.style.border = '2px solid #f59e0b';
-        el.style.background = 'rgba(245, 158, 11, 0.10)';
+        el.classList.add('active');
         var url = el.getAttribute('data-url');
         var price = el.getAttribute('data-price');
         var label = el.getAttribute('data-label');
