@@ -194,6 +194,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 12px;
             padding-bottom: 14px;
             margin-bottom: 16px;
             border-bottom: 1px solid var(--border-subtle);
@@ -208,6 +209,7 @@
             letter-spacing: 0.8px;
             color: var(--gold-light);
             text-transform: uppercase;
+            min-width: 0;
         }
         .live-pill {
             background: rgba(16, 185, 129, 0.15);
@@ -215,8 +217,11 @@
             color: #34d399;
             font-size: 11px;
             font-weight: 700;
-            padding: 3px 10px;
+            padding: 4px 11px;
             border-radius: 99px;
+            white-space: nowrap !important;
+            flex-shrink: 0;
+            display: inline-block;
         }
         .step-flow {
             display: grid;
@@ -706,6 +711,59 @@
             white-space: nowrap;
         }
 
+        /* AJUSTES FINOS PARA TELAS MOBILE (CELULARES) */
+        @media (max-width: 600px) {
+            .container {
+                padding: 0 14px;
+            }
+            .app-live-showcase {
+                padding: 16px 14px;
+            }
+            .showcase-title {
+                font-size: 11.5px;
+                letter-spacing: 0.4px;
+            }
+            .live-pill {
+                font-size: 10.5px;
+                padding: 3px 9px;
+            }
+            .offer-card {
+                padding: 24px 14px;
+            }
+            .tsl-plan-opt {
+                grid-template-columns: minmax(0, 1fr) 106px;
+                gap: 10px;
+                padding: 13px 12px;
+            }
+            .tsl-plan-title-row {
+                gap: 6px;
+            }
+            .tsl-plan-name {
+                font-size: 14px;
+            }
+            .tsl-plan-badge {
+                font-size: 9px;
+                padding: 2px 7px;
+            }
+            .tsl-plan-desc {
+                font-size: 11.5px;
+            }
+            .tsl-plan-right {
+                width: 106px;
+                padding-left: 8px;
+            }
+            .tsl-plan-price {
+                font-size: 17px;
+            }
+            .tsl-plan-period {
+                font-size: 10px;
+            }
+            .btn-cta-gold {
+                font-size: 15px;
+                padding: 16px 14px;
+            }
+        }
+
         /* RESPONSIVIDADE DESKTOP (PC / TELAS GRANDES) */
         @media (min-width: 860px) {
             body {
@@ -823,7 +881,7 @@
             </div>
 
             <h1 class="hero-headline">
-                Suba o Print do Story ou da Conversa e Receba em <span class="gold">5 Segundos</span> a Resposta Exata Que Faz Ela Querer Te Ver
+                Suba o Print do Story ou da Conversa e Receba em <span class="gold" style="white-space:nowrap;">5&#160;Segundos</span> a Resposta Exata Que Faz Ela Querer Te Ver
             </h1>
 
             <p class="hero-sub">
@@ -836,7 +894,7 @@
                     <div class="showcase-title">
                         <i class="fa-solid fa-eye"></i> COMO O APLICATIVO FUNCIONA NA PRÁTICA
                     </div>
-                    <span class="live-pill">● 5 Segundos</span>
+                    <span class="live-pill">●&#160;5&#160;Segundos</span>
                 </div>
 
                 <div class="step-flow">
@@ -854,11 +912,16 @@
 
                     <div class="flow-box">
                         <span class="flow-step-tag">PASSO 3 · COPIE E ENVIE COM 1 TOQUE</span>
-                        <h4>Você recebe 3 abordagens cirúrgicas na hora:</h4>
+                        <h4>A criatividade que você queria ter na ponta da língua, pronta em segundos:</h4>
                         <div class="sample-reply-card">
-                            <div class="badge"><i class="fa-solid fa-eye"></i> CENÁRIO DETECTADO: TAÇA DE VINHO NA SEXTA À NOITE</div>
-                            <div class="quote">"Taça de vinho nessa sexta só tem duas explicações: ou você está brindando uma notícia muito boa, ou está tentando sobreviver à semana. Qual das duas eu preciso comemorar com você?"</div>
-                            <div class="why" style="margin-top:6px;">🔥 <strong>A reação dela na hora:</strong> <em>"Hahaha a segunda opção com certeza! Mereço um drink de verdade hoje 🍷"</em></div>
+                            <div class="badge"><i class="fa-solid fa-camera"></i> EXEMPLO 1 · ELA POSTOU FOTO PRODUZIDA NO ESPELHO ANTES DE SAIR:</div>
+                            <div class="quote">"Esse olhar no espelho é de quem se arrumou inteira só para chegar no lugar, achar todo mundo sem graça em 20 minutos e querer fugir para comer alguma coisa melhor. Acertei ou passei perto?"</div>
+                            <div class="why" style="margin-top:6px;">🔥 <strong>A reação dela na hora:</strong> <em>"Hahaha socorro, como você adivinhou?! Pior que já tô quase querendo fugir mesmo"</em> (Enquanto 40 caras mandaram "Linda 😍" e foram ignorados, você já abriu a porta do encontro).</div>
+                        </div>
+                        <div class="sample-reply-card" style="margin-top:10px; border-left-color:var(--emerald); background:rgba(16,185,129,0.06);">
+                            <div class="badge" style="color:#6ee7b7;"><i class="fa-brands fa-whatsapp"></i> EXEMPLO 2 · ELA SUMIU O DIA TODO E MANDOU "OI, CORRERIA AQUI":</div>
+                            <div class="quote">"Relaxa, eu já ia abrir um boletim de ocorrência por sequestro, mas como você apareceu a tempo, vou converter sua multa em um drink comigo essa semana. Quinta você tem alvará de soltura?"</div>
+                            <div class="why" style="margin-top:6px;">💡 <strong>O efeito psicológico:</strong> Zero cobrança, humor inteligente e convite embutido sem parecer carente.</div>
                         </div>
                     </div>
                 </div>
@@ -1044,7 +1107,7 @@
                 <div class="tsl-plan-opt active" data-url="https://pay.kiwify.com.br/8X6hibI" data-price="37,90" data-label="LIBERAR ACESSO MENSAL · R$&#160;37,90" onclick="selectTslPlan(this)">
                     <div class="tsl-plan-left">
                         <div class="tsl-plan-title-row">
-                            <span class="tsl-plan-name">Plano Mensal Base</span>
+                            <span class="tsl-plan-name">Plano Mensal</span>
                             <span class="tsl-plan-badge" style="background:rgba(16,185,129,0.2); color:#6ee7b7;">10 CRÉDITOS/MÊS</span>
                         </div>
                         <div class="tsl-plan-desc">Oráculo Ilimitado + Acesso Imediato às 4 Ferramentas</div>
@@ -1074,7 +1137,7 @@
                 <div class="tsl-plan-opt" id="tslPlanAnual" data-url="https://pay.kiwify.com.br/ZvKHa3Z" data-price="197,90" data-label="LIBERAR ACESSO ANUAL PRO · R$&#160;197,90" onclick="selectTslPlan(this)">
                     <div class="tsl-plan-left">
                         <div class="tsl-plan-title-row">
-                            <span class="tsl-plan-name">Plano PRO / Anual</span>
+                            <span class="tsl-plan-name">Plano Anual</span>
                             <span class="tsl-plan-badge" style="background:linear-gradient(135deg,#f59e0b,#dc2626); color:#fff;">40 CRÉDITOS/MÊS</span>
                         </div>
                         <div class="tsl-plan-desc">1 Ano Completo · Mais Vantajoso (R$&#160;16,49/mês)</div>
