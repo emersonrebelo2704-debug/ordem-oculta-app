@@ -382,11 +382,17 @@ if ($action === 'kiwify-webhook') {
 
     // Repassa automaticamente o evento de venda para o VeroTrack (que dispara o Facebook CAPI oficial)
     if (!empty($rawInput)) {
-        $vtCh = curl_init('https://api.pontoideal.online/webhooks/kiwify');
+        $qs = $_SERVER['QUERY_STRING'] ?? '';
+        $vtUrl = 'https://api.pontoideal.online/webhook/kiwify' . ($qs !== '' ? ('?' . $qs) : '');
+        $vtHeaders = ['Content-Type: application/json'];
+        if (!empty($_SERVER['HTTP_X_KIWIFY_SIGNATURE'])) {
+            $vtHeaders[] = 'X-Kiwify-Signature: ' . $_SERVER['HTTP_X_KIWIFY_SIGNATURE'];
+        }
+        $vtCh = curl_init($vtUrl);
         curl_setopt_array($vtCh, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
-            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_HTTPHEADER => $vtHeaders,
             CURLOPT_POSTFIELDS => $rawInput,
             CURLOPT_CONNECTTIMEOUT => 4,
             CURLOPT_TIMEOUT => 8,

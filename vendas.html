@@ -1195,7 +1195,8 @@
             opts[i].classList.remove('active');
         }
         el.classList.add('active');
-        var url = el.getAttribute('data-url');
+        var rawUrl = el.getAttribute('data-url');
+        var url = (window.VT && typeof window.VT.decorateUrl === 'function') ? window.VT.decorateUrl(rawUrl) : rawUrl;
         var price = el.getAttribute('data-price');
         var label = el.getAttribute('data-label');
         var mainBtn = document.getElementById('mainOfferCtaBtn');
