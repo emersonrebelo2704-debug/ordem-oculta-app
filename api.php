@@ -21,7 +21,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+$rawInput = file_get_contents('php://input');
+$body = json_decode($rawInput ?: '{}', true) ?: [];
+$action = $_GET['action'] ?? ($body['action'] ?? '');
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' && !in_array($action, ['kiwify-webhook', 'verify-vip'], true)) {
     http_response_code(405);
     echo json_encode(['success' => false, 'error' => 'Método não permitido']);
     exit;
@@ -293,6 +297,19 @@ PROMPT;
 }
 
 if ($action === 'kiwify-webhook') {
+    $knownTokens = ['cg95nvcn2wg'];
+    $receivedToken = trim((string)($_GET['token'] ?? ($body['token'] ?? ($body['signature'] ?? ''))));
+
+    if ($_SERVER['REQUEST_METHOD'] === 'GET' && empty($body)) {
+        echo json_encode([
+            'success' => true,
+            'status' => 'online',
+            'token_registered' => true,
+            'endpoint' => 'Webhook Oficial Ordem Oculta + Repasse VeroTrack CAPI Ativo'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
     $status = strtolower((string)($body['order_status'] ?? ($body['status'] ?? ($body['webhook_event_type'] ?? ''))));
     $customerEmail = strtolower(trim((string)($body['Customer']['email'] ?? ($body['email'] ?? ''))));
     $customerName = trim((string)($body['Customer']['full_name'] ?? ($body['name'] ?? 'Membro Ordem Oculta')));
@@ -305,7 +322,10 @@ if ($action === 'kiwify-webhook') {
     $dbFile = __DIR__ . '/.vip_members.json';
     $members = file_exists($dbFile) ? (json_decode((string)file_get_contents($dbFile), true) ?: []) : [];
 
-    if ($customerEmail !== '' && in_array($status, ['paid', 'approved', 'order_approved'], true)) {
+    $approvedEvents = ['paid', 'approved', 'order_approved', 'subscription_renewed'];
+    $revokedEvents = ['refunded', 'chargedback', 'chargeback', 'canceled', 'subscription_canceled', 'subscription_late', 'late', 'order_refunded', 'order_chargedback'];
+
+    if ($customerEmail !== '' && in_array($status, $approvedEvents, true)) {
         $existing = $members[$customerEmail] ?? ['modules' => [], 'credits_added' => 0];
         $modules = is_array($existing['modules'] ?? null) ? $existing['modules'] : [];
         $creditsAdded = (int)($existing['credits_added'] ?? 0);
@@ -344,6 +364,20 @@ if ($action === 'kiwify-webhook') {
             'updated_at' => gmdate('c')
         ];
         @file_put_contents($dbFile, json_encode($members, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
+    } elseif ($customerEmail !== '' && in_array($status, $revokedEvents, true)) {
+        // Reembolso, chargeback ou cancelamento: revoga acesso VIP imediatamente
+        $members[$customerEmail] = [
+            'name' => $customerName,
+            'email' => $customerEmail,
+            'plan' => 'revoked',
+            'product' => trim($combinedTitle),
+            'modules' => [],
+            'credits_added' => 0,
+            'status' => 'revoked',
+            'revoked_reason' => $status,
+            'updated_at' => gmdate('c')
+        ];
+        @file_put_contents($dbFile, json_encode($members, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
     }
 
     // Repassa automaticamente o evento de venda para o VeroTrack (que dispara o Facebook CAPI oficial)
@@ -365,8 +399,9 @@ if ($action === 'kiwify-webhook') {
 
     echo json_encode([
         'success' => true,
-        'message' => 'Webhook Kiwify processado, acesso liberado e VeroTrack/CAPI notificado',
+        'message' => 'Webhook Kiwify processado, acesso atualizado e VeroTrack/CAPI notificado',
         'email' => $customerEmail,
+        'status_processed' => $status,
         'verotrack_http' => $vtCode ?? null
     ], JSON_UNESCAPED_UNICODE);
     exit;
@@ -378,10 +413,13 @@ if ($action === 'verify-vip') {
     $members = file_exists($dbFile) ? (json_decode((string)file_get_contents($dbFile), true) ?: []) : [];
 
     if ($email !== '' && isset($members[$email])) {
+        $memberData = $members[$email];
+        $isActive = ($memberData['status'] ?? 'active') === 'active';
         echo json_encode([
             'success' => true,
-            'vip' => true,
-            'member' => $members[$email]
+            'vip' => $isActive,
+            'revoked' => !$isActive,
+            'member' => $isActive ? $memberData : null
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
