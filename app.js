@@ -454,6 +454,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             systemPrompt = `Você é "O Mestre da Sedução", mentor sênior de comunicação interpessoal, carisma masculino, inteligência social e dinâmica de relacionamentos da plataforma "Ordem Oculta — O Segredo das Respostas Imediatas".
 Analise a captura de tela enviada pelo aluno e crie 3 respostas autênticas, inteligentes, bem-humoradas e magnéticas em português brasileiro natural.
+REGRAS DE VISÃO (OBRIGATÓRIAS):
+1. ANTES de tudo, preencha "cena_observada" com uma descrição LITERAL e objetiva: ambiente exato (elevador, quarto, banheiro, academia, carro, praia, restaurante etc.), objetos visíveis, roupa, pose, iluminação e qualquer texto/legenda na tela.
+2. É PROIBIDO inventar lugares, eventos ou objetos que não estejam claramente visíveis. Não deduza "festival", "show", "viagem" ou "balada" sem evidência visual explícita.
+3. Espelho com paredes metálicas e painel de botões = elevador. Selfie no espelho = descreva o ambiente refletido.
+4. Se algo não estiver nítido, diga que não é possível afirmar, em vez de chutar.
+5. O "gancho" e as 3 respostas DEVEM citar elementos reais listados em "cena_observada".
 Identifique se a plataforma ("detected_platform") é "instagram" ou "whatsapp" e se o formato ("detected_submode") é "story" ou "chat".
 Se estiver no Instagram e for momento de convidar para sair, use o fato do Instagram não mandar pino fixo de localização como pretexto natural para pegar o WhatsApp.
 Escolha "detected_phase_key" entre: "invasao", "conducao", "extracao", "fechamento".
@@ -462,6 +468,7 @@ Para cada uma das 3 opções ("A Provocação do Elemento", "O Loop de Curiosida
 Responda EXCLUSIVAMENTE em JSON puro:
 {
   "intel": {
+    "cena_observada": "Descrição literal do que aparece na imagem.",
     "detected_platform": "instagram",
     "detected_submode": "story",
     "detected_phase_key": "invasao",
@@ -529,7 +536,7 @@ Responda EXCLUSIVAMENTE em JSON puro:
         for (const model of models) {
             try {
                 const userContent = imageDataUrl
-                    ? [{ type: 'text', text: userText }, { type: 'image_url', image_url: { url: imageDataUrl } }]
+                    ? [{ type: 'image_url', image_url: { url: imageDataUrl, detail: 'high' } }, { type: 'text', text: userText }]
                     : userText;
 
                 const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -546,8 +553,8 @@ Responda EXCLUSIVAMENTE em JSON puro:
                             { role: 'system', content: systemPrompt },
                             { role: 'user', content: userContent }
                         ],
-                        temperature: 0.74,
-                        max_tokens: 2400,
+                        temperature: apiType === 'scan' ? 0.4 : 0.74,
+                        max_tokens: apiType === 'scan' ? 3000 : 2400,
                         response_format: { type: 'json_object' }
                     })
                 });
@@ -1441,9 +1448,10 @@ Responda EXCLUSIVAMENTE em JSON puro:
                     elements.btnLabel.textContent = `DECODIFICAR ${phaseDefinitions[phaseKey].badge}`;
                 }
 
-                // Se os resultados já estiverem na tela, recalibra na hora
+                // Se os resultados já estiverem na tela, pede nova leitura real (nunca troca por respostas genéricas)
                 if (state.selectedBase64 && !elements.resultsContainer.classList.contains('hidden')) {
-                    applyPhaseResponses(phaseKey);
+                    elements.btnLabel.textContent = `RE-DECODIFICAR NA ${phaseDefinitions[phaseKey].badge}`;
+                    showToast('Fase alterada. Toque em decodificar para nova leitura do print.');
                 }
             });
         });
@@ -1472,7 +1480,7 @@ Responda EXCLUSIVAMENTE em JSON puro:
                 updateSubmodeUI();
 
                 if (state.selectedBase64 && !elements.resultsContainer.classList.contains('hidden')) {
-                    applyPhaseResponses(state.selectedPhase);
+                    showToast('Modo alterado. Toque em decodificar para nova leitura do print.');
                 }
             });
         });
@@ -1663,6 +1671,7 @@ Responda EXCLUSIVAMENTE em JSON puro:
         elements.scanSpinner.classList.remove('hidden');
         elements.btnLabel.textContent = 'ANALISANDO CENÁRIO & SINAIS...';
 
+        let scanOk = false;
         try {
             const result = await callOrdemEndpoint('scan', {
                 image: state.selectedBase64,
@@ -1670,32 +1679,31 @@ Responda EXCLUSIVAMENTE em JSON puro:
                 submode: state.selectedSubmode
             });
 
-            if (result.success && result.data) {
+            if (result && result.success && result.data && Array.isArray(result.data.options) && result.data.options.length >= 3) {
                 // SUCESSO REAL VIA IA
                 renderRealAIResponse(result.data);
+                scanOk = true;
                 showToast('Decodificação do Mestre concluída!');
-            } else if (result.needs_key) {
-                // Chave ainda não preenchida no config.php
-                applyPhaseResponses(state.selectedPhase);
-                showToast('Aviso: Configure a GEMINI_API_KEY no api/config.php para leitura ao vivo!');
             } else {
-                // Fallback inteligente
-                applyPhaseResponses(state.selectedPhase);
-                showToast('Usando calibração padrão da fase.');
+                // Nunca exibir respostas genéricas como se fossem leitura do print
+                showToast('Não consegui ler esse print agora. Toque em DECODIFICAR para tentar de novo.');
             }
         } catch (err) {
-            // Se estiver testando via file:/// sem servidor PHP local
-            applyPhaseResponses(state.selectedPhase);
-            showToast('Modo de demonstração ativado.');
+            console.warn('Falha no scan:', err);
+            showToast('Falha de conexão na leitura do print. Verifique a internet e tente de novo.');
         } finally {
             state.isScanning = false;
             elements.previewWrapper.classList.remove('scanning');
             elements.btnScan.disabled = false;
             elements.scanSpinner.classList.add('hidden');
-            elements.btnLabel.textContent = `DECODIFICAR NOVAMENTE`;
+            elements.btnLabel.textContent = scanOk ? `DECODIFICAR NOVAMENTE` : `TENTAR DECODIFICAR DE NOVO`;
 
-            elements.resultsContainer.classList.remove('hidden');
-            elements.resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (scanOk) {
+                elements.resultsContainer.classList.remove('hidden');
+                elements.resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                elements.resultsContainer.classList.add('hidden');
+            }
             triggerHaptic(50);
         }
     }
@@ -1707,8 +1715,10 @@ Responda EXCLUSIVAMENTE em JSON puro:
             if (data.intel.gancho) document.getElementById('intelHook').textContent = data.intel.gancho;
 
             const diagEl = document.getElementById('intelDiagnosisText');
-            if (diagEl && data.intel.diagnosis) {
-                diagEl.textContent = data.intel.diagnosis;
+            if (diagEl && (data.intel.diagnosis || data.intel.cena_observada)) {
+                const cena = data.intel.cena_observada ? `👁 O que o Mestre viu: ${data.intel.cena_observada}\n\n` : '';
+                diagEl.style.whiteSpace = 'pre-line';
+                diagEl.textContent = cena + (data.intel.diagnosis || '');
             }
 
             // Se o Oráculo detectou o tipo de print (story vs chat), sincroniza a caixinha automaticamente

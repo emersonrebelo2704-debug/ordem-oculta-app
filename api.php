@@ -72,8 +72,8 @@ function callOpenRouter(string $systemPrompt, string $userText = '', ?string $im
     foreach ($models as $model) {
         $userContent = $imageDataUrl
             ? [
-                ['type' => 'text', 'text' => $userText],
-                ['type' => 'image_url', 'image_url' => ['url' => $imageDataUrl]]
+                ['type' => 'image_url', 'image_url' => ['url' => $imageDataUrl, 'detail' => 'high']],
+                ['type' => 'text', 'text' => $userText]
             ]
             : $userText;
 
@@ -123,7 +123,7 @@ function callOpenRouter(string $systemPrompt, string $userText = '', ?string $im
 
         $parsed = extractJsonObject($content);
         if ($parsed !== null) {
-            return ['success' => true, 'data' => $parsed];
+            return ['success' => true, 'data' => $parsed, 'model' => $model];
         }
         $lastError = 'JSON inválido retornado pelo modelo ' . $model;
     }
@@ -153,6 +153,12 @@ if ($action === 'scan') {
     $systemPrompt = <<<PROMPT
 Você é "O Mestre da Sedução", mentor sênior de comunicação interpessoal, carisma masculino, inteligência social e dinâmica de relacionamentos da plataforma "Ordem Oculta — O Segredo das Respostas Imediatas".
 Analise a captura de tela enviada pelo aluno e crie 3 respostas autênticas, inteligentes, bem-humoradas e magnéticas em português brasileiro natural.
+REGRAS DE VISÃO (OBRIGATÓRIAS):
+1. ANTES de tudo, observe a imagem com atenção e preencha "cena_observada" com uma descrição LITERAL e objetiva: onde ela está (ambiente exato: elevador, quarto, banheiro, academia, carro, praia, restaurante etc.), objetos visíveis, roupa, pose, iluminação e qualquer texto/legenda/sticker escrito na tela.
+2. É PROIBIDO inventar lugares, eventos, pessoas ou objetos que não estejam claramente visíveis. Não deduza "festival", "show", "viagem" ou "balada" sem evidência visual explícita (palco, multidão, pulseira, letreiro etc.).
+3. Espelho com paredes metálicas e painel de botões = elevador. Selfie no espelho = descreva o ambiente refletido.
+4. Se algum detalhe não estiver nítido, diga que não é possível afirmar, em vez de chutar.
+5. O "gancho" e as 3 respostas DEVEM citar elementos reais listados em "cena_observada".
 Identifique se a plataforma ("detected_platform") é "instagram" ou "whatsapp" e se o formato ("detected_submode") é "story" ou "chat".
 Se estiver no Instagram e for momento de convidar para sair, use o fato do Instagram não mandar pino fixo de localização como pretexto natural para pegar o WhatsApp.
 Escolha "detected_phase_key" entre: "invasao", "conducao", "extracao", "fechamento".
@@ -161,6 +167,7 @@ Para cada uma das 3 opções ("A Provocação do Elemento", "O Loop de Curiosida
 Responda EXCLUSIVAMENTE em JSON puro:
 {
   "intel": {
+    "cena_observada": "Descrição literal do que aparece na imagem (ambiente, objetos, roupa, texto na tela).",
     "detected_platform": "instagram",
     "detected_submode": "story",
     "detected_phase_key": "invasao",
@@ -178,7 +185,7 @@ Responda EXCLUSIVAMENTE em JSON puro:
 PROMPT;
 
     $userText = "Analise esta captura de tela (modo sugerido: {$submode}, fase sugerida: {$phase}) e retorne o JSON completo com a leitura do Mestre da Sedução.";
-    $result = callOpenRouter($systemPrompt, $userText, $image, 0.72, 2600);
+    $result = callOpenRouter($systemPrompt, $userText, $image, 0.4, 3000);
     if (!$result['success']) {
         http_response_code(500);
     }
