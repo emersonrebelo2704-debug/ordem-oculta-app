@@ -473,7 +473,7 @@ Responda EXCLUSIVAMENTE em JSON puro:
     "detected_submode": "story",
     "detected_phase_key": "invasao",
     "phase": "Fase I: A Abertura (Auto-detectada)",
-    "diagnosis": "Leitura clínica do Mestre sobre o contexto da imagem e objetivo ideal.",
+    "diagnosis": "Diagnóstico tático (2 a 3 frases): explique a psicologia dela neste momento (post casual de rotina, busca de validação sutil, clima descontraído ou provocação), qual deve ser a postura do homem para quebrar o padrão dos homens comuns e qual o objetivo imediato desta abordagem.",
     "termometro": "Clima da interação",
     "gancho": "Detalhe específico observado na imagem"
   },
@@ -1731,10 +1731,9 @@ Responda EXCLUSIVAMENTE em JSON puro:
             if (data.intel.gancho) document.getElementById('intelHook').textContent = data.intel.gancho;
 
             const diagEl = document.getElementById('intelDiagnosisText');
-            if (diagEl && (data.intel.diagnosis || data.intel.cena_observada)) {
-                const cena = data.intel.cena_observada ? `👁 O que o Mestre viu: ${data.intel.cena_observada}\n\n` : '';
+            if (diagEl && data.intel.diagnosis) {
                 diagEl.style.whiteSpace = 'pre-line';
-                diagEl.textContent = cena + (data.intel.diagnosis || '');
+                diagEl.textContent = data.intel.diagnosis;
             }
 
             // Se o Oráculo detectou o tipo de print (story vs chat), sincroniza a caixinha automaticamente

@@ -226,7 +226,7 @@ Responda EXCLUSIVAMENTE em JSON puro:
     "detected_submode": "story",
     "detected_phase_key": "invasao",
     "phase": "Fase I: A Abordagem Magnética (Auto-detectada)",
-    "diagnosis": "Leitura clínica do Mestre sobre o contexto da imagem e objetivo ideal.",
+    "diagnosis": "Diagnóstico tático (2 a 3 frases): explique a psicologia dela neste momento (post casual de rotina, busca de validação sutil, clima descontraído ou provocação), qual deve ser a postura do homem para quebrar o padrão dos homens comuns e qual o objetivo imediato desta abordagem.",
     "termometro": "Clima da interação",
     "gancho": "Detalhe específico observado na imagem"
   },
