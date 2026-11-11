@@ -76,7 +76,7 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <link rel="stylesheet" href="style.css?v=12.0">
+    <link rel="stylesheet" href="style.css?v=18.0">
 </head>
 <body>
     <div id="app" class="app-container">
@@ -390,6 +390,18 @@
                         <button class="btn-clear-image" id="btnClearImage" title="Remover imagem">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
+                    </div>
+                </div>
+
+                <!-- Caixinha de Calibração: Descreva a foto (aparece a partir do segundo scan ou para ajustes) -->
+                <div class="scan-refine-box hidden" id="scanRefineBox">
+                    <div class="refine-box-header">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <span>Descreva a foto (calibrar o Mestre):</span>
+                    </div>
+                    <textarea id="scanUserDescription" class="refine-textarea" rows="2" placeholder="Ex: Ela está sentada numa escada, na praia, no restaurante..."></textarea>
+                    <div class="refine-box-hint">
+                        <i class="fa-solid fa-circle-info"></i> Se o cenário for incomum ou você quiser respostas mais certeiras, descreva onde ela está ou o que está fazendo.
                     </div>
                 </div>
 
@@ -1302,7 +1314,7 @@
         <span id="toastMsg">Script copiado!</span>
     </div>
 
-    <script src="app.js?v=17.0"></script>
+    <script src="app.js?v=18.0"></script>
     <!-- VeroTrack Tracker -->
     <script src="https://api.pontoideal.online/vt.js" data-page="upsell" defer></script>
 </body>

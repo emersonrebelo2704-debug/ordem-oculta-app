@@ -182,6 +182,7 @@ if ($action === 'scan') {
     $image = $body['image'] ?? '';
     $phase = $body['phase'] ?? 'auto';
     $submode = $body['submode'] ?? 'story';
+    $userDescription = trim((string)($body['user_description'] ?? ''));
 
     if (empty($image)) {
         http_response_code(400);
@@ -208,11 +209,12 @@ if ($action === 'scan') {
 Você é "O Mestre da Sedução", mentor sênior de comunicação interpessoal, carisma masculino, inteligência social e dinâmica de relacionamentos da plataforma "Ordem Oculta — O Segredo das Respostas Imediatas".
 Analise a captura de tela enviada pelo aluno e crie 3 respostas autênticas, inteligentes, bem-humoradas e magnéticas em português brasileiro natural.
 REGRAS DE VISÃO (OBRIGATÓRIAS):
-1. ANTES de tudo, observe a imagem com atenção e preencha "cena_observada" com uma descrição LITERAL e objetiva: onde ela está (ambiente exato: elevador, quarto, banheiro, academia, carro, praia, restaurante etc.), objetos visíveis, roupa, pose, iluminação e qualquer texto/legenda/sticker escrito na tela.
+1. ANTES de tudo, observe a imagem com atenção e preencha "cena_observada" com uma descrição LITERAL e objetiva: onde ela está (ambiente exato: escadas/degraus, quarto, banheiro, academia, carro, praia, restaurante, rua, elevador etc.), objetos visíveis, pose, iluminação e qualquer texto/legenda/sticker escrito na tela.
 2. É PROIBIDO inventar lugares, eventos, pessoas ou objetos que não estejam claramente visíveis. Não deduza "festival", "show", "viagem" ou "balada" sem evidência visual explícita (palco, multidão, pulseira, letreiro etc.).
-3. Espelho com paredes metálicas e painel de botões = elevador. Selfie no espelho = descreva o ambiente refletido.
-4. Se algum detalhe não estiver nítido, diga que não é possível afirmar, em vez de chutar.
-5. O "gancho" e as 3 respostas DEVEM citar elementos reais listados em "cena_observada".
+3. Identifique o ambiente real com precisão: se houver degraus, corrimão de escadaria ou patamar, o ambiente é uma ESCADA/ESCADA DE PRÉDIO. Não confunda com elevador a menos que haja painel com botões numéricos de andares iluminados.
+4. Se o aluno forneceu uma descrição do que há na foto, trate essa informação como verdade absoluta para calibrar o gancho e o tom da conversa.
+5. Se algum detalhe não estiver nítido, diga que não é possível afirmar, em vez de chutar.
+6. O "gancho" e as 3 respostas DEVEM citar elementos reais observados ou confirmados pelo aluno.
 Identifique se a plataforma ("detected_platform") é "instagram" ou "whatsapp" e se o formato ("detected_submode") é "story" ou "chat".
 Se estiver no Instagram e for momento de convidar para sair, use o fato do Instagram não mandar pino fixo de localização como pretexto natural para pegar o WhatsApp.
 Escolha "detected_phase_key" entre: "invasao", "conducao", "extracao", "fechamento".
@@ -221,7 +223,7 @@ Para cada uma das 3 opções ("A Provocação do Elemento", "O Loop de Curiosida
 Responda EXCLUSIVAMENTE em JSON puro:
 {
   "intel": {
-    "cena_observada": "Descrição literal do que aparece na imagem (ambiente, objetos, roupa, texto na tela).",
+    "cena_observada": "Descrição literal do que aparece na imagem.",
     "detected_platform": "instagram",
     "detected_submode": "story",
     "detected_phase_key": "invasao",
@@ -239,6 +241,9 @@ Responda EXCLUSIVAMENTE em JSON puro:
 PROMPT;
 
     $userText = "Analise esta captura de tela (modo sugerido: {$submode}, fase sugerida: {$phase}) e retorne o JSON completo com a leitura do Mestre da Sedução.";
+    if (!empty($userDescription)) {
+        $userText .= "\n\n[CALIBRAÇÃO DO ALUNO SOBRE A FOTO]: \"{$userDescription}\".\nATENÇÃO: O aluno descreveu exatamente o cenário/ambiente real da foto. Use esta descrição para calibrar a leitura e criar as 3 respostas sob medida para este contexto.";
+    }
     $result = callOpenRouter($systemPrompt, $userText, $image, 0.4, 3000);
     if (!$result['success']) {
         http_response_code(500);
