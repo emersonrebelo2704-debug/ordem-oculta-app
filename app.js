@@ -440,7 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function callDirectOpenRouter(apiType, payload) {
         const key = resolveClientGatewayKey();
         const models = apiType === 'scan'
-            ? ['google/gemini-2.5-flash', 'openai/gpt-4o-mini', 'nvidia/nemotron-3.5-super-vl:free']
+            ? ['google/gemini-2.5-flash', 'openai/gpt-4o-mini']
             : ['google/gemini-2.5-flash', 'openai/gpt-4o-mini'];
 
         let systemPrompt = '';
@@ -1558,13 +1558,22 @@ Responda EXCLUSIVAMENTE em JSON puro:
         });
     }
 
-    // Compressor invisível de imagem (reduz peso de prints mobile em até 80% e corta tokens de visão pela metade)
-    function compressPrintDataUrl(rawDataUrl, maxDim = 960, quality = 0.78) {
+    // Compressor invisível de imagem (otimiza prints mobile, garante leitura em qualquer navegador e preserva resolução)
+    function compressPrintDataUrl(rawDataUrl, maxDim = 1200, quality = 0.85) {
         return new Promise((resolve) => {
+            if (!rawDataUrl || typeof rawDataUrl !== 'string' || !rawDataUrl.startsWith('data:image/')) {
+                resolve(rawDataUrl);
+                return;
+            }
             try {
                 const img = new Image();
                 img.onload = () => {
-                    let { width, height } = img;
+                    let width = img.naturalWidth || img.width;
+                    let height = img.naturalHeight || img.height;
+                    if (!width || !height) {
+                        resolve(rawDataUrl);
+                        return;
+                    }
                     if (width > maxDim || height > maxDim) {
                         if (width > height) {
                             height = Math.round((height * maxDim) / width);
@@ -1578,8 +1587,25 @@ Responda EXCLUSIVAMENTE em JSON puro:
                     canvas.width = width;
                     canvas.height = height;
                     const ctx = canvas.getContext('2d');
+                    if (!ctx) {
+                        resolve(rawDataUrl);
+                        return;
+                    }
+                    // Garante fundo branco para imagens com transparência (evita tela preta)
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(0, 0, width, height);
                     ctx.drawImage(img, 0, 0, width, height);
-                    resolve(canvas.toDataURL('image/jpeg', quality));
+                    try {
+                        const compressed = canvas.toDataURL('image/jpeg', quality);
+                        // Valida se o canvas gerou dado válido (mais de 200 caracteres de base64)
+                        if (compressed && compressed.length > 200) {
+                            resolve(compressed);
+                        } else {
+                            resolve(rawDataUrl);
+                        }
+                    } catch (e) {
+                        resolve(rawDataUrl);
+                    }
                 };
                 img.onerror = () => resolve(rawDataUrl);
                 img.src = rawDataUrl;
@@ -1590,8 +1616,8 @@ Responda EXCLUSIVAMENTE em JSON puro:
     }
 
     function handleFile(file) {
-        if (!file.type.startsWith('image/')) {
-            showToast('Envie apenas arquivos de imagem.');
+        if (!file || (!file.type.startsWith('image/') && !file.name.match(/\.(jpg|jpeg|png|webp|heic|bmp|gif)$/i))) {
+            showToast('Envie apenas arquivos de imagem (print do celular, Instagram ou WhatsApp).');
             return;
         }
 
@@ -1607,6 +1633,9 @@ Responda EXCLUSIVAMENTE em JSON puro:
             elements.btnLabel.textContent = `DECODIFICAR ${phaseDefinitions[state.selectedPhase].badge}`;
             elements.resultsContainer.classList.add('hidden');
             triggerHaptic();
+        };
+        reader.onerror = () => {
+            showToast('Erro ao ler a imagem. Tente selecionar novamente.');
         };
         reader.readAsDataURL(file);
     }

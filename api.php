@@ -64,7 +64,7 @@ function extractJsonObject(string $rawText): ?array {
 function callOpenRouter(string $systemPrompt, string $userText = '', ?string $imageDataUrl = null, float $temperature = 0.72, int $maxTokens = 2400): array {
     $apiKey = resolveOpenRouterKey();
     $models = $imageDataUrl
-        ? ['google/gemini-2.5-flash', 'openai/gpt-4o-mini', 'nvidia/nemotron-3.5-super-vl:free']
+        ? ['google/gemini-2.5-flash', 'openai/gpt-4o-mini']
         : ['google/gemini-2.5-flash', 'openai/gpt-4o-mini'];
 
     $lastError = 'Falha desconhecida';
