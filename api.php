@@ -131,6 +131,49 @@ function callOpenRouter(string $systemPrompt, string $userText = '', ?string $im
     return ['success' => false, 'error' => $lastError];
 }
 
+function isSolidBlackBase64(string $dataUrl): bool {
+    $comma = strpos($dataUrl, ',');
+    if ($comma === false) return false;
+    $raw = base64_decode(substr($dataUrl, $comma + 1));
+    if (!$raw || strlen($raw) < 10) return false;
+
+    if (function_exists('imagecreatefromstring')) {
+        $im = @imagecreatefromstring($raw);
+        if ($im !== false) {
+            $w = imagesx($im);
+            $h = imagesy($im);
+            if ($w > 0 && $h > 0) {
+                $points = [
+                    [(int)($w * 0.5), (int)($h * 0.5)],
+                    [(int)($w * 0.3), (int)($h * 0.3)],
+                    [(int)($w * 0.7), (int)($h * 0.3)],
+                    [(int)($w * 0.3), (int)($h * 0.7)],
+                    [(int)($w * 0.7), (int)($h * 0.7)],
+                    [(int)($w * 0.5), (int)($h * 0.2)],
+                    [(int)($w * 0.5), (int)($h * 0.8)],
+                    [(int)($w * 0.2), (int)($h * 0.5)],
+                    [(int)($w * 0.8), (int)($h * 0.5)]
+                ];
+                $brightCount = 0;
+                foreach ($points as $p) {
+                    $rgb = imagecolorat($im, $p[0], $p[1]);
+                    $r = ($rgb >> 16) & 0xFF;
+                    $g = ($rgb >> 8) & 0xFF;
+                    $b = $rgb & 0xFF;
+                    if ($r > 12 || $g > 12 || $b > 12) {
+                        $brightCount++;
+                    }
+                }
+                imagedestroy($im);
+                if ($brightCount === 0) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 $rawInput = file_get_contents('php://input');
 $body = json_decode($rawInput ?: '{}', true) ?: [];
 $action = $_GET['action'] ?? ($body['action'] ?? '');
@@ -148,6 +191,17 @@ if ($action === 'scan') {
 
     if (strpos($image, 'data:image/') !== 0) {
         $image = 'data:image/jpeg;base64,' . $image;
+    }
+
+    if (isSolidBlackBase64($image)) {
+        http_response_code(422);
+        echo json_encode([
+            'success' => false,
+            'is_black_image' => true,
+            'error' => 'A captura recebida veio como uma tela preta vazia (bloqueada pelo celular ou Instagram por proteção de privacidade).',
+            'tip' => 'Para contornar: no Instagram, segure um dedo na tela para pausar o Story e aperte os botões de print do celular, ou tire o print pela galeria.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
     }
 
     $systemPrompt = <<<PROMPT

@@ -591,11 +591,12 @@ Responda EXCLUSIVAMENTE em JSON puro:
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                if (res.ok) {
-                    const result = await res.json();
-                    if (result && result.success && result.data) {
-                        return result;
-                    }
+                const result = await res.json().catch(() => null);
+                if (result && result.is_black_image) {
+                    return result;
+                }
+                if (res.ok && result && result.success && result.data) {
+                    return result;
                 }
             } catch (err) {
                 console.warn(`Redundância ativada após tentativa em ${endpoint}`);
@@ -1607,6 +1608,18 @@ Responda EXCLUSIVAMENTE em JSON puro:
                         const compressed = canvas.toDataURL('image/jpeg', quality);
                         // Valida se o canvas gerou dado válido (mais de 200 caracteres de base64)
                         if (compressed && compressed.length > 200) {
+                            // Verificação proativa de tela preta por bloqueio de captura mobile
+                            try {
+                                const pts = [
+                                    ctx.getImageData(Math.floor(width * 0.5), Math.floor(height * 0.5), 1, 1).data,
+                                    ctx.getImageData(Math.floor(width * 0.25), Math.floor(height * 0.25), 1, 1).data,
+                                    ctx.getImageData(Math.floor(width * 0.75), Math.floor(height * 0.75), 1, 1).data
+                                ];
+                                const isBlack = pts.every(p => p[0] < 12 && p[1] < 12 && p[2] < 12);
+                                if (isBlack) {
+                                    showToast('⚠️ Atenção: Este print veio todo preto (bloqueio de privacidade do celular/Instagram). Dica: no Story, segure a tela com um dedo e tire o print com os botões físicos.', 7000);
+                                }
+                            } catch (eScan) {}
                             resolve(compressed);
                         } else {
                             resolve(rawDataUrl);
@@ -1679,14 +1692,17 @@ Responda EXCLUSIVAMENTE em JSON puro:
                 submode: state.selectedSubmode
             });
 
-            if (result && result.success && result.data && Array.isArray(result.data.options) && result.data.options.length >= 3) {
+            if (result && result.is_black_image) {
+                showToast('⚠️ Imagem preta detectada! O Instagram protegeu o Story. Para destravar: segure a tela com um dedo e tire o print com os botões físicos.', 8000);
+            } else if (result && result.success && result.data && Array.isArray(result.data.options) && result.data.options.length >= 3) {
                 // SUCESSO REAL VIA IA
                 renderRealAIResponse(result.data);
                 scanOk = true;
                 showToast('Decodificação do Mestre concluída!');
             } else {
-                // Nunca exibir respostas genéricas como se fossem leitura do print
-                showToast('Não consegui ler esse print agora. Toque em DECODIFICAR para tentar de novo.');
+                // Mensagem honesta
+                const errMsg = (result && result.error) ? result.error : 'Não consegui ler esse print agora. Toque em DECODIFICAR para tentar de novo.';
+                showToast(errMsg, 6000);
             }
         } catch (err) {
             console.warn('Falha no scan:', err);
