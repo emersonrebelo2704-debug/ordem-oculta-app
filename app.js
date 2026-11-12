@@ -443,8 +443,8 @@ document.addEventListener('DOMContentLoaded', () => {
     async function callDirectOpenRouter(apiType, payload) {
         const key = resolveClientGatewayKey();
         const models = apiType === 'scan'
-            ? ['openai/gpt-4o', 'google/gemini-2.5-flash', 'openai/gpt-4o-mini']
-            : ['openai/gpt-4o', 'google/gemini-2.5-flash', 'openai/gpt-4o-mini'];
+            ? ['google/gemini-2.5-flash', 'openai/gpt-4o', 'openai/gpt-4o-mini']
+            : ['google/gemini-2.5-flash', 'openai/gpt-4o', 'openai/gpt-4o-mini'];
 
         let systemPrompt = '';
         let userText = '';
@@ -587,7 +587,7 @@ Responda EXCLUSIVAMENTE em JSON puro:
                             { role: 'user', content: userContent }
                         ],
                         temperature: apiType === 'scan' ? 0.4 : 0.74,
-                        max_tokens: apiType === 'scan' ? 3000 : 2400,
+                        max_tokens: apiType === 'scan' ? 1200 : 1200,
                         response_format: { type: 'json_object' }
                     })
                 });

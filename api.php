@@ -7,8 +7,8 @@ if (session_status() === PHP_SESSION_ACTIVE) {
     session_write_close();
 }
 @ini_set('display_errors', '0');
-@ini_set('max_execution_time', '45');
-@ini_set('memory_limit', '64M');
+@ini_set('max_execution_time', '90');
+@ini_set('memory_limit', '128M');
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
@@ -61,11 +61,11 @@ function extractJsonObject(string $rawText): ?array {
     return is_array($decoded) ? $decoded : null;
 }
 
-function callOpenRouter(string $systemPrompt, string $userText = '', ?string $imageDataUrl = null, float $temperature = 0.72, int $maxTokens = 2400): array {
+function callOpenRouter(string $systemPrompt, string $userText = '', ?string $imageDataUrl = null, float $temperature = 0.72, int $maxTokens = 1200): array {
     $apiKey = resolveOpenRouterKey();
     $models = $imageDataUrl
-        ? ['openai/gpt-4o', 'google/gemini-2.5-flash', 'openai/gpt-4o-mini']
-        : ['openai/gpt-4o', 'google/gemini-2.5-flash', 'openai/gpt-4o-mini'];
+        ? ['google/gemini-2.5-flash', 'openai/gpt-4o', 'openai/gpt-4o-mini']
+        : ['google/gemini-2.5-flash', 'openai/gpt-4o', 'openai/gpt-4o-mini'];
 
     $lastError = 'Falha desconhecida';
 
@@ -100,7 +100,7 @@ function callOpenRouter(string $systemPrompt, string $userText = '', ?string $im
             ],
             CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             CURLOPT_CONNECTTIMEOUT => 8,
-            CURLOPT_TIMEOUT => 32,
+            CURLOPT_TIMEOUT => 45,
             CURLOPT_SSL_VERIFYPEER => false
         ]);
 
@@ -269,7 +269,7 @@ PROMPT;
     if (!empty($userDescription)) {
         $userText .= "\n\n[CALIBRAÇÃO DO ALUNO SOBRE A FOTO]: \"{$userDescription}\".\nATENÇÃO: O aluno descreveu exatamente o cenário/ambiente real da foto. Use esta descrição para calibrar a leitura e criar as 3 respostas sob medida para este contexto.";
     }
-    $result = callOpenRouter($systemPrompt, $userText, $image, 0.4, 3000);
+    $result = callOpenRouter($systemPrompt, $userText, $image, 0.4, 1200);
     if (!$result['success']) {
         http_response_code(500);
     }
