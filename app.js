@@ -419,9 +419,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================================================
     function resolveClientGatewayKey() {
         const p = [
-            'YjRjNzVhOGJkMWU2ZWIzY2ZjZjE3ODUzYTI1MTI4',
-            'ODJlNDJjYjE4OTI5MmU5NTFiN2U2MTQ5YTMzZWU3',
-            'YmQzMS0xdi1yby1rcw=='
+            'NmM0ZThmMmE3MTdiMDRjYTM4MjFjOWFhMT',
+            'U1NmU4MDFlODYxMjdmYzA4NDc2ODE2ODQ0',
+            'NGI0ZjkyYmE1ZmYxZi0xdi1yby1rcw=='
         ];
         return atob(p.join('')).split('').reverse().join('');
     }

@@ -37,9 +37,9 @@ function resolveOpenRouterKey(): string {
         return trim($envKey);
     }
     $parts = [
-        'YjRjNzVhOGJkMWU2ZWIzY2ZjZjE3ODUzYTI1MTI4',
-        'ODJlNDJjYjE4OTI5MmU5NTFiN2U2MTQ5YTMzZWU3',
-        'YmQzMS0xdi1yby1rcw=='
+        'NmM0ZThmMmE3MTdiMDRjYTM4MjFjOWFhMT',
+        'U1NmU4MDFlODYxMjdmYzA4NDc2ODE2ODQ0',
+        'NGI0ZjkyYmE1ZmYxZi0xdi1yby1rcw=='
     ];
     $decoded = base64_decode(implode('', $parts));
     return strrev($decoded);
