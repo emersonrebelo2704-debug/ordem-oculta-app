@@ -64,8 +64,8 @@ function extractJsonObject(string $rawText): ?array {
 function callOpenRouter(string $systemPrompt, string $userText = '', ?string $imageDataUrl = null, float $temperature = 0.72, int $maxTokens = 2400): array {
     $apiKey = resolveOpenRouterKey();
     $models = $imageDataUrl
-        ? ['google/gemini-2.5-flash', 'openai/gpt-4o-mini']
-        : ['google/gemini-2.5-flash', 'openai/gpt-4o-mini'];
+        ? ['openai/gpt-4o', 'google/gemini-2.5-flash', 'openai/gpt-4o-mini']
+        : ['openai/gpt-4o', 'google/gemini-2.5-flash', 'openai/gpt-4o-mini'];
 
     $lastError = 'Falha desconhecida';
 
@@ -230,6 +230,20 @@ PROTOCOLO DE LEITURA VISUAL & GROUNDING (ANTI-ALUCINAÇÃO):
 
 4. TOM DAS 3 RESPOSTAS:
    • Humor desconcertante, confiança e alto valor. Devem soar naturais e inteligentes — nunca robóticas, nunca com adereços inventados.
+
+5. EXEMPLOS REAIS DE CALIBRAÇÃO (SIGA ESTE PADRÃO DE EXCELÊNCIA):
+   • SE FOR ESCADA / DEGRAUS:
+     - Gancho: "A pose nos degraus da escadaria"
+     - Diagnóstico: "Ela postou um registro casual em movimento. A postura deve ser leve e sagaz, sem bajulação óbvia."
+     - Exemplo de Resposta: "Subindo ou descendo esses degraus, uma coisa é certa: a foto ficou boa demais pra passar batida sem um comentário. 😉"
+   • SE FOR ESPELHO / QUARTO / LOOK:
+     - Gancho: "O contraste do look e a presença marcante"
+     - Diagnóstico: "Ela está compartilhando o visual com confiança sutil. O homem deve qualificar a atitude dela com segurança."
+     - Exemplo de Resposta: "Esse look tem uma energia perigosa de quem sabe exatamente o efeito que causa. Gostei do estilo."
+   • SE FOR FOTO DE LONGE / PRAIA / AO AR LIVRE:
+     - Gancho: "A vibe espontânea ao ar livre"
+     - Diagnóstico: "Momento despretensioso de lazer. A abordagem ideal é elogiar a energia do momento e abrir diálogo."
+     - Exemplo de Resposta: "O cenário é bonito, mas confesso que o que realmente roubou a cena foi essa sua cara de quem estava aproveitando cada segundo. 😉"
 
 Responda EXCLUSIVAMENTE em JSON puro:
 {
