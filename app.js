@@ -180,8 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnScan: document.getElementById('btnScan'),
         btnLabel: document.getElementById('btnLabel'),
         scanSpinner: document.getElementById('scanSpinner'),
-        scanRefineBox: document.getElementById('scanRefineBox'),
-        scanUserDescription: document.getElementById('scanUserDescription'),
+        scanBlackAlert: document.getElementById('scanBlackAlert'),
         resultsContainer: document.getElementById('resultsContainer'),
 
         // Grimório
@@ -1585,15 +1584,7 @@ Responda EXCLUSIVAMENTE em JSON puro:
             runScanSequence();
         });
 
-        // Input de Calibração / Descreva a foto
-        if (elements.scanUserDescription) {
-            elements.scanUserDescription.addEventListener('input', () => {
-                if (state.selectedBase64 && !state.isScanning) {
-                    const hasText = elements.scanUserDescription.value.trim().length > 0;
-                    elements.btnLabel.textContent = hasText ? 'CALIBRAR & DECODIFICAR' : 'CALIBRAR OU DECODIFICAR DE NOVO';
-                }
-            });
-        }
+
     }
 
     function setupClipboardPaste() {
@@ -1691,6 +1682,7 @@ Responda EXCLUSIVAMENTE em JSON puro:
             const rawDataUrl = e.target.result;
             elements.previewImg.src = rawDataUrl;
             state.selectedBase64 = await compressPrintDataUrl(rawDataUrl);
+            if (elements.scanBlackAlert) elements.scanBlackAlert.classList.add('hidden');
             elements.uploadPlaceholder.classList.add('hidden');
             elements.previewWrapper.classList.remove('hidden');
             elements.btnScan.disabled = false;
@@ -1708,8 +1700,7 @@ Responda EXCLUSIVAMENTE em JSON puro:
         state.selectedFile = null;
         state.selectedBase64 = null;
         state.scanCount = 0;
-        if (elements.scanUserDescription) elements.scanUserDescription.value = '';
-        if (elements.scanRefineBox) elements.scanRefineBox.classList.add('hidden');
+        if (elements.scanBlackAlert) elements.scanBlackAlert.classList.add('hidden');
         elements.fileInput.value = '';
         elements.previewImg.src = '';
         elements.previewWrapper.classList.add('hidden');
@@ -1725,29 +1716,34 @@ Responda EXCLUSIVAMENTE em JSON puro:
         state.isScanning = true;
         triggerHaptic(40);
 
+        if (elements.scanBlackAlert) elements.scanBlackAlert.classList.add('hidden');
         elements.previewWrapper.classList.add('scanning');
         elements.btnScan.disabled = true;
         elements.scanSpinner.classList.remove('hidden');
         elements.btnLabel.textContent = 'ANALISANDO CENÁRIO & SINAIS...';
 
-        const userDesc = elements.scanUserDescription ? elements.scanUserDescription.value.trim() : '';
         let scanOk = false;
+        let isBlack = false;
         try {
             const result = await callOrdemEndpoint('scan', {
                 image: state.selectedBase64,
                 phase: state.selectedPhase,
-                submode: state.selectedSubmode,
-                user_description: userDesc
+                submode: state.selectedSubmode
             });
 
             if (result && result.is_black_image) {
-                showToast('⚠️ Imagem preta detectada! O Instagram protegeu o Story. Para destravar: segure a tela com um dedo e tire o print com os botões físicos.', 8000);
+                isBlack = true;
+                if (elements.scanBlackAlert) {
+                    elements.scanBlackAlert.classList.remove('hidden');
+                    elements.scanBlackAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                showToast('⚠️ Imagem preta detectada! O Instagram protegeu o Story.');
             } else if (result && result.success && result.data && Array.isArray(result.data.options) && result.data.options.length >= 3) {
                 // SUCESSO REAL VIA IA
                 renderRealAIResponse(result.data);
                 scanOk = true;
                 state.scanCount = (state.scanCount || 0) + 1;
-                showToast(userDesc ? 'Calibração aplicada com sucesso!' : 'Decodificação do Mestre concluída!');
+                showToast('Decodificação do Mestre concluída!');
             } else {
                 // Mensagem honesta
                 const errMsg = (result && result.error) ? result.error : 'Não consegui ler esse print agora. Toque em DECODIFICAR para tentar de novo.';
@@ -1763,14 +1759,12 @@ Responda EXCLUSIVAMENTE em JSON puro:
             elements.scanSpinner.classList.add('hidden');
 
             if (scanOk) {
-                // Revela a caixinha de calibração entre a foto e o botão a partir do primeiro scan
-                if (elements.scanRefineBox) {
-                    elements.scanRefineBox.classList.remove('hidden');
-                }
-                const hasDesc = elements.scanUserDescription && elements.scanUserDescription.value.trim().length > 0;
-                elements.btnLabel.textContent = hasDesc ? `RE-DECODIFICAR COM CALIBRAÇÃO` : `CALIBRAR OU DECODIFICAR DE NOVO`;
+                elements.btnLabel.textContent = `DECODIFICAR NOVAMENTE`;
                 elements.resultsContainer.classList.remove('hidden');
                 elements.resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else if (isBlack) {
+                elements.btnLabel.textContent = `CARREGAR OUTRO PRINT`;
+                elements.resultsContainer.classList.add('hidden');
             } else {
                 elements.btnLabel.textContent = `TENTAR DECODIFICAR DE NOVO`;
                 elements.resultsContainer.classList.add('hidden');

@@ -76,7 +76,7 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <link rel="stylesheet" href="style.css?v=18.0">
+    <link rel="stylesheet" href="style.css?v=25.0">
 </head>
 <body>
     <div id="app" class="app-container">
@@ -393,15 +393,22 @@
                     </div>
                 </div>
 
-                <!-- Caixinha de Calibração: Descreva a foto (aparece a partir do segundo scan ou para ajustes) -->
-                <div class="scan-refine-box hidden" id="scanRefineBox">
-                    <div class="refine-box-header">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                        <span>Descreva a foto (calibrar o Mestre):</span>
+                <!-- Alerta Visual de Captura Bloqueada (Tela Preta) -->
+                <div class="scan-black-alert hidden" id="scanBlackAlert">
+                    <div class="alert-icon-wrap">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
                     </div>
-                    <textarea id="scanUserDescription" class="refine-textarea" rows="2" placeholder="Ex: Ela está sentada numa escada, na praia, no restaurante..."></textarea>
-                    <div class="refine-box-hint">
-                        <i class="fa-solid fa-circle-info"></i> Se o cenário for incomum ou você quiser respostas mais certeiras, descreva onde ela está ou o que está fazendo.
+                    <div class="alert-body">
+                        <h4 class="alert-title">Captura Bloqueada pelo Instagram (Tela Preta)</h4>
+                        <p class="alert-desc">O Instagram protegeu o Story com tela preta anti-print por privacidade. A IA não conseguiu enxergar a imagem.</p>
+                        <div class="alert-steps">
+                            <span class="step-badge">Como resolver:</span>
+                            <ol>
+                                <li>No Instagram, <strong>segure o dedo na tela</strong> para congelar o Story.</li>
+                                <li>Tire o print usando os botões do celular (sem soltar o dedo), ou capture pela tela de multitarefas (apps recentes).</li>
+                                <li>Carregue o novo print aqui.</li>
+                            </ol>
+                        </div>
                     </div>
                 </div>
 
@@ -1314,7 +1321,7 @@
         <span id="toastMsg">Script copiado!</span>
     </div>
 
-    <script src="app.js?v=24.0"></script>
+    <script src="app.js?v=25.0"></script>
     <!-- VeroTrack Tracker -->
     <script src="https://api.pontoideal.online/vt.js" data-page="upsell" defer></script>
 </body>
