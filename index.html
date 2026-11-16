@@ -393,20 +393,20 @@
                     </div>
                 </div>
 
-                <!-- Alerta Visual de Captura Bloqueada (Tela Preta) -->
+                <!-- Alerta Visual de Qualidade de Leitura (Tela Preta, Texto Borrado ou Imagem Pouco Visível) -->
                 <div class="scan-black-alert hidden" id="scanBlackAlert">
                     <div class="alert-icon-wrap">
                         <i class="fa-solid fa-triangle-exclamation"></i>
                     </div>
                     <div class="alert-body">
-                        <h4 class="alert-title">Captura Bloqueada pelo Instagram (Tela Preta)</h4>
-                        <p class="alert-desc">O Instagram protegeu o Story com tela preta anti-print por privacidade. A IA não conseguiu enxergar a imagem.</p>
+                        <h4 class="alert-title" id="scanAlertTitle">Não Foi Possível Ler a Imagem com Nitidez</h4>
+                        <p class="alert-desc" id="scanAlertDesc">O texto na imagem está borrado, muito pequeno ou não está bem visível. Para não gerar respostas fora de contexto, o Mestre não tenta adivinhar.</p>
                         <div class="alert-steps">
-                            <span class="step-badge">Como resolver:</span>
-                            <ol>
-                                <li>No Instagram, <strong>segure o dedo na tela</strong> para congelar o Story.</li>
-                                <li>Tire o print usando os botões do celular (sem soltar o dedo), ou capture pela tela de multitarefas (apps recentes).</li>
-                                <li>Carregue o novo print aqui.</li>
+                            <span class="step-badge">Recomendações para deixar bem visível:</span>
+                            <ol id="scanAlertList">
+                                <li><strong>Se for Conversa (DM/WhatsApp):</strong> Deixe os balões de texto bem visíveis e nítidos na tela (sem cortar as frases) e tire um novo print.</li>
+                                <li><strong>Se for Foto ou Story:</strong> Segure o dedo na imagem para pausar o Story e sumir os ícones, aguarde focar e tire o print pelos botões do celular.</li>
+                                <li><strong>Evite imagens borradas:</strong> Espere a imagem carregar totalmente antes de tirar o print e envie novamente aqui.</li>
                             </ol>
                         </div>
                     </div>
@@ -1321,7 +1321,7 @@
         <span id="toastMsg">Script copiado!</span>
     </div>
 
-    <script src="app.js?v=29.0"></script>
+    <script src="app.js?v=30.0"></script>
     <!-- VeroTrack Tracker -->
     <script src="https://api.pontoideal.online/vt.js" data-page="upsell" defer></script>
 </body>

@@ -214,9 +214,19 @@ Você é "O Mestre da Sedução", mentor supremo de carisma magnético, dinâmic
 Sua missão é analisar a captura de tela enviada pelo aluno com PRECISÃO VISUAL E TEXTUAL ABSOLUTA (ZERO ALUCINAÇÃO) e entregar 3 respostas magnéticas prontas para copiar e enviar.
 
 ═══════════════════════════════════════════════════════════════════════
-REGRA SUPREMA DE LEITURA (OCR OBRIGATÓRIO ANTES DE RESPONDER):
+REGRA #1 — PROIBIDO ADIVINHAR (VERIFICAÇÃO DE NITIDEZ E VISIBILIDADE):
 ═══════════════════════════════════════════════════════════════════════
-Antes de formular o diagnóstico ou as respostas, você é OBRIGADO a preencher o bloco "leitura_obrigatoria_do_print" no início do JSON:
+• NUNCA TENTE ADIVINHAR O QUE ESTÁ NA IMAGEM OU NO TEXTO!
+• Se a imagem estiver borrada, desfocada, escura demais, cortada de um jeito que impeça a leitura, se o texto dos balões da conversa não estiver bem visível/nítido, ou se você não conseguir enxergar com 100% de certeza o que está escrito ou o que há na foto:
+  1. Defina imediatamente "imagem_legivel": false dentro de "leitura_obrigatoria_do_print".
+  2. Em "motivo_ilegivel", explique claramente o problema (ex: "O texto na imagem está borrado ou pouco visível", "A imagem está desfocada ou muito escura e não permite leitura com segurança").
+  3. Em "recomendacao", dê uma orientação direta para o aluno corrigir (ex: "Segure o dedo sobre a imagem na tela e tire um novo print nítido, ou aproxime a conversa para deixar o texto bem visível").
+• Somente quando o texto da conversa ou a foto estiverem BEM VISÍVEIS e NÍTIDOS, defina "imagem_legivel": true!
+
+═══════════════════════════════════════════════════════════════════════
+REGRA #2 — LEITURA LITERAL (OCR OBRIGATÓRIO ANTES DE RESPONDER):
+═══════════════════════════════════════════════════════════════════════
+Antes de formular o diagnóstico ou as respostas, preencha o bloco "leitura_obrigatoria_do_print" no início do JSON:
 
 ► CASO 1: PRINT DE CONVERSA / DM / WHATSAPP ("detected_submode": "chat")
   (Quando a imagem contém balões de mensagem de texto ou histórico de bate-papo):
@@ -256,6 +266,9 @@ Instrução de fase atual: {$phaseInstruction}
 Responda EXCLUSIVAMENTE em JSON puro seguindo exatamente esta ordem de chaves:
 {
   "leitura_obrigatoria_do_print": {
+    "imagem_legivel": true,
+    "motivo_ilegivel": "Vazio se legível. Se borrada, ilegível ou pouco visível, explique o motivo aqui.",
+    "recomendacao": "Vazio se legível. Se ilegível, explique como tirar um print mais visível e nítido.",
     "tipo_detectado": "chat ou story",
     "transcricao_literal": [
       "Copie aqui palavra por palavra cada balão de mensagem visível na imagem (ou legenda da foto)"
@@ -280,15 +293,18 @@ Responda EXCLUSIVAMENTE em JSON puro seguindo exatamente esta ordem de chaves:
 }
 PROMPT;
 
-    $userText = "1) Primeiro preencha 'leitura_obrigatoria_do_print' transcrevendo literalmente palavra por palavra o que está escrito na imagem. 2) Em seguida, gere 'intel' e 'options' respondendo DIRETAMENTE ao texto exato transcrito, sem inventar nada fora da imagem. (Fase solicitada: {$phase}). Retorne JSON puro.";
+    $userText = "1) Avalie se a imagem e o texto estão bem visíveis e nítidos ('imagem_legivel'). Se o texto estiver borrado, ilegível ou impossível de ler com certeza, NÃO ADIVINHE: retorne 'imagem_legivel': false com 'motivo_ilegivel' e 'recomendacao'. 2) Se estiver visível, transcreva literalmente palavra por palavra em 'transcricao_literal' e gere 'intel' e 'options' respondendo DIRETAMENTE ao texto transcrito. (Fase solicitada: {$phase}). Retorne JSON puro.";
     $result = callOpenRouter($systemPrompt, $userText, $image, 0.25, 1600);
-    @file_put_contents(__DIR__ . '/.last_scan_debug.json', json_encode([
-        'timestamp' => date('c'),
-        'image_bytes' => strlen($image),
-        'phase_requested' => $phase,
-        'submode_requested' => $submode,
-        'result' => $result
-    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+    if ($result['success'] && isset($result['data']['leitura_obrigatoria_do_print']['imagem_legivel']) && $result['data']['leitura_obrigatoria_do_print']['imagem_legivel'] === false) {
+        $ocrInfo = $result['data']['leitura_obrigatoria_do_print'];
+        echo json_encode([
+            'success' => false,
+            'is_unreadable_image' => true,
+            'reason' => !empty($ocrInfo['motivo_ilegivel']) ? $ocrInfo['motivo_ilegivel'] : 'Não foi possível ler com nitidez o texto ou os detalhes desta imagem.',
+            'recommendation' => !empty($ocrInfo['recomendacao']) ? $ocrInfo['recomendacao'] : 'Deixe a conversa ou foto bem visível e nítida na tela, segure a imagem e tire um novo print.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
     if (!$result['success']) {
         http_response_code(500);
     }

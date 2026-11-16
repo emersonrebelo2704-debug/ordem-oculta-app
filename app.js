@@ -458,9 +458,19 @@ document.addEventListener('DOMContentLoaded', () => {
 Sua missão é analisar a captura de tela enviada pelo aluno com PRECISÃO VISUAL E TEXTUAL ABSOLUTA (ZERO ALUCINAÇÃO) e entregar 3 respostas magnéticas prontas para copiar e enviar.
 
 ═══════════════════════════════════════════════════════════════════════
-REGRA SUPREMA DE LEITURA (OCR OBRIGATÓRIO ANTES DE RESPONDER):
+REGRA #1 — PROIBIDO ADIVINHAR (VERIFICAÇÃO DE NITIDEZ E VISIBILIDADE):
 ═══════════════════════════════════════════════════════════════════════
-Antes de formular o diagnóstico ou as respostas, você é OBRIGADO a preencher o bloco "leitura_obrigatoria_do_print" no início do JSON:
+• NUNCA TENTE ADIVINHAR O QUE ESTÁ NA IMAGEM OU NO TEXTO!
+• Se a imagem estiver borrada, desfocada, escura demais, cortada de um jeito que impeça a leitura, se o texto dos balões da conversa não estiver bem visível/nítido, ou se você não conseguir enxergar com 100% de certeza o que está escrito ou o que há na foto:
+  1. Defina imediatamente "imagem_legivel": false dentro de "leitura_obrigatoria_do_print".
+  2. Em "motivo_ilegivel", explique claramente o problema (ex: "O texto na imagem está borrado ou pouco visível", "A imagem está desfocada ou muito escura e não permite leitura com segurança").
+  3. Em "recomendacao", dê uma orientação direta para o aluno corrigir (ex: "Segure o dedo sobre a imagem na tela e tire um novo print nítido, ou aproxime a conversa para deixar o texto bem visível").
+• Somente quando o texto da conversa ou a foto estiverem BEM VISÍVEIS e NÍTIDOS, defina "imagem_legivel": true!
+
+═══════════════════════════════════════════════════════════════════════
+REGRA #2 — LEITURA LITERAL (OCR OBRIGATÓRIO ANTES DE RESPONDER):
+═══════════════════════════════════════════════════════════════════════
+Antes de formular o diagnóstico ou as respostas, preencha o bloco "leitura_obrigatoria_do_print" no início do JSON:
 
 ► CASO 1: PRINT DE CONVERSA / DM / WHATSAPP ("detected_submode": "chat")
   (Quando a imagem contém balões de mensagem de texto ou histórico de bate-papo):
@@ -499,6 +509,9 @@ CLASSIFICAÇÃO DA FASE ("detected_phase_key" e "phase"):
 Responda EXCLUSIVAMENTE em JSON puro seguindo exatamente esta ordem de chaves:
 {
   "leitura_obrigatoria_do_print": {
+    "imagem_legivel": true,
+    "motivo_ilegivel": "Vazio se legível. Se borrada, ilegível ou pouco visível, explique o motivo aqui.",
+    "recomendacao": "Vazio se legível. Se ilegível, explique como tirar um print mais visível e nítido.",
     "tipo_detectado": "chat ou story",
     "transcricao_literal": [
       "Copie aqui palavra por palavra cada balão de mensagem visível na imagem (ou legenda da foto)"
@@ -522,7 +535,7 @@ Responda EXCLUSIVAMENTE em JSON puro seguindo exatamente esta ordem de chaves:
   ]
 }
 `;
-            userText = `1) Primeiro preencha 'leitura_obrigatoria_do_print' transcrevendo literalmente palavra por palavra o que está escrito na imagem. 2) Em seguida, gere 'intel' e 'options' respondendo DIRETAMENTE ao texto exato transcrito, sem inventar nada fora da imagem. (Fase solicitada: ${payload.phase || 'auto'}). Retorne JSON puro.`;
+            userText = `1) Avalie se a imagem e o texto estão bem visíveis e nítidos ('imagem_legivel'). Se o texto estiver borrado, ilegível ou impossível de ler com certeza, NÃO ADIVINHE: retorne 'imagem_legivel': false com 'motivo_ilegivel' e 'recomendacao'. 2) Se estiver visível, transcreva literalmente palavra por palavra em 'transcricao_literal' e gere 'intel' e 'options' respondendo DIRETAMENTE ao texto transcrito. (Fase solicitada: ${payload.phase || 'auto'}). Retorne JSON puro.`;
         } else if (apiType === 'coach') {
             const history = Array.isArray(payload.history) ? payload.history : [];
             let historyPrompt = '';
@@ -603,9 +616,19 @@ Responda EXCLUSIVAMENTE em JSON puro:
                 });
                 const resData = await res.json();
                 if (res.ok && resData.choices && resData.choices[0]?.message?.content) {
+                    const parsed = parseCleanJson(resData.choices[0].message.content);
+                    if (apiType === 'scan' && parsed.leitura_obrigatoria_do_print && parsed.leitura_obrigatoria_do_print.imagem_legivel === false) {
+                        const ocrInfo = parsed.leitura_obrigatoria_do_print;
+                        return {
+                            success: false,
+                            is_unreadable_image: true,
+                            reason: ocrInfo.motivo_ilegivel || 'Não foi possível ler com nitidez o texto ou os detalhes desta imagem.',
+                            recommendation: ocrInfo.recomendacao || 'Deixe a conversa ou foto bem visível e nítida na tela, segure a imagem e tire um novo print.'
+                        };
+                    }
                     return {
                         success: true,
-                        data: parseCleanJson(resData.choices[0].message.content)
+                        data: parsed
                     };
                 }
             } catch (err) {
@@ -635,7 +658,7 @@ Responda EXCLUSIVAMENTE em JSON puro:
                     body: JSON.stringify(payload)
                 });
                 const result = await res.json().catch(() => null);
-                if (result && result.is_black_image) {
+                if (result && (result.is_black_image || result.is_unreadable_image)) {
                     return result;
                 }
                 if (res.ok && result && result.success && result.data) {
@@ -1727,6 +1750,38 @@ Responda EXCLUSIVAMENTE em JSON puro:
         elements.resultsContainer.classList.add('hidden');
     }
 
+    function showScanAlertCard(mode, customReason = '', customRec = '') {
+        if (!elements.scanBlackAlert) return;
+        const titleEl = document.getElementById('scanAlertTitle');
+        const descEl = document.getElementById('scanAlertDesc');
+        const listEl = document.getElementById('scanAlertList');
+
+        if (mode === 'black') {
+            if (titleEl) titleEl.textContent = 'Captura Bloqueada ou Escura (Tela Preta)';
+            if (descEl) descEl.textContent = 'O celular ou o Instagram protegeu o Story com uma tela preta anti-print. Para não chutar respostas no escuro, a leitura foi pausada.';
+            if (listEl) {
+                listEl.innerHTML = `
+                    <li><strong>No Story do Instagram:</strong> Segure o dedo na imagem para pausar o Story e tire o print pelos botões físicos do celular.</li>
+                    <li><strong>Pela Multitarefa:</strong> Ou abra a visão de aplicativos recentes do celular e tire o print por lá.</li>
+                    <li><strong>Carregue novamente:</strong> Envie o novo print visível aqui.</li>
+                `;
+            }
+        } else {
+            if (titleEl) titleEl.textContent = 'Não Foi Possível Ler a Imagem com Nitidez';
+            if (descEl) descEl.textContent = (customReason || 'O texto na imagem está borrado, cortado ou não está bem visível.') + ' Em vez de tentar adivinhar e dar uma resposta fora de contexto, recomendamos enviar um print mais nítido.';
+            if (listEl) {
+                listEl.innerHTML = `
+                    <li><strong>Recomendação:</strong> ${escapeHtml(customRec || 'Segure a imagem na tela e tire um novo print bem visível.')}</li>
+                    <li><strong>Para Conversas (DM / WhatsApp):</strong> Deixe as últimas mensagens bem visíveis, nítidas e sem cortes na tela antes de tirar o print.</li>
+                    <li><strong>Para Fotos ou Stories:</strong> Segure o dedo na imagem para focar sem ícones na frente e tire um novo print.</li>
+                `;
+            }
+        }
+
+        elements.scanBlackAlert.classList.remove('hidden');
+        elements.scanBlackAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
     // Execução da Sequência de Escaneamento
     async function runScanSequence() {
         state.isScanning = true;
@@ -1739,7 +1794,7 @@ Responda EXCLUSIVAMENTE em JSON puro:
         elements.btnLabel.textContent = 'ANALISANDO CENÁRIO & SINAIS...';
 
         let scanOk = false;
-        let isBlack = false;
+        let isAlertShown = false;
         try {
             const result = await callOrdemEndpoint('scan', {
                 image: state.selectedBase64,
@@ -1748,12 +1803,13 @@ Responda EXCLUSIVAMENTE em JSON puro:
             });
 
             if (result && result.is_black_image) {
-                isBlack = true;
-                if (elements.scanBlackAlert) {
-                    elements.scanBlackAlert.classList.remove('hidden');
-                    elements.scanBlackAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-                showToast('⚠️ Imagem preta detectada! O Instagram protegeu o Story.');
+                isAlertShown = true;
+                showScanAlertCard('black');
+                showToast('⚠️ Imagem preta detectada! Veja a recomendação abaixo.');
+            } else if (result && result.is_unreadable_image) {
+                isAlertShown = true;
+                showScanAlertCard('unreadable', result.reason, result.recommendation);
+                showToast('⚠️ Imagem pouco visível ou borrada! Veja como melhorar abaixo.', 6000);
             } else if (result && result.success && result.data && Array.isArray(result.data.options) && result.data.options.length >= 3) {
                 // SUCESSO REAL VIA IA
                 renderRealAIResponse(result.data);
@@ -1761,9 +1817,10 @@ Responda EXCLUSIVAMENTE em JSON puro:
                 state.scanCount = (state.scanCount || 0) + 1;
                 showToast('Decodificação do Mestre concluída!');
             } else {
-                // Mensagem honesta
-                const errMsg = (result && result.error) ? result.error : 'Não consegui ler esse print agora. Toque em DECODIFICAR para tentar de novo.';
-                showToast(errMsg, 6000);
+                // Caso não tenha conseguido ler com segurança, mostra o card de recomendação em vez de chutar
+                isAlertShown = true;
+                showScanAlertCard('unreadable', 'Não conseguimos enxergar os detalhes ou o texto deste print com clareza suficiente.', 'Segure a imagem na tela e tire um novo print mais nítido e bem visível.');
+                showToast('⚠️ Não foi possível ler o print com nitidez. Veja a recomendação.', 6000);
             }
         } catch (err) {
             console.warn('Falha no scan:', err);
@@ -1778,8 +1835,8 @@ Responda EXCLUSIVAMENTE em JSON puro:
                 elements.btnLabel.textContent = `DECODIFICAR NOVAMENTE`;
                 elements.resultsContainer.classList.remove('hidden');
                 elements.resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            } else if (isBlack) {
-                elements.btnLabel.textContent = `CARREGAR OUTRO PRINT`;
+            } else if (isAlertShown) {
+                elements.btnLabel.textContent = `ENVIAR NOVO PRINT MAIS VISÍVEL`;
                 elements.resultsContainer.classList.add('hidden');
             } else {
                 elements.btnLabel.textContent = `TENTAR DECODIFICAR DE NOVO`;
