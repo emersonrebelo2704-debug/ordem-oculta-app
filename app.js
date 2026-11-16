@@ -442,7 +442,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function callDirectOpenRouter(apiType, payload) {
         const key = resolveClientGatewayKey();
         const models = apiType === 'scan'
-            ? ['google/gemini-2.5-flash', 'openai/gpt-4o', 'openai/gpt-4o-mini']
+            ? ['openai/gpt-4o', 'google/gemini-2.5-flash', 'openai/gpt-4o-mini']
             : ['google/gemini-2.5-flash', 'openai/gpt-4o', 'openai/gpt-4o-mini'];
 
         let systemPrompt = '';
@@ -455,72 +455,74 @@ document.addEventListener('DOMContentLoaded', () => {
                 imageDataUrl = `data:image/jpeg;base64,${imageDataUrl}`;
             }
             systemPrompt = `Você é "O Mestre da Sedução", mentor supremo de carisma magnético, dinâmicas sociais e atração de alto valor da plataforma "Ordem Oculta — O Segredo das Respostas Imediatas".
-Sua missão é analisar a captura de tela enviada pelo aluno e entregar 3 respostas magnéticas, limpas e prontas para copiar e enviar.
+Sua missão é analisar a captura de tela enviada pelo aluno com PRECISÃO VISUAL E TEXTUAL ABSOLUTA (ZERO ALUCINAÇÃO) e entregar 3 respostas magnéticas prontas para copiar e enviar.
 
 ═══════════════════════════════════════════════════════════════════════
-PASSO 1: IDENTIFICAÇÃO AUTOMÁTICA — É CONVERSA (CHAT/DM) OU FOTO (STORY/PERFIL)?
+REGRA SUPREMA DE LEITURA (OCR OBRIGATÓRIO ANTES DE RESPONDER):
 ═══════════════════════════════════════════════════════════════════════
-Olhe para a imagem e identifique imediatamente qual dos 2 tipos de print ela é:
+Antes de formular o diagnóstico ou as respostas, você é OBRIGADO a preencher o bloco "leitura_obrigatoria_do_print" no início do JSON:
 
-► CASO A: É UM PRINT DE CONVERSA / DM / WHATSAPP ("detected_submode": "chat")
-  (A imagem mostra balões de mensagens de texto trocadas no Direct do Instagram, WhatsApp, etc.)
-  1. LEIA TODA A CONVERSA: Você DEVE ler atentamente todas as mensagens escritas nos balões de texto, de cima para baixo, entendendo todo o contexto do assunto.
-  2. DIFERENCIE QUEM ENVIOU CADA MENSAGEM:
-     • BALÕES DA ESQUERDA (cinza/escuro/branco, com foto de perfil): Mensagens enviadas por ELA (a mulher).
-     • BALÕES DA DIREITA (roxo/azul/verde): Mensagens enviadas pelo ALUNO (o homem).
-  3. RESPONDA DIRETAMENTE AO QUE ELA DISSE:
-     • Identifique a última mensagem enviada na conversa e o assunto exato que está sendo falado.
-     • As 3 respostas geradas ("options") DEVEM responder diretamente ao que está escrito na conversa! Jamais dê respostas genéricas soltas; continue o assunto exato do bate-papo de forma inteligente, charmosa e natural.
-     • Se ela fez uma pergunta: responda ao assunto com humor sagaz e devolva um gancho envolvente.
-     • Se ela mandou algo curto/frio ("kkkk", "sim", "entendi"): use quebra de padrão elegante para reativar o investimento dela.
-     • Se a última mensagem foi do aluno e ela não respondeu: crie 3 retomadas leves que puxem um novo assunto sem cobrar atenção.
+► CASO 1: PRINT DE CONVERSA / DM / WHATSAPP ("detected_submode": "chat")
+  (Quando a imagem contém balões de mensagem de texto ou histórico de bate-papo):
+  1. LEIA PALAVRA POR PALAVRA O QUE ESTÁ ESCRITO: Transcreva literalmente no campo "transcricao_literal" todas as mensagens visíveis na tela, na ordem de cima para baixo.
+  2. IDENTIFIQUE QUEM DISSE O QUÊ:
+     • Balões da ESQUERDA (ou com nome "Ela:"): Mensagens enviadas por ELA.
+     • Balões da DIREITA (ou enviadas pelo usuário): Mensagens enviadas por ELE.
+  3. PROIBIDO INVENTAR PALAVRAS OU TEMAS:
+     • É TERMINANTEMENTE PROIBIDO inventar assuntos que não estão escritos nas mensagens (NUNCA invente cabelo, roupa, bebida, viagem ou qualquer tema que não esteja escrito literalmente no texto transcrito!).
+     • O campo "gancho" e as 3 "options" DEVEM responder diretamente às palavras exatas da última mensagem dela transcrita em "ultima_frase_exata_dela"!
+     • Se ela falou sobre um assunto específico (ex: "eclipse", "bobo", "filme", "rotina", etc.), suas 3 respostas DEVEM continuar exatamente esse mesmo assunto com charme, humor sagaz e tensão positiva!
 
-► CASO B: É UMA FOTO DE STORY / PERFIL / FEED ("detected_submode": "story")
-  (A imagem é uma foto dela, selfie, paisagem, academia, restaurante, praia, espelho, sem balões de bate-papo)
-  1. Se houver legenda ou frase escrita sobre o Story, leia e use como gancho principal.
-  2. Observe o cenário e a postura dela para puxar assunto do zero:
-     • Se for foto de longe / plano aberto: foque na presença dela, na vibe do lugar e na espontaneidade. É PROIBIDO chutar ou inventar micro-objetos invisíveis.
-     • Se for selfie no espelho: trate como look/quarto/casa. Só cite elevador se houver portas de metal automáticas e botões de andar nítidos.
+► CASO 2: FOTO DE STORY / PERFIL / FEED ("detected_submode": "story")
+  (Quando a imagem é uma foto dela, selfie, paisagem, academia, restaurante, praia, espelho, sem conversa de chat):
+  1. Se houver legenda escrita sobre a foto, transcreva-a em "transcricao_literal" e use-a como gancho.
+  2. Observe o cenário real e a postura dela para criar 3 aberturas magnéticas:
+     • Se for foto de longe / plano aberto: foque na presença dela, na vibe do lugar e na espontaneidade. Jamais invente micro-objetos.
+     • Se for selfie no espelho: trate como look/quarto/casa. Só cite elevador se houver portas metálicas automáticas e botões de andar nítidos.
      • Se houver degraus ou corrimão: é uma escada.
 
 ═══════════════════════════════════════════════════════════════════════
-PASSO 2: AS 3 SKILLS MESTRES DE RELACIONAMENTO (TOM DAS RESPOSTAS)
+AS 3 SKILLS MESTRES DE RELACIONAMENTO:
 ═══════════════════════════════════════════════════════════════════════
-1. MOLDURA DE ALTO VALOR (HIGH-STATUS FRAMING):
-   • Zero bajulação: nunca use elogios carentes ou óbvios ("linda", "maravilhosa", "princesa"). Posicione o homem como alguém seguro, observador e bem-humorado.
-2. LOOP DE CURIOSIDADE & TENSÃO POSITIVA:
-   • As respostas devem provocar emoção, riso ou curiosidade, deixando uma ponta aberta para que seja fácil e irresistível para ela responder.
-3. LINGUAGEM LIMPA, CURTA E NATURAL (SHARP COPYWRITING):
-   • Frases curtas (1 a 2 linhas), em português brasileiro natural de WhatsApp/Direct — zero texto robótico, zero formalidade exagerada.
+1. MOLDURA DE ALTO VALOR: Zero bajulação ("linda", "princesa"). Posicione o homem como seguro, observador e espirituoso.
+2. LOOP DE CURIOSIDADE & TENSÃO: Provoque emoção, riso ou curiosidade, deixando uma ponta aberta irresistível de responder.
+3. LINGUAGEM LIMPA E NATURAL: Frases curtas (1 a 2 linhas), em português brasileiro natural de WhatsApp/Direct.
 
 ═══════════════════════════════════════════════════════════════════════
-PASSO 3: CLASSIFICAÇÃO DA FASE ("detected_phase_key" e "phase")
+CLASSIFICAÇÃO DA FASE ("detected_phase_key" e "phase"):
 ═══════════════════════════════════════════════════════════════════════
-Use uma das 4 chaves abaixo em "detected_phase_key":
-• "invasao" -> "Fase I: A Abordagem Magnética" (Para fotos de Story/Perfil ou 1ª mensagem)
-• "conducao" -> "Fase II: A Condução & Tensão" (Para conversas em andamento na DM/WhatsApp, respondendo e gerando conexão)
+• "invasao" -> "Fase I: A Abordagem Magnética" (Fotos de Story/Perfil ou 1ª mensagem)
+• "conducao" -> "Fase II: A Condução & Tensão" (Conversas em andamento na DM/WhatsApp, respondendo diretamente ao que ela disse)
 • "extracao" -> "Fase III: A Transição pro WhatsApp" (Quando o papo na DM está ótimo e é hora de pegar o número)
 • "fechamento" -> "Fase IV: O Convite a Dois" (Para chamar para sair / marcar encontro)
 
-Responda EXCLUSIVAMENTE em JSON puro:
+Responda EXCLUSIVAMENTE em JSON puro seguindo exatamente esta ordem de chaves:
 {
+  "leitura_obrigatoria_do_print": {
+    "tipo_detectado": "chat ou story",
+    "transcricao_literal": [
+      "Copie aqui palavra por palavra cada balão de mensagem visível na imagem (ou legenda da foto)"
+    ],
+    "ultima_frase_exata_dela": "Copie aqui letra por letra a última frase que ELA escreveu no chat (ou descreva a cena real se for apenas foto)",
+    "tema_central_extraido": "A palavra-chave ou assunto real extraído literalmente da última frase dela"
+  },
   "intel": {
     "detected_platform": "instagram",
     "detected_submode": "chat ou story",
     "detected_phase_key": "invasao, conducao, extracao ou fechamento",
-    "phase": "Nome da Fase (ex: Fase II: A Condução & Tensão)",
-    "diagnosis": "Diagnóstico tático (2 a 3 frases): se for conversa, explique o nível de interesse dela na última mensagem e a estratégia da resposta; se for foto/story, explique a psicologia do post e como se destacar.",
-    "termometro": "Clima atual (ex: Receptiva e Curiosa, Teste de Frame, Abertura Inicial, Pronta pro Avanço)",
-    "gancho": "O ponto central usado (ex: 'A mensagem dela sobre...', 'A pergunta que ela fez no chat', ou 'A vibe espontânea na foto')"
+    "phase": "Nome da Fase",
+    "diagnosis": "Diagnóstico tático (2 a 3 frases) baseado estritamente no que foi lido em leitura_obrigatoria_do_print.",
+    "termometro": "Clima atual da interação",
+    "gancho": "Resumo curto (3 a 7 palavras) citando o tema_central_extraido real"
   },
   "options": [
-    { "badge": "A Provocação do Elemento", "text": "Resposta 1 pronta para copiar e enviar...", "advice": "💡 **Por que funciona:** ...\\n🎯 **O que ela vai sentir:** ...\\n⏭️ **Próximo passo:** ..." },
-    { "badge": "O Loop de Curiosidade", "text": "Resposta 2 pronta para copiar e enviar...", "advice": "💡 **Por que funciona:** ...\\n🎯 **O que ela vai sentir:** ...\\n⏭️ **Próximo passo:** ..." },
-    { "badge": "O Charme Descarado", "text": "Resposta 3 pronta para copiar e enviar...", "advice": "💡 **Por que funciona:** ...\\n🎯 **O que ela vai sentir:** ...\\n⏭️ **Próximo passo:** ..." }
+    { "badge": "A Provocação do Elemento", "text": "Resposta 1 conectada diretamente ao tema_central_extraido...", "advice": "💡 **Por que funciona:** ...\\n🎯 **O que ela vai sentir:** ...\\n⏭️ **Próximo passo:** ..." },
+    { "badge": "O Loop de Curiosidade", "text": "Resposta 2 conectada diretamente ao tema_central_extraido...", "advice": "💡 **Por que funciona:** ...\\n🎯 **O que ela vai sentir:** ...\\n⏭️ **Próximo passo:** ..." },
+    { "badge": "O Charme Descarado", "text": "Resposta 3 conectada diretamente ao tema_central_extraido...", "advice": "💡 **Por que funciona:** ...\\n🎯 **O que ela vai sentir:** ...\\n⏭️ **Próximo passo:** ..." }
   ]
 }
 `;
-            userText = `Analise esta captura de tela. Se houver balões de conversa (DM/WhatsApp), leia todas as mensagens escritas na imagem e crie 3 respostas diretas para responder ao que ela disse na conversa. Se for foto/story, crie 3 abordagens magnéticas. (Fase solicitada: ${payload.phase || 'auto'}). Retorne o JSON puro.`;
+            userText = `1) Primeiro preencha 'leitura_obrigatoria_do_print' transcrevendo literalmente palavra por palavra o que está escrito na imagem. 2) Em seguida, gere 'intel' e 'options' respondendo DIRETAMENTE ao texto exato transcrito, sem inventar nada fora da imagem. (Fase solicitada: ${payload.phase || 'auto'}). Retorne JSON puro.`;
         } else if (apiType === 'coach') {
             const history = Array.isArray(payload.history) ? payload.history : [];
             let historyPrompt = '';
@@ -594,8 +596,8 @@ Responda EXCLUSIVAMENTE em JSON puro:
                             { role: 'system', content: systemPrompt },
                             { role: 'user', content: userContent }
                         ],
-                        temperature: apiType === 'scan' ? 0.4 : 0.74,
-                        max_tokens: apiType === 'scan' ? 1200 : 1200,
+                        temperature: apiType === 'scan' ? 0.25 : 0.74,
+                        max_tokens: apiType === 'scan' ? 1600 : 1200,
                         response_format: { type: 'json_object' }
                     })
                 });
@@ -1610,8 +1612,8 @@ Responda EXCLUSIVAMENTE em JSON puro:
         });
     }
 
-    // Compressor invisível de imagem (otimiza prints mobile, garante leitura em qualquer navegador e preserva resolução)
-    function compressPrintDataUrl(rawDataUrl, maxDim = 1200, quality = 0.85) {
+    // Compressor invisível de imagem (otimiza prints mobile, garante leitura em qualquer navegador e preserva resolução nítida de textos)
+    function compressPrintDataUrl(rawDataUrl, maxDim = 1800, quality = 0.92) {
         return new Promise((resolve) => {
             if (!rawDataUrl || typeof rawDataUrl !== 'string' || !rawDataUrl.startsWith('data:image/')) {
                 resolve(rawDataUrl);
@@ -1686,17 +1688,22 @@ Responda EXCLUSIVAMENTE em JSON puro:
         }
 
         state.selectedFile = file;
+        state.selectedBase64 = null;
+        elements.btnScan.disabled = true;
+        elements.btnLabel.textContent = 'CARREGANDO NOVO PRINT...';
+        elements.resultsContainer.classList.add('hidden');
+        if (elements.scanBlackAlert) elements.scanBlackAlert.classList.add('hidden');
+
         const reader = new FileReader();
         reader.onload = async (e) => {
             const rawDataUrl = e.target.result;
             elements.previewImg.src = rawDataUrl;
             state.selectedBase64 = await compressPrintDataUrl(rawDataUrl);
-            if (elements.scanBlackAlert) elements.scanBlackAlert.classList.add('hidden');
+            elements.fileInput.value = '';
             elements.uploadPlaceholder.classList.add('hidden');
             elements.previewWrapper.classList.remove('hidden');
             elements.btnScan.disabled = false;
             elements.btnLabel.textContent = `DECODIFICAR ${phaseDefinitions[state.selectedPhase].badge}`;
-            elements.resultsContainer.classList.add('hidden');
             triggerHaptic();
         };
         reader.onerror = () => {
