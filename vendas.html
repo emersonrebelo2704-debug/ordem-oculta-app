@@ -668,17 +668,26 @@
         .guarantee-badge span { font-size: 22px; }
         .guarantee-badge small { font-size: 9px; }
 
-        /* Sticky Mobile CTA */
+        /* Sticky Mobile CTA (Smart Scroll-Triggered Bar Without Price Spoiler) */
         .sticky-bar {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(9, 9, 12, 0.94);
-            backdrop-filter: blur(12px);
+            background: rgba(9, 9, 12, 0.95);
+            backdrop-filter: blur(14px);
             border-top: 1px solid var(--border-gold);
             padding: 12px 16px;
             z-index: 99;
+            transform: translateY(110%);
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+        }
+        .sticky-bar.visible {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
         }
         .sticky-inner {
             max-width: 680px;
@@ -689,14 +698,15 @@
             gap: 12px;
         }
         .sticky-price {
-            font-size: 12px;
+            font-size: 11.5px;
             color: var(--text-muted);
-            line-height: 1.2;
+            line-height: 1.25;
         }
         .sticky-price strong {
             display: block;
-            font-size: 16px;
+            font-size: 13.5px;
             color: #fff;
+            letter-spacing: 0.2px;
         }
         .sticky-btn {
             background: linear-gradient(135deg, #f59e0b, #d97706);
@@ -1175,20 +1185,59 @@
         </div>
     </div>
 
-    <!-- BARRA FIXA MOBILE -->
-    <div class="sticky-bar">
+    <!-- BARRA FIXA MOBILE (Inteligente: Sem Spoiler de Preço + Rola para o Box de Oferta) -->
+    <div class="sticky-bar" id="stickyMobileBar">
         <div class="sticky-inner">
             <div class="sticky-price">
-                Acesso Imediato ao App
-                <strong id="stickyPriceText">R$&nbsp;37,90</strong>
+                Ordem Oculta · IA
+                <strong>4 Ferramentas Imediatas</strong>
             </div>
-            <a href="https://pay.kiwify.com.br/8X6hibI" id="stickyOfferCtaBtn" class="sticky-btn">
-                ACESSAR O APP AGORA <i class="fa-solid fa-arrow-right"></i>
+            <a href="#oferta" id="stickyOfferCtaBtn" class="sticky-btn" onclick="scrollToOfferBox(event)">
+                LIBERAR MEU ACESSO <i class="fa-solid fa-arrow-down"></i>
             </a>
         </div>
     </div>
 
     <script>
+    function scrollToOfferBox(e) {
+        var offerEl = document.getElementById('oferta');
+        if (offerEl) {
+            if (e) e.preventDefault();
+            offerEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    (function() {
+        var stickyBar = document.getElementById('stickyMobileBar');
+        var offerBox = document.getElementById('oferta');
+        if (!stickyBar) return;
+
+        function updateStickyVisibility() {
+            var scrollY = window.scrollY || window.pageYOffset || 0;
+            var pastFirstFold = scrollY > 420;
+            var insideOffer = false;
+
+            if (offerBox) {
+                var rect = offerBox.getBoundingClientRect();
+                var vh = window.innerHeight || document.documentElement.clientHeight;
+                // Oculta a barra quando o box de oferta já está visível na tela
+                if (rect.top < vh - 120 && rect.bottom > 100) {
+                    insideOffer = true;
+                }
+            }
+
+            if (pastFirstFold && !insideOffer) {
+                stickyBar.classList.add('visible');
+            } else {
+                stickyBar.classList.remove('visible');
+            }
+        }
+
+        window.addEventListener('scroll', updateStickyVisibility, { passive: true });
+        window.addEventListener('resize', updateStickyVisibility, { passive: true });
+        updateStickyVisibility();
+    })();
+
     function selectTslPlan(el) {
         var opts = document.querySelectorAll('.tsl-plan-opt');
         for (var i = 0; i < opts.length; i++) {
@@ -1197,16 +1246,11 @@
         el.classList.add('active');
         var rawUrl = el.getAttribute('data-url');
         var url = (window.VT && typeof window.VT.decorateUrl === 'function') ? window.VT.decorateUrl(rawUrl) : rawUrl;
-        var price = el.getAttribute('data-price');
         var label = el.getAttribute('data-label');
         var mainBtn = document.getElementById('mainOfferCtaBtn');
         var mainTxt = document.getElementById('mainOfferCtaText');
-        var stickyBtn = document.getElementById('stickyOfferCtaBtn');
-        var stickyPrice = document.getElementById('stickyPriceText');
         if (mainBtn) mainBtn.href = url;
         if (mainTxt) mainTxt.textContent = label;
-        if (stickyBtn) stickyBtn.href = url;
-        if (stickyPrice) stickyPrice.textContent = 'R$ ' + price;
     }
     </script>
 
