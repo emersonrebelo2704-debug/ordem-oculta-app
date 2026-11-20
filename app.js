@@ -210,6 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Inicialização
     function init() {
+        setupMemberAuthGate();
         setupNavigation();
         setupHubHomeAndViews();
         setupCoachEmergency();
@@ -234,6 +235,313 @@ document.addEventListener('DOMContentLoaded', () => {
         setupCopyButtons();
         updatePhaseBanner('auto');
         updateSubmodeUI();
+    }
+
+    // =========================================================================
+    // PORTAL DE ACESSO DE MEMBROS & ATIVAÇÃO IMEDIATA PÓS-PAGAMENTO (?acesso=1)
+    // =========================================================================
+    function getAuthApiUrl(action) {
+        const host = window.location.hostname || '';
+        const isGithub = host.includes('github.io');
+        return isGithub
+            ? `https://pontoideal.online/app/api.php?action=${action}`
+            : `api.php?action=${action}`;
+    }
+
+    function applyMemberEntitlements(member) {
+        if (!member || typeof member !== 'object') return;
+        const email = (member.email || '').toLowerCase().trim();
+        if (email) {
+            localStorage.setItem('ordem_vip_email', email);
+        }
+        if (Array.isArray(member.modules)) {
+            let currentUnlocked = [];
+            try {
+                currentUnlocked = JSON.parse(localStorage.getItem('ordem_unlocked_modules') || '[]');
+            } catch (e) {
+                currentUnlocked = [];
+            }
+            const merged = Array.from(new Set([...currentUnlocked, ...member.modules]));
+            localStorage.setItem('ordem_unlocked_modules', JSON.stringify(merged));
+        }
+        const creditsAdded = parseInt(member.credits_added || '10', 10);
+        const syncMarkerKey = `ordem_member_credits_init_${email}_${creditsAdded}`;
+        if (!localStorage.getItem(syncMarkerKey)) {
+            syncGlobalCredits(creditsAdded > 0 ? creditsAdded : 10);
+            localStorage.setItem(syncMarkerKey, '1');
+        }
+    }
+
+    function lockAppWithAuthGate(openActivateView = false) {
+        const appContainer = document.getElementById('app');
+        const gateOverlay = document.getElementById('authGateOverlay');
+        const viewLogin = document.getElementById('authViewLogin');
+        const viewActivate = document.getElementById('authViewActivate');
+        if (appContainer) appContainer.classList.add('auth-locked');
+        if (gateOverlay) gateOverlay.classList.remove('hidden');
+        if (viewLogin && viewActivate) {
+            if (openActivateView) {
+                viewLogin.classList.add('hidden');
+                viewActivate.classList.remove('hidden');
+            } else {
+                viewActivate.classList.add('hidden');
+                viewLogin.classList.remove('hidden');
+            }
+        }
+    }
+
+    function unlockAppForMember(token, member) {
+        if (token) {
+            localStorage.setItem('ordem_auth_token', token);
+        }
+        if (member) {
+            applyMemberEntitlements(member);
+        }
+        const appContainer = document.getElementById('app');
+        const gateOverlay = document.getElementById('authGateOverlay');
+        if (gateOverlay) gateOverlay.classList.add('hidden');
+        if (appContainer) appContainer.classList.remove('auth-locked');
+    }
+
+    function setupMemberAuthGate() {
+        const gateOverlay = document.getElementById('authGateOverlay');
+        const viewLogin = document.getElementById('authViewLogin');
+        const viewActivate = document.getElementById('authViewActivate');
+        const loginForm = document.getElementById('authLoginForm');
+        const activateForm = document.getElementById('authActivateForm');
+        const btnGotoActivate = document.getElementById('btnGotoActivate');
+        const btnBackToLogin = document.getElementById('btnBackToLogin');
+        const btnLogout = document.getElementById('btnMemberLogout');
+        const loginErrBox = document.getElementById('authLoginError');
+        const actErrBox = document.getElementById('authActivateError');
+        const pollingBox = document.getElementById('authPollingBox');
+        const pollingTimerEl = document.getElementById('authPollingTimer');
+
+        let pollingTimerId = null;
+        let countdownIntervalId = null;
+
+        function stopPolling() {
+            if (pollingTimerId) {
+                clearTimeout(pollingTimerId);
+                pollingTimerId = null;
+            }
+            if (countdownIntervalId) {
+                clearInterval(countdownIntervalId);
+                countdownIntervalId = null;
+            }
+            if (pollingBox) pollingBox.classList.add('hidden');
+        }
+
+        function showAuthError(box, msg) {
+            if (!box) return;
+            if (!msg) {
+                box.textContent = '';
+                box.classList.add('hidden');
+            } else {
+                box.textContent = msg;
+                box.classList.remove('hidden');
+            }
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const isFirstAccessUrl = urlParams.get('acesso') === '1' || urlParams.get('primeiro_acesso') === '1';
+        const prefillEmail = (urlParams.get('email') || '').trim();
+
+        if (prefillEmail) {
+            const loginEmailEl = document.getElementById('authLoginEmail');
+            const actEmailEl = document.getElementById('authActivateEmail');
+            if (loginEmailEl) loginEmailEl.value = prefillEmail;
+            if (actEmailEl) actEmailEl.value = prefillEmail;
+        }
+
+        if (btnGotoActivate) {
+            btnGotoActivate.addEventListener('click', () => {
+                stopPolling();
+                showAuthError(loginErrBox, '');
+                showAuthError(actErrBox, '');
+                const loginEmailVal = (document.getElementById('authLoginEmail')?.value || '').trim();
+                const actEmailEl = document.getElementById('authActivateEmail');
+                if (loginEmailVal && actEmailEl && !actEmailEl.value) {
+                    actEmailEl.value = loginEmailVal;
+                }
+                if (viewLogin) viewLogin.classList.add('hidden');
+                if (viewActivate) viewActivate.classList.remove('hidden');
+            });
+        }
+
+        if (btnBackToLogin) {
+            btnBackToLogin.addEventListener('click', () => {
+                stopPolling();
+                showAuthError(loginErrBox, '');
+                showAuthError(actErrBox, '');
+                if (viewActivate) viewActivate.classList.add('hidden');
+                if (viewLogin) viewLogin.classList.remove('hidden');
+            });
+        }
+
+        if (btnLogout) {
+            btnLogout.addEventListener('click', () => {
+                stopPolling();
+                localStorage.removeItem('ordem_auth_token');
+                lockAppWithAuthGate(false);
+                showToast('Sessão encerrada com segurança.');
+            });
+        }
+
+        // Submissão do Login (E-mail + Senha)
+        if (loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                showAuthError(loginErrBox, '');
+                const email = (document.getElementById('authLoginEmail')?.value || '').trim().toLowerCase();
+                const password = (document.getElementById('authLoginPassword')?.value || '').trim();
+                const submitBtn = document.getElementById('btnAuthLoginSubmit');
+
+                if (!email || !password) {
+                    showAuthError(loginErrBox, 'Preencha seu e-mail e sua senha.');
+                    return;
+                }
+
+                if (submitBtn) submitBtn.disabled = true;
+                try {
+                    const res = await fetch(getAuthApiUrl('auth-login'), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (res.ok && data.success && data.token) {
+                        unlockAppForMember(data.token, data.member);
+                        showToast('Bem-vindo de volta à Ordem Oculta!');
+                    } else {
+                        showAuthError(loginErrBox, data.error || 'Não foi possível entrar. Verifique seu e-mail e senha.');
+                    }
+                } catch (err) {
+                    showAuthError(loginErrBox, 'Erro de conexão com o servidor. Tente novamente.');
+                } finally {
+                    if (submitBtn) submitBtn.disabled = false;
+                }
+            });
+        }
+
+        // Submissão da Ativação Pós-Compra (?acesso=1) com Polling Automático de até 30s
+        if (activateForm) {
+            activateForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                stopPolling();
+                showAuthError(actErrBox, '');
+
+                const email = (document.getElementById('authActivateEmail')?.value || '').trim().toLowerCase();
+                const password = (document.getElementById('authActivatePassword')?.value || '').trim();
+                const submitBtn = document.getElementById('btnAuthActivateSubmit');
+
+                if (!email || !email.includes('@')) {
+                    showAuthError(actErrBox, 'Digite o e-mail válido usado na compra da Kiwify.');
+                    return;
+                }
+                if (password.length < 4) {
+                    showAuthError(actErrBox, 'Crie uma senha com pelo menos 4 caracteres.');
+                    return;
+                }
+
+                if (submitBtn) submitBtn.disabled = true;
+
+                let attempts = 0;
+                const maxAttempts = 10; // 10 tentativas x 3s = 30 segundos
+                let secondsLeft = 30;
+
+                async function attemptActivation() {
+                    attempts++;
+                    try {
+                        const res = await fetch(getAuthApiUrl('auth-activate'), {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, password })
+                        });
+                        const data = await res.json().catch(() => ({}));
+
+                        if (res.ok && data.success && data.token) {
+                            stopPolling();
+                            if (submitBtn) submitBtn.disabled = false;
+                            // Limpa ?acesso=1 da URL após ativar
+                            try {
+                                const cleanUrl = window.location.pathname;
+                                window.history.replaceState({}, document.title, cleanUrl);
+                            } catch (eUrl) {}
+                            unlockAppForMember(data.token, data.member);
+                            showToast('Pagamento confirmado! Seu acesso e créditos foram liberados.');
+                            return;
+                        }
+
+                        if (data.pending_webhook) {
+                            if (attempts === 1) {
+                                if (pollingBox) pollingBox.classList.remove('hidden');
+                                if (pollingTimerEl) pollingTimerEl.textContent = String(secondsLeft);
+                                countdownIntervalId = setInterval(() => {
+                                    secondsLeft = Math.max(0, secondsLeft - 1);
+                                    if (pollingTimerEl) pollingTimerEl.textContent = String(secondsLeft);
+                                }, 1000);
+                            }
+
+                            if (attempts <= maxAttempts) {
+                                pollingTimerId = setTimeout(attemptActivation, 3000);
+                                return;
+                            } else {
+                                stopPolling();
+                                if (submitBtn) submitBtn.disabled = false;
+                                showAuthError(
+                                    actErrBox,
+                                    'Ainda não localizamos um pagamento aprovado para "' + email + '" na Kiwify. Verifique se digitou exatamente o mesmo e-mail da compra e tente novamente.'
+                                );
+                                return;
+                            }
+                        }
+
+                        // Outro erro (ex: já ativado com outra senha ou assinatura revogada)
+                        stopPolling();
+                        if (submitBtn) submitBtn.disabled = false;
+                        showAuthError(actErrBox, data.error || 'Não foi possível ativar o acesso.');
+                    } catch (err) {
+                        stopPolling();
+                        if (submitBtn) submitBtn.disabled = false;
+                        showAuthError(actErrBox, 'Falha de conexão ao verificar na Kiwify. Toque em Ativar novamente.');
+                    }
+                }
+
+                await attemptActivation();
+            });
+        }
+
+        // Verifica sessão existente ao abrir o app
+        const savedToken = localStorage.getItem('ordem_auth_token') || '';
+        if (!savedToken) {
+            lockAppWithAuthGate(isFirstAccessUrl);
+            return;
+        }
+
+        // Se tiver token salvo, valida no backend se a assinatura continua ativa
+        (async () => {
+            try {
+                const res = await fetch(getAuthApiUrl('auth-session'), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${savedToken}`
+                    },
+                    body: JSON.stringify({ auth_token: savedToken })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (res.ok && data.success && data.authenticated) {
+                    unlockAppForMember(savedToken, data.member);
+                } else {
+                    localStorage.removeItem('ordem_auth_token');
+                    lockAppWithAuthGate(isFirstAccessUrl);
+                }
+            } catch (err) {
+                // Em caso de erro de rede temporário, mantém bloqueado se não houver confirmação
+                lockAppWithAuthGate(isFirstAccessUrl);
+            }
+        })();
     }
 
     // Setup da Home (Hub) e Navegação entre as 3 Ferramentas
@@ -617,6 +925,16 @@ Responda EXCLUSIVAMENTE em JSON puro:
     }
 
     async function callOrdemEndpoint(apiType, payload) {
+        const authToken = localStorage.getItem('ordem_auth_token') || '';
+        if (!authToken) {
+            lockAppWithAuthGate(false);
+            return {
+                success: false,
+                auth_required: true,
+                error: 'Faça login com seu e-mail de assinante para usar o aplicativo.'
+            };
+        }
+
         const host = window.location.hostname || '';
         const isLocalNode = host === 'localhost' || host === '127.0.0.1' || window.location.protocol === 'file:';
         const isGithub = host.includes('github.io');
@@ -628,14 +946,28 @@ Responda EXCLUSIVAMENTE em JSON puro:
                 ? [`https://pontoideal.online/app/api.php?action=${apiType}`]
                 : [`api.php?action=${apiType}`, `/api/${apiType}`];
 
+        const payloadWithAuth = Object.assign({}, payload, { auth_token: authToken });
+
         for (const endpoint of serverEndpoints) {
             try {
                 const res = await fetch(endpoint, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(payloadWithAuth)
                 });
                 const result = await res.json().catch(() => null);
+                if (res.status === 401 || (result && result.auth_required)) {
+                    localStorage.removeItem('ordem_auth_token');
+                    lockAppWithAuthGate(false);
+                    return {
+                        success: false,
+                        auth_required: true,
+                        error: (result && result.error) ? result.error : 'Sessão expirada. Faça login novamente.'
+                    };
+                }
                 if (result && (result.is_black_image || result.is_unreadable_image)) {
                     return result;
                 }
@@ -647,7 +979,7 @@ Responda EXCLUSIVAMENTE em JSON puro:
             }
         }
 
-        // 2. Redundância Automática Anti-Queda (se houver pico extremo no servidor)
+        // 2. Redundância Automática Anti-Queda (somente para sessão autenticada)
         return await callDirectOpenRouter(apiType, payload);
     }
 

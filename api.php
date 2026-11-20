@@ -25,7 +25,7 @@ $rawInput = file_get_contents('php://input');
 $body = json_decode($rawInput ?: '{}', true) ?: [];
 $action = $_GET['action'] ?? ($body['action'] ?? '');
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' && !in_array($action, ['kiwify-webhook', 'verify-vip'], true)) {
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' && !in_array($action, ['kiwify-webhook', 'verify-vip', 'auth-session'], true)) {
     http_response_code(405);
     echo json_encode(['success' => false, 'error' => 'Método não permitido']);
     exit;
@@ -43,6 +43,123 @@ function resolveOpenRouterKey(): string {
     ];
     $decoded = base64_decode(implode('', $parts));
     return strrev($decoded);
+}
+
+/**
+ * ============================================================================
+ * SISTEMA DE AUTENTICAÇÃO E BLINDAGEM DE MEMBROS (KIWIFY + SESSÃO PERSISTENTE)
+ * ============================================================================
+ */
+function getMembersDbPath(): string {
+    return __DIR__ . '/.vip_members.json';
+}
+
+function loadMembersDb(): array {
+    $dbFile = getMembersDbPath();
+    $members = file_exists($dbFile) ? (json_decode((string)file_get_contents($dbFile), true) ?: []) : [];
+    if (!is_array($members)) {
+        $members = [];
+    }
+
+    // Garante contas de administração do proprietário sempre ativas
+    $ownerEmails = ['emersonrebelo2704@gmail.com', 'assistente@pontoideal.online'];
+    $changed = false;
+    foreach ($ownerEmails as $ownerEmail) {
+        if (!isset($members[$ownerEmail])) {
+            $members[$ownerEmail] = [
+                'name' => 'Administrador Ordem Oculta',
+                'email' => $ownerEmail,
+                'plan' => 'anual',
+                'product' => 'Ordem Oculta Anual PRO (Owner)',
+                'modules' => ['perfil-magnetico', 'mente-feminina', 'formula-seducao'],
+                'credits_added' => 999,
+                'status' => 'ativa',
+                'password_hash' => '',
+                'updated_at' => gmdate('c')
+            ];
+            $changed = true;
+        }
+    }
+    if ($changed) {
+        @file_put_contents($dbFile, json_encode($members, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
+    }
+    return $members;
+}
+
+function saveMembersDb(array $members): void {
+    $dbFile = getMembersDbPath();
+    @file_put_contents($dbFile, json_encode($members, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
+}
+
+function isMemberStatusActive(array $member): bool {
+    $st = strtolower(trim((string)($member['status'] ?? '')));
+    return in_array($st, ['ativa', 'active', 'paid', 'approved'], true);
+}
+
+function generateMemberToken(string $email): string {
+    $cleanEmail = strtolower(trim($email));
+    $secret = 'oo_member_hmac_2026_' . resolveOpenRouterKey();
+    $sig = hash_hmac('sha256', $cleanEmail . '|ordem_oculta_ativa', $secret);
+    return rtrim(strtr(base64_encode($cleanEmail), '+/', '-_'), '=') . '.' . $sig;
+}
+
+function verifyMemberToken(?string $token): ?array {
+    if (empty($token) || strpos($token, '.') === false) {
+        return null;
+    }
+    [$b64Email, $sig] = explode('.', $token, 2);
+    $email = strtolower(trim((string)base64_decode(strtr($b64Email, '-_', '+/'))));
+    if ($email === '') {
+        return null;
+    }
+    $expectedToken = generateMemberToken($email);
+    if (!hash_equals($expectedToken, $token)) {
+        return null;
+    }
+    $members = loadMembersDb();
+    if (!isset($members[$email])) {
+        return null;
+    }
+    $member = $members[$email];
+    if (!isMemberStatusActive($member)) {
+        return null;
+    }
+    return $member;
+}
+
+function extractRequestToken(array $body): string {
+    $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? ($_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '');
+    if (preg_match('/Bearer\s+(.+)$/i', $authHeader, $matches)) {
+        return trim($matches[1]);
+    }
+    return trim((string)($body['auth_token'] ?? ($body['token'] ?? ($_GET['auth_token'] ?? ''))));
+}
+
+function sanitizeMemberPublic(array $member): array {
+    return [
+        'name' => $member['name'] ?? 'Membro Ordem Oculta',
+        'email' => $member['email'] ?? '',
+        'plan' => $member['plan'] ?? 'mensal',
+        'modules' => $member['modules'] ?? [],
+        'credits_added' => (int)($member['credits_added'] ?? 10),
+        'status' => isMemberStatusActive($member) ? 'ativa' : ($member['status'] ?? 'inativa'),
+        'updated_at' => $member['updated_at'] ?? gmdate('c')
+    ];
+}
+
+function requireActiveMemberSession(array $body): array {
+    $token = extractRequestToken($body);
+    $member = verifyMemberToken($token);
+    if ($member === null) {
+        http_response_code(401);
+        echo json_encode([
+            'success' => false,
+            'auth_required' => true,
+            'error' => 'Acesso exclusivo para assinantes ativos. Faça login com seu e-mail da Kiwify para utilizar o aplicativo.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    return $member;
 }
 
 function extractJsonObject(string $rawText): ?array {
@@ -334,7 +451,154 @@ PROMPT;
     return callOpenRouter($chatSystem, $chatUser, null, 0.5, 1300);
 }
 
+if ($action === 'auth-session') {
+    $token = extractRequestToken($body);
+    $member = verifyMemberToken($token);
+    if ($member === null) {
+        http_response_code(401);
+        echo json_encode([
+            'success' => false,
+            'authenticated' => false,
+            'error' => 'Sessão inválida ou expirada.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    echo json_encode([
+        'success' => true,
+        'authenticated' => true,
+        'token' => $token,
+        'member' => sanitizeMemberPublic($member)
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($action === 'auth-login') {
+    $email = strtolower(trim((string)($body['email'] ?? '')));
+    $password = trim((string)($body['password'] ?? ''));
+
+    if ($email === '' || $password === '') {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Preencha seu e-mail e sua senha.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $members = loadMembersDb();
+    if (!isset($members[$email])) {
+        http_response_code(401);
+        echo json_encode([
+            'success' => false,
+            'error' => 'E-mail não encontrado como assinante. Se você acabou de comprar na Kiwify, toque em "Primeiro acesso após compra".'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $member = $members[$email];
+    if (!isMemberStatusActive($member)) {
+        http_response_code(403);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Sua assinatura consta como inativa ou reembolsada. Regularize seu acesso para entrar.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $storedHash = (string)($member['password_hash'] ?? '');
+    if ($storedHash === '') {
+        // Primeiro acesso: se o membro já está aprovado na Kiwify e ainda não tinha senha, registra a senha digitada e libera na hora!
+        if (strlen($password) < 4) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Crie uma senha com pelo menos 4 caracteres.'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        $members[$email]['password_hash'] = password_hash($password, PASSWORD_DEFAULT);
+        $members[$email]['status'] = 'ativa';
+        $members[$email]['updated_at'] = gmdate('c');
+        saveMembersDb($members);
+        $member = $members[$email];
+    } else {
+        if (!password_verify($password, $storedHash)) {
+            http_response_code(401);
+            echo json_encode(['success' => false, 'error' => 'Senha incorreta. Verifique e tente novamente.'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+    }
+
+    $token = generateMemberToken($email);
+    echo json_encode([
+        'success' => true,
+        'token' => $token,
+        'member' => sanitizeMemberPublic($member)
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($action === 'auth-activate') {
+    $email = strtolower(trim((string)($body['email'] ?? '')));
+    $password = trim((string)($body['password'] ?? ''));
+
+    if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Digite um e-mail válido usado na compra da Kiwify.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    if (strlen($password) < 4) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Crie uma senha com pelo menos 4 caracteres.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $members = loadMembersDb();
+    if (!isset($members[$email])) {
+        // Webhook da Kiwify ainda não chegou ou e-mail aguardando compensação Pix
+        echo json_encode([
+            'success' => false,
+            'pending_webhook' => true,
+            'message' => 'Confirmando seu pagamento na Kiwify...'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $member = $members[$email];
+    if (!isMemberStatusActive($member)) {
+        http_response_code(403);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Esta assinatura consta como cancelada ou reembolsada na Kiwify.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $storedHash = (string)($member['password_hash'] ?? '');
+    if ($storedHash !== '' && !password_verify($password, $storedHash)) {
+        http_response_code(409);
+        echo json_encode([
+            'success' => false,
+            'already_activated' => true,
+            'error' => 'Este e-mail já possui senha cadastrada. Volte para a tela de Login e entre com sua senha.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    if ($storedHash === '') {
+        $members[$email]['password_hash'] = password_hash($password, PASSWORD_DEFAULT);
+        $members[$email]['status'] = 'ativa';
+        $members[$email]['updated_at'] = gmdate('c');
+        saveMembersDb($members);
+        $member = $members[$email];
+    }
+
+    $token = generateMemberToken($email);
+    echo json_encode([
+        'success' => true,
+        'activated' => true,
+        'token' => $token,
+        'member' => sanitizeMemberPublic($member)
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 if ($action === 'scan') {
+    requireActiveMemberSession($body);
     $image = $body['image'] ?? '';
     $phase = $body['phase'] ?? 'auto';
     $submode = $body['submode'] ?? 'story';
@@ -407,6 +671,7 @@ if ($action === 'scan') {
 }
 
 if ($action === 'coach') {
+    requireActiveMemberSession($body);
     $situation = trim((string)($body['situation'] ?? ''));
     $history = is_array($body['history'] ?? null) ? $body['history'] : [];
 
@@ -454,6 +719,7 @@ PROMPT;
 }
 
 if ($action === 'desfibrilador') {
+    requireActiveMemberSession($body);
     $timeWindow = $body['timeWindow'] ?? '3dias';
     $topic = $body['topic'] ?? '';
 
@@ -480,6 +746,7 @@ PROMPT;
 }
 
 if ($action === 'friendzone') {
+    requireActiveMemberSession($body);
     $message = trim((string)($body['message'] ?? ''));
     $history = is_array($body['history'] ?? null) ? $body['history'] : [];
 
@@ -543,16 +810,16 @@ if ($action === 'kiwify-webhook') {
     $amountCents = (int)($body['Commissions']['charge_amount'] ?? ($body['amount'] ?? 0));
     $combinedTitle = $productName . ' ' . $offerName . ' ' . $bumpsJson;
 
-    $dbFile = __DIR__ . '/.vip_members.json';
-    $members = file_exists($dbFile) ? (json_decode((string)file_get_contents($dbFile), true) ?: []) : [];
+    $members = loadMembersDb();
 
     $approvedEvents = ['paid', 'approved', 'order_approved', 'subscription_renewed'];
     $revokedEvents = ['refunded', 'chargedback', 'chargeback', 'canceled', 'subscription_canceled', 'subscription_late', 'late', 'order_refunded', 'order_chargedback'];
 
     if ($customerEmail !== '' && in_array($status, $approvedEvents, true)) {
-        $existing = $members[$customerEmail] ?? ['modules' => [], 'credits_added' => 0];
+        $existing = $members[$customerEmail] ?? ['modules' => [], 'credits_added' => 0, 'password_hash' => ''];
         $modules = is_array($existing['modules'] ?? null) ? $existing['modules'] : [];
         $creditsAdded = (int)($existing['credits_added'] ?? 0);
+        $existingPasswordHash = (string)($existing['password_hash'] ?? '');
 
         if (strpos($combinedTitle, 'perfil') !== false || strpos($combinedTitle, 'magnetico') !== false || strpos($combinedTitle, 'magnético') !== false || strpos($combinedTitle, 'bio') !== false) {
             $modules[] = 'perfil-magnetico';
@@ -574,9 +841,15 @@ if ($action === 'kiwify-webhook') {
             $creditsAdded += 15;
         } elseif (strpos($combinedTitle, '10 cr') !== false || strpos($combinedTitle, 'pacote de cr') !== false || (strpos($combinedTitle, 'cr') !== false && $amountCents === 990)) {
             $creditsAdded += 10;
+        } else {
+            // Compra do plano principal Mensal
+            $creditsAdded += 10;
         }
 
-        $planType = (strpos($combinedTitle, 'anual') !== false || strpos($combinedTitle, 'vital') !== false) ? 'anual' : 'mensal';
+        $planType = (strpos($combinedTitle, 'anual') !== false || strpos($combinedTitle, 'vital') !== false)
+            ? 'anual'
+            : ((strpos($combinedTitle, 'trimestral') !== false) ? 'trimestral' : 'mensal');
+
         $members[$customerEmail] = [
             'name' => $customerName,
             'email' => $customerEmail,
@@ -584,12 +857,14 @@ if ($action === 'kiwify-webhook') {
             'product' => trim($combinedTitle),
             'modules' => array_values(array_unique($modules)),
             'credits_added' => $creditsAdded,
-            'status' => 'active',
+            'status' => 'ativa',
+            'password_hash' => $existingPasswordHash,
             'updated_at' => gmdate('c')
         ];
-        @file_put_contents($dbFile, json_encode($members, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
+        saveMembersDb($members);
     } elseif ($customerEmail !== '' && in_array($status, $revokedEvents, true)) {
-        // Reembolso, chargeback ou cancelamento: revoga acesso VIP imediatamente
+        // Reembolso, chargeback ou cancelamento: revoga acesso imediatamente
+        $existingPasswordHash = (string)($members[$customerEmail]['password_hash'] ?? '');
         $members[$customerEmail] = [
             'name' => $customerName,
             'email' => $customerEmail,
@@ -599,9 +874,10 @@ if ($action === 'kiwify-webhook') {
             'credits_added' => 0,
             'status' => 'revoked',
             'revoked_reason' => $status,
+            'password_hash' => $existingPasswordHash,
             'updated_at' => gmdate('c')
         ];
-        @file_put_contents($dbFile, json_encode($members, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
+        saveMembersDb($members);
     }
 
     // Repassa automaticamente o evento de venda para o VeroTrack (que dispara o Facebook CAPI oficial)
@@ -639,17 +915,16 @@ if ($action === 'kiwify-webhook') {
 
 if ($action === 'verify-vip') {
     $email = strtolower(trim((string)($body['email'] ?? ($_GET['email'] ?? ''))));
-    $dbFile = __DIR__ . '/.vip_members.json';
-    $members = file_exists($dbFile) ? (json_decode((string)file_get_contents($dbFile), true) ?: []) : [];
+    $members = loadMembersDb();
 
     if ($email !== '' && isset($members[$email])) {
         $memberData = $members[$email];
-        $isActive = ($memberData['status'] ?? 'active') === 'active';
+        $isActive = isMemberStatusActive($memberData);
         echo json_encode([
             'success' => true,
             'vip' => $isActive,
             'revoked' => !$isActive,
-            'member' => $isActive ? $memberData : null
+            'member' => $isActive ? sanitizeMemberPublic($memberData) : null
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }

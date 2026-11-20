@@ -76,10 +76,105 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <link rel="stylesheet" href="style.css?v=28.0">
+    <link rel="stylesheet" href="style.css?v=32.0">
 </head>
 <body>
-    <div id="app" class="app-container">
+    <!-- ====================================================================
+         PORTAL DE ACESSO DE MEMBROS & ATIVAÇÃO IMEDIATA PÓS-COMPRA KIWIFY
+         ==================================================================== -->
+    <div id="authGateOverlay" class="auth-gate-overlay">
+        <div class="auth-gate-card">
+            <div class="auth-crest-wrap">
+                <img src="assets/hero-emblem.jpg" alt="Sinete Ordem Oculta" class="auth-crest-img">
+            </div>
+            <div class="auth-kicker">
+                <i class="fa-solid fa-shield-halved"></i> ÁREA EXCLUSIVA DE ASSINANTES
+            </div>
+            <h2 class="auth-main-title">Acesso de Membros — Ordem Oculta</h2>
+
+            <!-- TELA 1: LOGIN (E-MAIL + SENHA PARA ASSINANTES) -->
+            <div id="authViewLogin" class="auth-view-pane">
+                <p class="auth-subtitle">Digite seu e-mail de assinante e sua senha para desbloquear as ferramentas do Mestre.</p>
+
+                <form id="authLoginForm" class="auth-form" autocomplete="on">
+                    <div class="auth-field">
+                        <label for="authLoginEmail"><i class="fa-regular fa-envelope"></i> E-mail de Compra</label>
+                        <input type="email" id="authLoginEmail" class="auth-input" placeholder="seuemail@exemplo.com" required autocomplete="email">
+                    </div>
+
+                    <div class="auth-field">
+                        <label for="authLoginPassword"><i class="fa-solid fa-lock"></i> Sua Senha</label>
+                        <input type="password" id="authLoginPassword" class="auth-input" placeholder="Digite sua senha" required autocomplete="current-password">
+                    </div>
+
+                    <div id="authLoginError" class="auth-error-box hidden"></div>
+
+                    <button type="submit" id="btnAuthLoginSubmit" class="auth-btn-primary">
+                        <i class="fa-solid fa-unlock-keyhole"></i>
+                        <span>ENTRAR NO APLICATIVO</span>
+                    </button>
+                </form>
+
+                <div class="auth-divider"><span>COMPROU AGORA NA KIWIFY?</span></div>
+
+                <button type="button" id="btnGotoActivate" class="auth-btn-secondary">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span>Primeiro acesso após compra</span>
+                </button>
+            </div>
+
+            <!-- TELA 2: ATIVAÇÃO RÁPIDA PÓS-PAGAMENTO (?acesso=1) -->
+            <div id="authViewActivate" class="auth-view-pane hidden">
+                <div class="auth-activate-badge">
+                    <i class="fa-solid fa-circle-check"></i> LIBERAÇÃO IMEDIATA PÓS-PAGAMENTO
+                </div>
+                <p class="auth-subtitle">Digite o <strong>mesmo e-mail usado na compra da Kiwify</strong> e crie uma senha para liberar seu acesso agora:</p>
+
+                <form id="authActivateForm" class="auth-form" autocomplete="on">
+                    <div class="auth-field">
+                        <label for="authActivateEmail"><i class="fa-regular fa-envelope"></i> E-mail usado na compra da Kiwify</label>
+                        <input type="email" id="authActivateEmail" class="auth-input" placeholder="Digite o e-mail da compra" required autocomplete="email">
+                    </div>
+
+                    <div class="auth-field">
+                        <label for="authActivatePassword"><i class="fa-solid fa-key"></i> Crie uma Senha de Acesso</label>
+                        <input type="password" id="authActivatePassword" class="auth-input" placeholder="Mínimo de 4 caracteres" minlength="4" required autocomplete="new-password">
+                    </div>
+
+                    <div id="authActivateError" class="auth-error-box hidden"></div>
+
+                    <!-- Caixa de Polling Automático (Kiwify Pix / Cartão em compensação) -->
+                    <div id="authPollingBox" class="auth-polling-box hidden">
+                        <div class="auth-polling-spinner">
+                            <i class="fa-solid fa-circle-notch fa-spin"></i>
+                        </div>
+                        <div class="auth-polling-info">
+                            <strong id="authPollingTitle">Confirmando seu pagamento na Kiwify...</strong>
+                            <span id="authPollingSub">Verificando liberação automática (<span id="authPollingTimer">30</span>s)...</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btnAuthActivateSubmit" class="auth-btn-primary">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>ATIVAR MEU ACESSO E ENTRAR</span>
+                    </button>
+                </form>
+
+                <button type="button" id="btnBackToLogin" class="auth-btn-link-back">
+                    <i class="fa-solid fa-arrow-left"></i> Já tenho senha · Voltar para o Login
+                </button>
+            </div>
+
+            <!-- RODAPÉ COM LINK PARA PÁGINA DE VENDAS -->
+            <div class="auth-footer">
+                <a href="https://pontoideal.online/Ordemoculta/" class="auth-sales-link">
+                    Não tem acesso? <strong>Adquira aqui <i class="fa-solid fa-arrow-up-right-from-square"></i></strong>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="app" class="app-container auth-locked">
         <!-- Top App Bar -->
         <header class="app-header">
             <div class="brand">
@@ -94,6 +189,9 @@
             <div class="header-status">
                 <span class="status-pulse"></span>
                 <span class="status-credits" id="headerCreditsBadge"><i class="fa-solid fa-bolt"></i> <strong id="userCreditsCount">10</strong> créditos</span>
+                <button type="button" id="btnMemberLogout" class="btn-member-logout" title="Sair da conta">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
             </div>
         </header>
 
@@ -1321,7 +1419,7 @@
         <span id="toastMsg">Script copiado!</span>
     </div>
 
-    <script src="app.js?v=31.0"></script>
+    <script src="app.js?v=32.0"></script>
     <!-- VeroTrack Tracker -->
     <script src="https://api.pontoideal.online/vt.js" data-page="upsell" defer></script>
 </body>
