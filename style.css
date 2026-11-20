@@ -90,7 +90,8 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 18px;
+    gap: 10px;
+    padding: 0 14px;
     position: sticky;
     top: 0;
     z-index: 40;
@@ -103,12 +104,15 @@ html, body {
 .brand {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+    min-width: 0;
+    flex: 1;
 }
 
 .brand-crest {
     width: 36px;
     height: 36px;
+    flex-shrink: 0;
     border-radius: var(--radius-md);
     background: var(--brand-gradient);
     display: flex;
@@ -117,6 +121,11 @@ html, body {
     color: #fff;
     font-size: 16px;
     box-shadow: 0 4px 15px var(--accent-red-glow);
+}
+
+.brand-text {
+    min-width: 0;
+    flex: 1;
 }
 
 .brand-tag {
@@ -130,20 +139,25 @@ html, body {
 
 .brand-title {
     font-family: var(--font-heading);
-    font-size: 15px;
+    font-size: clamp(11.5px, 3.3vw, 15px);
     font-weight: 800;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.4px;
     color: #ffffff;
     line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .header-status {
     display: flex;
     align-items: center;
     gap: 6px;
+    flex-shrink: 0;
+    white-space: nowrap;
     background: rgba(16, 185, 129, 0.1);
     border: 1px solid rgba(16, 185, 129, 0.25);
-    padding: 4px 10px;
+    padding: 4px 8px 4px 10px;
     border-radius: var(--radius-full);
 }
 
@@ -2331,8 +2345,10 @@ html, body {
 
 .coach-action-row {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
+    gap: 10px;
     margin-top: 12px;
 }
 
@@ -2342,6 +2358,9 @@ html, body {
     display: flex;
     align-items: center;
     gap: 4px;
+    flex: 1 1 auto;
+    min-width: 140px;
+    line-height: 1.3;
 }
 
 .coach-credits-notice i, .coach-credits-notice strong {
@@ -2351,7 +2370,10 @@ html, body {
 .btn-ask-coach {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
+    flex-shrink: 0;
+    margin-left: auto;
     padding: 10px 18px;
     border-radius: var(--radius-full);
     border: none;
@@ -2363,6 +2385,21 @@ html, body {
     cursor: pointer;
     box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
     transition: all 0.2s ease;
+}
+
+@media (max-width: 420px) {
+    .coach-action-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    .coach-credits-notice {
+        justify-content: center;
+    }
+    .btn-ask-coach {
+        width: 100%;
+        margin-left: 0;
+    }
 }
 
 .btn-ask-coach:hover {
