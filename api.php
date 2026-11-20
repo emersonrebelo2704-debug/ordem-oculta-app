@@ -1014,18 +1014,38 @@ if ($action === 'kiwify-webhook') {
         $existingPlan = (string)($existing['plan'] ?? 'mensal');
         $existingExpiresAt = $existing['subscription_expires_at'] ?? gmdate('c', time() + 30 * 86400);
 
-        // Modules / Order Bumps
-        if (strpos($combinedTitle, 'perfil') !== false || strpos($combinedTitle, 'magnetico') !== false || strpos($combinedTitle, 'magnético') !== false || strpos($combinedTitle, 'bio') !== false) {
+        // Modules / Order Bumps (verifica tanto nos campos estruturados quanto no payload bruto)
+        $bumpSearchText = $combinedTitle . ' ' . $rawLower;
+        $boughtPerfil = (
+            strpos($bumpSearchText, 'perfil') !== false
+            || strpos($bumpSearchText, 'magnetico') !== false
+            || strpos($bumpSearchText, 'magnético') !== false
+            || strpos($bumpSearchText, 'huatviz') !== false
+        );
+        $boughtMente = (
+            strpos($bumpSearchText, 'mente feminina') !== false
+            || strpos($bumpSearchText, 'mente_feminina') !== false
+            || strpos($bumpSearchText, 'decodificada') !== false
+            || strpos($bumpSearchText, 'rvaozjy') !== false
+            || strpos($combinedTitle, 'mente') !== false
+        );
+        $boughtFormula = (
+            strpos($bumpSearchText, 'formula') !== false
+            || strpos($bumpSearchText, 'fórmula') !== false
+            || strpos($bumpSearchText, 'dizoxuj') !== false
+        );
+
+        if ($boughtPerfil) {
             $modules[] = 'perfil-magnetico';
         }
-        if (strpos($combinedTitle, 'mente') !== false || strpos($combinedTitle, 'feminina') !== false) {
+        if ($boughtMente) {
             $modules[] = 'mente-feminina';
         }
-        if (strpos($combinedTitle, 'formula') !== false || strpos($combinedTitle, 'fórmula') !== false) {
+        if ($boughtFormula) {
             $modules[] = 'formula-seducao';
         }
 
-        // Identificação de Pacotes Avulsos (Ordem Oculta - Consultas Avulsas)
+        // Identificação de Pacotes Avulsos (Ordem Oculta - Consultas Avulsas) vs Módulo Individual vs Assinatura Principal
         $hasCode25 = (strpos($rawLower, 'f8sgclt') !== false);
         $hasCode15 = (strpos($rawLower, 'mbeun4x') !== false);
         $hasCode8  = (strpos($rawLower, 'jszvjnu') !== false);
@@ -1036,9 +1056,20 @@ if ($action === 'kiwify-webhook') {
             || strpos($productName . ' ' . $offerName, 'credito') !== false
             || strpos($productName . ' ' . $offerName, 'pacote') !== false
         );
-        $isAvulsoAmount = in_array($amountCents, [990, 1490, 1990], true);
+        $isModuleProductOnly = (
+            ($boughtPerfil || $boughtMente || $boughtFormula)
+            && strpos($productName, 'ordem oculta') === false
+            && !$hasCode25 && !$hasCode15 && !$hasCode8 && !$isAvulsoKeyword
+        );
+        $isAvulsoAmount = (!$isModuleProductOnly && in_array($amountCents, [990, 1490, 1990], true));
 
-        if ($hasCode25 || $hasCode15 || $hasCode8 || $isAvulsoKeyword || $isAvulsoAmount) {
+        if ($isModuleProductOnly) {
+            // Webhook avulso apenas de um e-book / módulo do Arsenal (ou Order Bump enviado separado pela Kiwify)
+            $purchaseCategory = 'modulo_arsenal';
+            $planType = $existingPlan;
+            $expiresAt = $existingExpiresAt;
+            $memberStatus = $existing['status'] ?? 'ativa';
+        } elseif ($hasCode25 || $hasCode15 || $hasCode8 || $isAvulsoKeyword || $isAvulsoAmount) {
             $purchaseCategory = 'pacote_avulso';
             $addedAvulsos = 0;
             if ($hasCode25 || $amountCents === 1990 || strpos($combinedTitle, '25 cr') !== false || strpos($combinedTitle, '20 cr') !== false) {

@@ -276,6 +276,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function syncArsenalModulesUI(modulesOverride = null) {
+        let unlockedModules = [];
+        try {
+            unlockedModules = Array.isArray(modulesOverride)
+                ? modulesOverride
+                : JSON.parse(localStorage.getItem('ordem_unlocked_modules') || '[]');
+        } catch (e) {
+            unlockedModules = [];
+        }
+
+        const allBuyBtns = document.querySelectorAll('.btn-buy');
+        allBuyBtns.forEach(buyBtn => {
+            const modId = buyBtn.dataset.module;
+            const accessBtn = document.querySelector(`.btn-arsenal-access[data-module="${modId}"]`);
+            if (unlockedModules.includes(modId)) {
+                buyBtn.classList.add('hidden');
+                if (accessBtn) accessBtn.classList.remove('hidden');
+            } else {
+                buyBtn.classList.remove('hidden');
+                if (accessBtn) accessBtn.classList.add('hidden');
+            }
+        });
+    }
+
     function applyMemberEntitlements(member) {
         if (!member || typeof member !== 'object') return;
         const email = (member.email || '').toLowerCase().trim();
@@ -283,14 +307,9 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('ordem_vip_email', email);
         }
         if (Array.isArray(member.modules)) {
-            let currentUnlocked = [];
-            try {
-                currentUnlocked = JSON.parse(localStorage.getItem('ordem_unlocked_modules') || '[]');
-            } catch (e) {
-                currentUnlocked = [];
-            }
-            const merged = Array.from(new Set([...currentUnlocked, ...member.modules]));
-            localStorage.setItem('ordem_unlocked_modules', JSON.stringify(merged));
+            const serverModules = Array.from(new Set(member.modules.filter(Boolean)));
+            localStorage.setItem('ordem_unlocked_modules', JSON.stringify(serverModules));
+            syncArsenalModulesUI(serverModules);
         }
 
         // Separação de Saldos: creditos_plano (franquia mensal) + creditos_avulsos (eternos)
@@ -3510,26 +3529,14 @@ Responda EXCLUSIVAMENTE em JSON puro:
         }
 
         function updateUnlockedUI() {
-            const allBuyBtns = document.querySelectorAll('.btn-buy');
-            const allAccessBtns = document.querySelectorAll('.btn-arsenal-access');
-
-            allBuyBtns.forEach(buyBtn => {
-                const modId = buyBtn.dataset.module;
-                const accessBtn = document.querySelector(`.btn-arsenal-access[data-module="${modId}"]`);
-                if (unlockedModules.includes(modId)) {
-                    buyBtn.classList.add('hidden');
-                    if (accessBtn) accessBtn.classList.remove('hidden');
-                } else {
-                    buyBtn.classList.remove('hidden');
-                    if (accessBtn) accessBtn.classList.add('hidden');
-                }
-            });
+            unlockedModules = JSON.parse(localStorage.getItem('ordem_unlocked_modules') || '[]');
+            syncArsenalModulesUI(unlockedModules);
         }
         updateUnlockedUI();
 
         // Verifica via Webhook (api.php?action=verify-vip) se o e-mail do comprador teve pagamento aprovado na Kiwify
         async function checkWebhookUnlock(silent = true) {
-            const savedEmail = localStorage.getItem('ordem_buyer_email') || '';
+            const savedEmail = localStorage.getItem('ordem_vip_email') || localStorage.getItem('ordem_buyer_email') || '';
             if (!savedEmail) return false;
             try {
                 const res = await fetch(`api.php?action=verify-vip&email=${encodeURIComponent(savedEmail)}`, {
@@ -3540,23 +3547,11 @@ Responda EXCLUSIVAMENTE em JSON puro:
                 if (res.ok) {
                     const data = await res.json();
                     if (data && data.vip && data.member) {
-                        const unlockedFromServer = Array.isArray(data.member.modules) ? data.member.modules : [];
-                        let changed = false;
-                        unlockedFromServer.forEach(m => {
-                            if (!unlockedModules.includes(m)) {
-                                unlockedModules.push(m);
-                                changed = true;
-                            }
-                        });
-                        if (data.member.credits_added && !localStorage.getItem(`credit_tx_${data.member.updated_at}`)) {
-                            localStorage.setItem(`credit_tx_${data.member.updated_at}`, '1');
-                            syncGlobalCredits(getGlobalCredits() + parseInt(data.member.credits_added, 10));
-                            showToast(`+${data.member.credits_added} créditos confirmados via Kiwify!`);
-                        }
-                        if (changed) {
-                            localStorage.setItem('ordem_unlocked_modules', JSON.stringify(unlockedModules));
-                            updateUnlockedUI();
-                            showToast('Pagamento confirmado na Kiwify! Acesso liberado.');
+                        const prevCount = unlockedModules.length;
+                        applyMemberEntitlements(data.member);
+                        unlockedModules = JSON.parse(localStorage.getItem('ordem_unlocked_modules') || '[]');
+                        if (unlockedModules.length > prevCount) {
+                            showToast('Pagamento confirmado na Kiwify! E-books/Módulos liberados no Arsenal.');
                             return true;
                         }
                     }
