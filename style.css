@@ -5075,10 +5075,96 @@ body {
     color: #ffffff;
 }
 
+.auth-email-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.16) 0%, rgba(217, 119, 6, 0.08) 100%);
+    border: 1px solid rgba(245, 158, 11, 0.45);
+    border-left: 3px solid #f59e0b;
+    border-radius: 12px;
+    padding: 11px 13px;
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.auth-email-notice i {
+    color: #fbbf24;
+    font-size: 16px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.auth-email-notice div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.auth-email-notice strong {
+    font-size: 12.5px;
+    font-weight: 800;
+    color: #fef3c7;
+    line-height: 1.3;
+}
+
+.auth-email-notice span {
+    font-size: 11.5px;
+    color: #cbd5e1;
+    line-height: 1.35;
+}
+
 .auth-footer {
-    margin-top: 20px;
+    margin-top: 18px;
     padding-top: 16px;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.auth-support-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    text-decoration: none;
+    color: #e2e8f0;
+    box-sizing: border-box;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.auth-support-btn:hover {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.35);
+}
+
+.auth-support-btn i {
+    font-size: 17px;
+    color: #fbbf24;
+}
+
+.auth-support-btn div {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    line-height: 1.25;
+}
+
+.auth-support-btn strong {
+    font-size: 12px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.auth-support-btn span {
+    font-size: 11px;
+    color: #94a3b8;
 }
 
 .auth-sales-link {

@@ -76,7 +76,7 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <link rel="stylesheet" href="style.css?v=32.0">
+    <link rel="stylesheet" href="style.css?v=33.0">
 </head>
 <body>
     <!-- ====================================================================
@@ -92,14 +92,23 @@
             </div>
             <h2 class="auth-main-title">Acesso de Membros — Ordem Oculta</h2>
 
+            <!-- AVISO FIXO DE ATENÇÃO AO E-MAIL DA COMPRA -->
+            <div class="auth-email-notice">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div>
+                    <strong>Coloque o mesmo e-mail que você usou na compra</strong>
+                    <span>Confira com atenção cada letra do e-mail cadastrado na Kiwify para liberar seu acesso na hora.</span>
+                </div>
+            </div>
+
             <!-- TELA 1: LOGIN (E-MAIL + SENHA PARA ASSINANTES) -->
             <div id="authViewLogin" class="auth-view-pane">
-                <p class="auth-subtitle">Digite seu e-mail de assinante e sua senha para desbloquear as ferramentas do Mestre.</p>
+                <p class="auth-subtitle">Digite o mesmo e-mail usado na compra e sua senha para entrar no aplicativo.</p>
 
                 <form id="authLoginForm" class="auth-form" autocomplete="on">
                     <div class="auth-field">
-                        <label for="authLoginEmail"><i class="fa-regular fa-envelope"></i> E-mail de Compra</label>
-                        <input type="email" id="authLoginEmail" class="auth-input" placeholder="seuemail@exemplo.com" required autocomplete="email">
+                        <label for="authLoginEmail"><i class="fa-regular fa-envelope"></i> Coloque o mesmo e-mail que você usou na compra</label>
+                        <input type="email" id="authLoginEmail" class="auth-input" placeholder="Digite o mesmo e-mail usado na compra" required autocomplete="email">
                     </div>
 
                     <div class="auth-field">
@@ -128,12 +137,12 @@
                 <div class="auth-activate-badge">
                     <i class="fa-solid fa-circle-check"></i> LIBERAÇÃO IMEDIATA PÓS-PAGAMENTO
                 </div>
-                <p class="auth-subtitle">Digite o <strong>mesmo e-mail usado na compra da Kiwify</strong> e crie uma senha para liberar seu acesso agora:</p>
+                <p class="auth-subtitle"><strong>Coloque o mesmo e-mail que você usou na compra</strong> e crie uma senha para liberar seu acesso agora:</p>
 
                 <form id="authActivateForm" class="auth-form" autocomplete="on">
                     <div class="auth-field">
-                        <label for="authActivateEmail"><i class="fa-regular fa-envelope"></i> E-mail usado na compra da Kiwify</label>
-                        <input type="email" id="authActivateEmail" class="auth-input" placeholder="Digite o e-mail da compra" required autocomplete="email">
+                        <label for="authActivateEmail"><i class="fa-regular fa-envelope"></i> Coloque o mesmo e-mail que você usou na compra</label>
+                        <input type="email" id="authActivateEmail" class="auth-input" placeholder="Digite o mesmo e-mail usado na compra" required autocomplete="email">
                     </div>
 
                     <div class="auth-field">
@@ -165,8 +174,16 @@
                 </button>
             </div>
 
-            <!-- RODAPÉ COM LINK PARA PÁGINA DE VENDAS -->
+            <!-- BOTÃO DE SUPORTE E RODAPÉ COM LINK PARA PÁGINA DE VENDAS -->
             <div class="auth-footer">
+                <a href="mailto:assistente@pontoideal.online?subject=Suporte%20de%20Acesso%20-%20Ordem%20Oculta&body=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20meu%20acesso%20ao%20aplicativo%20Ordem%20Oculta.%20Meu%20e-mail%20de%20compra%20%C3%A9%3A%20" class="auth-support-btn">
+                    <i class="fa-solid fa-headset"></i>
+                    <div>
+                        <strong>Precisa de ajuda? Chamar Suporte</strong>
+                        <span>assistente@pontoideal.online</span>
+                    </div>
+                </a>
+
                 <a href="https://pontoideal.online/Ordemoculta/" class="auth-sales-link">
                     Não tem acesso? <strong>Adquira aqui <i class="fa-solid fa-arrow-up-right-from-square"></i></strong>
                 </a>
