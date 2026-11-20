@@ -248,6 +248,34 @@ document.addEventListener('DOMContentLoaded', () => {
             : `api.php?action=${action}`;
     }
 
+    function decorateKiwifyUrlWithEmail(rawUrl) {
+        if (!rawUrl || typeof rawUrl !== 'string') return rawUrl;
+        if (!rawUrl.includes('pay.kiwify.com.br')) return rawUrl;
+        const email = (localStorage.getItem('ordem_vip_email') || '').toLowerCase().trim();
+        try {
+            const urlObj = new URL(rawUrl);
+            if (email) {
+                urlObj.searchParams.set('email', email);
+            }
+            return urlObj.toString();
+        } catch (e) {
+            if (!email) return rawUrl;
+            const cleanBase = rawUrl.split('?')[0];
+            return `${cleanBase}?email=${encodeURIComponent(email)}`;
+        }
+    }
+
+    function refreshAllKiwifyCheckoutLinks() {
+        document.querySelectorAll('a[href*="pay.kiwify.com.br"], a.kiwify-dynamic-link').forEach(link => {
+            const baseHref = link.getAttribute('data-base-href') || link.getAttribute('href') || '';
+            if (baseHref && baseHref.includes('pay.kiwify.com.br')) {
+                const cleanBase = baseHref.split('?')[0];
+                link.setAttribute('data-base-href', cleanBase);
+                link.href = decorateKiwifyUrlWithEmail(cleanBase);
+            }
+        });
+    }
+
     function applyMemberEntitlements(member) {
         if (!member || typeof member !== 'object') return;
         const email = (member.email || '').toLowerCase().trim();
@@ -264,12 +292,28 @@ document.addEventListener('DOMContentLoaded', () => {
             const merged = Array.from(new Set([...currentUnlocked, ...member.modules]));
             localStorage.setItem('ordem_unlocked_modules', JSON.stringify(merged));
         }
-        const creditsAdded = parseInt(member.credits_added || '10', 10);
-        const syncMarkerKey = `ordem_member_credits_init_${email}_${creditsAdded}`;
-        if (!localStorage.getItem(syncMarkerKey)) {
-            syncGlobalCredits(creditsAdded > 0 ? creditsAdded : 10);
-            localStorage.setItem(syncMarkerKey, '1');
+
+        // Separação de Saldos: creditos_plano (franquia mensal) + creditos_avulsos (eternos)
+        const hasSplitFields = (typeof member.creditos_plano !== 'undefined' || typeof member.creditos_avulsos !== 'undefined');
+        if (hasSplitFields) {
+            const planCr = Math.max(0, parseInt(member.creditos_plano ?? 0, 10) || 0);
+            const extraCr = Math.max(0, parseInt(member.creditos_avulsos ?? 0, 10) || 0);
+            const totalCr = (typeof member.total_credits !== 'undefined')
+                ? Math.max(0, parseInt(member.total_credits, 10) || 0)
+                : (planCr + extraCr);
+            localStorage.setItem('ordem_creditos_plano', planCr.toString());
+            localStorage.setItem('ordem_creditos_avulsos', extraCr.toString());
+            syncGlobalCredits(totalCr);
+        } else {
+            const creditsAdded = parseInt(member.credits_added || '10', 10);
+            const syncMarkerKey = `ordem_member_credits_init_${email}_${creditsAdded}`;
+            if (!localStorage.getItem(syncMarkerKey)) {
+                syncGlobalCredits(creditsAdded > 0 ? creditsAdded : 10);
+                localStorage.setItem(syncMarkerKey, '1');
+            }
         }
+
+        refreshAllKiwifyCheckoutLinks();
     }
 
     function lockAppWithAuthGate(openActivateView = false) {
@@ -823,7 +867,7 @@ Responda EXCLUSIVAMENTE em JSON puro:
                 userText = `Analise esta foto/story e retorne o JSON com o diagnóstico e as 3 abordagens magnéticas. (Fase: ${payload.phase || 'auto'}).`;
             }
         } else if (apiType === 'coach') {
-            const history = Array.isArray(payload.history) ? payload.history : [];
+            const history = (Array.isArray(payload.history) ? payload.history : []).slice(-8);
             let historyPrompt = '';
             if (history.length > 0) {
                 historyPrompt = `\nHISTÓRICO DAS RODADAS ANTERIORES:\n` + history.map((item, idx) =>
@@ -858,7 +902,7 @@ Responda EXCLUSIVAMENTE em JSON puro:
 }`;
             userText = `Gere as 3 mensagens para reativar conversa parada há ${timeWindow}. Contexto: "${topic || 'geral'}".`;
         } else if (apiType === 'friendzone') {
-            const history = Array.isArray(payload.history) ? payload.history : [];
+            const history = (Array.isArray(payload.history) ? payload.history : []).slice(-8);
             let historyPrompt = '';
             if (history.length > 0) {
                 historyPrompt = `\nHISTÓRICO:\n` + history.map((item, idx) =>
@@ -959,19 +1003,35 @@ Responda EXCLUSIVAMENTE em JSON puro:
                     body: JSON.stringify(payloadWithAuth)
                 });
                 const result = await res.json().catch(() => null);
-                if (res.status === 401 || (result && result.auth_required)) {
+                if (res.status === 401 || res.status === 403 || (result && (result.auth_required || result.revoked))) {
                     localStorage.removeItem('ordem_auth_token');
                     lockAppWithAuthGate(false);
                     return {
                         success: false,
                         auth_required: true,
-                        error: (result && result.error) ? result.error : 'Sessão expirada. Faça login novamente.'
+                        error: (result && result.error) ? result.error : 'Sua assinatura precisa estar ativa para usar o aplicativo.'
+                    };
+                }
+                if (res.status === 402 || (result && result.no_credits)) {
+                    syncGlobalCredits(0);
+                    refreshAllKiwifyCheckoutLinks();
+                    const paywallModal = document.getElementById('paywallLockModal');
+                    if (paywallModal) paywallModal.classList.remove('hidden');
+                    return {
+                        success: false,
+                        no_credits: true,
+                        error: (result && result.error) ? result.error : 'Seus Créditos Táticos acabaram.'
                     };
                 }
                 if (result && (result.is_black_image || result.is_unreadable_image)) {
                     return result;
                 }
                 if (res.ok && result && result.success && result.data) {
+                    if (result.credits && typeof result.credits.total !== 'undefined') {
+                        localStorage.setItem('ordem_creditos_plano', (result.credits.creditos_plano ?? 0).toString());
+                        localStorage.setItem('ordem_creditos_avulsos', (result.credits.creditos_avulsos ?? 0).toString());
+                        syncGlobalCredits(result.credits.total);
+                    }
                     return result;
                 }
             } catch (err) {
@@ -1234,7 +1294,11 @@ Responda EXCLUSIVAMENTE em JSON puro:
                     loadingCard.remove();
 
                     if (result.success && result.data) {
-                        credits--;
+                        if (result.credits && typeof result.credits.total !== 'undefined') {
+                            credits = result.credits.total;
+                        } else {
+                            credits = Math.max(0, credits - 1);
+                        }
                         syncGlobalCredits(credits);
 
                         coachHistory = [{
@@ -1250,8 +1314,10 @@ Responda EXCLUSIVAMENTE em JSON puro:
                             window.saveActivityHistory('O COACH DE EMERGÊNCIA', situation, result.data.script || result.data.diagnosis, 'view-coach');
                         }
                         showToast(`Parecer pronto! Restam ${credits} créditos.`);
+                    } else if (result.no_credits) {
+                        showPaywallLock();
                     } else {
-                        showToast('Erro ao consultar o Coach. Tente novamente.');
+                        showToast('Erro ao consultar o Mestre. Tente novamente.');
                     }
                 } catch (e) {
                     loadingCard.remove();
@@ -1305,8 +1371,8 @@ Responda EXCLUSIVAMENTE em JSON puro:
                 const roundNumber = coachHistory.length + 1;
                 const loadingCard = createThreadLoadingCard(coachThreadFeed, `O Mestre está formulando o próximo passo da Etapa ${roundNumber}...`);
 
-                // Formata histórico para o backend
-                const historyPayload = coachHistory.map(item => ({
+                // Formata histórico para o backend (Limite de Contexto: máximo últimas 8 mensagens)
+                const historyPayload = coachHistory.slice(-8).map(item => ({
                     situation: item.userText,
                     diagnosis: item.botData ? item.botData.diagnosis : '',
                     script: item.botData ? item.botData.script : ''
@@ -1321,7 +1387,11 @@ Responda EXCLUSIVAMENTE em JSON puro:
                     loadingCard.remove();
 
                     if (result.success && result.data) {
-                        credits--;
+                        if (result.credits && typeof result.credits.total !== 'undefined') {
+                            credits = result.credits.total;
+                        } else {
+                            credits = Math.max(0, credits - 1);
+                        }
                         syncGlobalCredits(credits);
 
                         coachHistory.push({
@@ -1335,6 +1405,8 @@ Responda EXCLUSIVAMENTE em JSON puro:
                         const newCard = appendCoachTurn(coachThreadFeed, followupText, result.data, roundNumber);
                         newCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         showToast(`Próximo passo liberado! Restam ${credits} créditos.`);
+                    } else if (result.no_credits) {
+                        showPaywallLock();
                     } else {
                         showToast('Erro ao continuar. Tente novamente.');
                     }
@@ -1623,7 +1695,11 @@ Responda EXCLUSIVAMENTE em JSON puro:
                     loadingCard.remove();
 
                     if (result.success && result.data) {
-                        credits--;
+                        if (result.credits && typeof result.credits.total !== 'undefined') {
+                            credits = result.credits.total;
+                        } else {
+                            credits = Math.max(0, credits - 1);
+                        }
                         syncGlobalCredits(credits);
 
                         fzHistory = [{
@@ -1640,6 +1716,9 @@ Responda EXCLUSIVAMENTE em JSON puro:
                             window.saveActivityHistory('A ROTA DE FUGA', message, result.data.script, 'view-friendzone');
                         }
                         showToast(`Friendzone desarmada! Restam ${credits} créditos.`);
+                    } else if (result.no_credits) {
+                        const paywallModal = document.getElementById('paywallLockModal');
+                        if (paywallModal) paywallModal.classList.remove('hidden');
                     } else {
                         showToast('Erro ao processar. Tente novamente.');
                     }
@@ -1700,13 +1779,17 @@ Responda EXCLUSIVAMENTE em JSON puro:
                 try {
                     const result = await callOrdemEndpoint('friendzone', {
                         message: followupText,
-                        history: fzHistory
+                        history: fzHistory.slice(-8)
                     });
 
                     loadingCard.remove();
 
                     if (result.success && result.data) {
-                        credits--;
+                        if (result.credits && typeof result.credits.total !== 'undefined') {
+                            credits = result.credits.total;
+                        } else {
+                            credits = Math.max(0, credits - 1);
+                        }
                         syncGlobalCredits(credits);
 
                         fzHistory.push({
@@ -1721,6 +1804,9 @@ Responda EXCLUSIVAMENTE em JSON puro:
                         const newCard = appendFzTurn(threadFeed, followupText, result.data, roundNumber);
                         newCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         showToast(`Tréplica liberada! Restam ${credits} créditos.`);
+                    } else if (result.no_credits) {
+                        const paywallModal = document.getElementById('paywallLockModal');
+                        if (paywallModal) paywallModal.classList.remove('hidden');
                     } else {
                         showToast('Erro ao continuar. Tente novamente.');
                     }
@@ -3384,9 +3470,9 @@ Responda EXCLUSIVAMENTE em JSON puro:
         plan_anual: 'https://pay.kiwify.com.br/ZvKHa3Z',      // Oferta Plano Anual PRO (R$ 197,90)
         plan_trimestral: 'https://pay.kiwify.com.br/Q3mXfsV', // Oferta Plano Trimestral (R$ 97,90)
         plan_mensal: 'https://pay.kiwify.com.br/8X6hibI',     // Oferta Plano Mensal Base (R$ 37,90)
-        credits_10: 'https://pay.kiwify.com.br/yp8dlI0',      // Oferta +10 Créditos (R$ 9,90)
-        credits_15: 'https://pay.kiwify.com.br/txHkp23',      // Oferta +15 Créditos (R$ 14,90)
-        credits_20: 'https://pay.kiwify.com.br/QSrs23E',      // Oferta +20 Créditos (R$ 19,90)
+        credits_8: 'https://pay.kiwify.com.br/JszvJNU',       // Recarga de Emergência — 8 Créditos Táticos (R$ 9,90)
+        credits_15: 'https://pay.kiwify.com.br/MBeUN4x',      // Recarga Tática — 15 Créditos Táticos (R$ 14,90)
+        credits_25: 'https://pay.kiwify.com.br/f8sgCLT',      // Recarga Arsenal (+5 BÔNUS) — 25 Créditos Táticos (R$ 19,90)
         mod_perfil_magnetico: 'https://pay.kiwify.com.br/HUaTvIz', // Oferta Livro Perfil Magnético (R$ 27,90)
         mod_mente_feminina: 'https://pay.kiwify.com.br/rVaoZJY',   // Oferta Livro Mente Feminina (R$ 19,90)
         mod_formula_seducao: 'https://pay.kiwify.com.br/dizOxuj'   // Oferta Curso Fórmula da Sedução (R$ 47,00)
@@ -3496,7 +3582,8 @@ Responda EXCLUSIVAMENTE em JSON puro:
                 triggerHaptic(20);
                 const modId = btn.dataset.module;
                 const mapKey = `mod_${(modId || '').replace(/-/g, '_')}`;
-                const checkoutUrl = KIWIFY_CHECKOUT_LINKS[mapKey] || btn.dataset.checkout || 'https://pay.kiwify.com.br/mIglYN2';
+                const rawCheckoutUrl = KIWIFY_CHECKOUT_LINKS[mapKey] || btn.dataset.checkout || 'https://pay.kiwify.com.br/f8sgCLT';
+                const checkoutUrl = decorateKiwifyUrlWithEmail(rawCheckoutUrl);
 
                 // Abre o checkout da Kiwify sem liberar o botão antes da confirmação do pagamento
                 window.open(checkoutUrl, '_blank');
@@ -3751,6 +3838,21 @@ Responda EXCLUSIVAMENTE em JSON puro:
     // RECARGA DE CRÉDITOS AVULSOS (ARSENAL)
     // ==========================================================================
     function setupCreditRecharge() {
+        refreshAllKiwifyCheckoutLinks();
+
+        // Intercepta qualquer clique em link da Kiwify para garantir ?email={email_do_usuario_logado}
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a[href*="pay.kiwify.com.br"]');
+            if (link) {
+                const baseHref = link.getAttribute('data-base-href') || link.getAttribute('href') || '';
+                if (baseHref) {
+                    const cleanBase = baseHref.split('?')[0];
+                    link.setAttribute('data-base-href', cleanBase);
+                    link.href = decorateKiwifyUrlWithEmail(cleanBase);
+                }
+            }
+        });
+
         const rechargeCard = document.getElementById('card-credit-recharge');
         if (!rechargeCard) return;
 
@@ -3763,12 +3865,13 @@ Responda EXCLUSIVAMENTE em JSON puro:
                 packageOptions.forEach(o => o.classList.remove('active'));
                 opt.classList.add('active');
 
-                const credits = opt.dataset.credits || '15';
-                const price = opt.dataset.price || '14,90';
-                const checkout = opt.dataset.checkout || 'https://pay.kiwify.com.br/mIglYN2';
+                const credits = opt.dataset.credits || '25';
+                const price = opt.dataset.price || '19,90';
+                const checkout = opt.dataset.checkout || 'https://pay.kiwify.com.br/f8sgCLT';
 
                 if (btnBuy) {
-                    btnBuy.href = checkout;
+                    btnBuy.setAttribute('data-base-href', checkout);
+                    btnBuy.href = decorateKiwifyUrlWithEmail(checkout);
                     btnBuy.innerHTML = `<span>Comprar ${credits} Créditos · R$ ${price}</span><i class="fa-solid fa-arrow-right"></i>`;
                 }
             });
@@ -3776,7 +3879,7 @@ Responda EXCLUSIVAMENTE em JSON puro:
 
         // Atalho do modal de bloqueio (Paywall) direto para o card de recarga no Arsenal
         const btnLockRecharge = document.getElementById('btnLockRecharge');
-        if (btnLockRecharge) {
+        if (btnLockRecharge && btnLockRecharge.tagName === 'BUTTON') {
             btnLockRecharge.addEventListener('click', () => {
                 const paywallModal = document.getElementById('paywallLockModal');
                 if (paywallModal) paywallModal.classList.add('hidden');

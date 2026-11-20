@@ -72,11 +72,18 @@ function loadMembersDb(): array {
                 'plan' => 'anual',
                 'product' => 'Ordem Oculta Anual PRO (Owner)',
                 'modules' => ['perfil-magnetico', 'mente-feminina', 'formula-seducao'],
+                'creditos_plano' => 999,
+                'creditos_avulsos' => 0,
                 'credits_added' => 999,
                 'status' => 'ativa',
-                'password_hash' => '',
+                'password_hash' => null,
+                'processed_orders' => [],
                 'updated_at' => gmdate('c')
             ];
+            $changed = true;
+        } elseif (!isset($members[$ownerEmail]['creditos_plano'])) {
+            $members[$ownerEmail]['creditos_plano'] = (int)($members[$ownerEmail]['credits_added'] ?? 999);
+            $members[$ownerEmail]['creditos_avulsos'] = (int)($members[$ownerEmail]['creditos_avulsos'] ?? 0);
             $changed = true;
         }
     }
@@ -94,6 +101,77 @@ function saveMembersDb(array $members): void {
 function isMemberStatusActive(array $member): bool {
     $st = strtolower(trim((string)($member['status'] ?? '')));
     return in_array($st, ['ativa', 'active', 'paid', 'approved'], true);
+}
+
+function getMemberPlanCredits(array $member): int {
+    if (isset($member['creditos_plano'])) {
+        return max(0, (int)$member['creditos_plano']);
+    }
+    return max(0, (int)($member['credits_added'] ?? 10));
+}
+
+function getMemberExtraCredits(array $member): int {
+    return max(0, (int)($member['creditos_avulsos'] ?? 0));
+}
+
+function getMemberTotalCredits(array $member): int {
+    return getMemberPlanCredits($member) + getMemberExtraCredits($member);
+}
+
+/**
+ * Desconta 1 crédito do membro ativo:
+ * - Primeiro desconta de creditos_plano
+ * - Só desconta de creditos_avulsos quando creditos_plano === 0
+ */
+function consumeMemberCredit(string $email): array {
+    $cleanEmail = strtolower(trim($email));
+    $members = loadMembersDb();
+    if (!isset($members[$cleanEmail]) || !isMemberStatusActive($members[$cleanEmail])) {
+        http_response_code(403);
+        echo json_encode([
+            'success' => false,
+            'auth_required' => true,
+            'error' => 'Sua assinatura precisa estar ativa para utilizar seus créditos.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $member = $members[$cleanEmail];
+    $planCr = getMemberPlanCredits($member);
+    $extraCr = getMemberExtraCredits($member);
+
+    if (($planCr + $extraCr) <= 0) {
+        http_response_code(402);
+        echo json_encode([
+            'success' => false,
+            'no_credits' => true,
+            'credits' => [
+                'creditos_plano' => 0,
+                'creditos_avulsos' => 0,
+                'total' => 0
+            ],
+            'error' => 'Seus créditos acabaram. Recarregue créditos avulsos ou faça upgrade para continuar.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    if ($planCr > 0) {
+        $planCr--;
+    } else {
+        $extraCr--;
+    }
+
+    $members[$cleanEmail]['creditos_plano'] = $planCr;
+    $members[$cleanEmail]['creditos_avulsos'] = $extraCr;
+    $members[$cleanEmail]['credits_added'] = $planCr + $extraCr;
+    $members[$cleanEmail]['updated_at'] = gmdate('c');
+    saveMembersDb($members);
+
+    return [
+        'creditos_plano' => $planCr,
+        'creditos_avulsos' => $extraCr,
+        'total' => $planCr + $extraCr
+    ];
 }
 
 function generateMemberToken(string $email): string {
@@ -136,13 +214,20 @@ function extractRequestToken(array $body): string {
 }
 
 function sanitizeMemberPublic(array $member): array {
+    $planCr = getMemberPlanCredits($member);
+    $extraCr = getMemberExtraCredits($member);
+    $totalCr = $planCr + $extraCr;
     return [
         'name' => $member['name'] ?? 'Membro Ordem Oculta',
         'email' => $member['email'] ?? '',
         'plan' => $member['plan'] ?? 'mensal',
         'modules' => $member['modules'] ?? [],
-        'credits_added' => (int)($member['credits_added'] ?? 10),
+        'creditos_plano' => $planCr,
+        'creditos_avulsos' => $extraCr,
+        'total_credits' => $totalCr,
+        'credits_added' => $totalCr,
         'status' => isMemberStatusActive($member) ? 'ativa' : ($member['status'] ?? 'inativa'),
+        'subscription_expires_at' => $member['subscription_expires_at'] ?? null,
         'updated_at' => $member['updated_at'] ?? gmdate('c')
     ];
 }
@@ -671,9 +756,24 @@ if ($action === 'scan') {
 }
 
 if ($action === 'coach') {
-    requireActiveMemberSession($body);
+    $member = requireActiveMemberSession($body);
+    $totalAvailable = getMemberPlanCredits($member) + getMemberExtraCredits($member);
+    if ($totalAvailable <= 0) {
+        http_response_code(402);
+        echo json_encode([
+            'success' => false,
+            'no_credits' => true,
+            'error' => 'Seus Créditos Táticos acabaram. Faça uma recarga avulsa para continuar.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
     $situation = trim((string)($body['situation'] ?? ''));
     $history = is_array($body['history'] ?? null) ? $body['history'] : [];
+    // Limite de Contexto: envia no máximo as últimas 8 mensagens do chat atual
+    if (count($history) > 8) {
+        $history = array_slice($history, -8);
+    }
 
     if ($situation === '') {
         http_response_code(400);
@@ -691,7 +791,7 @@ if ($action === 'coach') {
             $sc = $item['script'] ?? '';
             $lines[] = "[RODADA {$round}]\n- Relato do aluno: \"{$s}\"\n- Leitura do Mestre: \"{$d}\"\n- Mensagem recomendada: \"{$sc}\"";
         }
-        $historyPrompt = "\nHISTÓRICO DAS RODADAS ANTERIORES:\n" . implode("\n", $lines) . "\n\nATUALIZAÇÃO ATUAL DO ALUNO:\n\"{$situation}\"\n";
+        $historyPrompt = "\nHISTÓRICO DAS RODADAS ANTERIORES (ÚLTIMAS " . count($history) . "):\n" . implode("\n", $lines) . "\n\nATUALIZAÇÃO ATUAL DO ALUNO:\n\"{$situation}\"\n";
     }
 
     $systemPrompt = <<<PROMPT
@@ -713,6 +813,11 @@ PROMPT;
     $result = callOpenRouter($systemPrompt, $userText, null, 0.72, 1600);
     if (!$result['success']) {
         http_response_code(500);
+    } else {
+        $creditRes = consumeMemberCredit($member['email']);
+        if ($creditRes['ok']) {
+            $result['credits'] = $creditRes;
+        }
     }
     echo json_encode($result, JSON_UNESCAPED_UNICODE);
     exit;
@@ -746,9 +851,24 @@ PROMPT;
 }
 
 if ($action === 'friendzone') {
-    requireActiveMemberSession($body);
+    $member = requireActiveMemberSession($body);
+    $totalAvailable = getMemberPlanCredits($member) + getMemberExtraCredits($member);
+    if ($totalAvailable <= 0) {
+        http_response_code(402);
+        echo json_encode([
+            'success' => false,
+            'no_credits' => true,
+            'error' => 'Seus Créditos Táticos acabaram. Faça uma recarga avulsa para continuar.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
     $message = trim((string)($body['message'] ?? ''));
     $history = is_array($body['history'] ?? null) ? $body['history'] : [];
+    // Limite de Contexto: envia no máximo as últimas 8 mensagens do chat atual
+    if (count($history) > 8) {
+        $history = array_slice($history, -8);
+    }
 
     if ($message === '') {
         http_response_code(400);
@@ -765,7 +885,7 @@ if ($action === 'friendzone') {
             $sc = $item['script'] ?? ($item['tacticalReply'] ?? '');
             $lines[] = "[RODADA {$round}]\n- Ela disse: \"{$hm}\"\n- Resposta dele: \"{$sc}\"";
         }
-        $historyPrompt = "\nHISTÓRICO:\n" . implode("\n", $lines) . "\n\nNOVA FRASE DELA:\n\"{$message}\"\n";
+        $historyPrompt = "\nHISTÓRICO (ÚLTIMAS " . count($history) . "):\n" . implode("\n", $lines) . "\n\nNOVA FRASE DELA:\n\"{$message}\"\n";
     }
 
     $systemPrompt = <<<PROMPT
@@ -782,14 +902,25 @@ PROMPT;
     $result = callOpenRouter($systemPrompt, $userText, null, 0.75, 1200);
     if (!$result['success']) {
         http_response_code(500);
+    } else {
+        $creditRes = consumeMemberCredit($member['email']);
+        if ($creditRes['ok']) {
+            $result['credits'] = $creditRes;
+        }
     }
     echo json_encode($result, JSON_UNESCAPED_UNICODE);
     exit;
 }
 
 if ($action === 'kiwify-webhook') {
-    $knownTokens = ['cg95nvcn2wg'];
-    $receivedToken = trim((string)($_GET['token'] ?? ($body['token'] ?? ($body['signature'] ?? ''))));
+    $expectedToken = getenv('KIWIFY_WEBHOOK_TOKEN') ?: 'cg95nvcn2wg';
+    $receivedToken = trim((string)(
+        $_GET['token']
+        ?? ($_GET['signature']
+        ?? ($body['token']
+        ?? ($body['signature']
+        ?? ($_SERVER['HTTP_X_KIWIFY_SIGNATURE'] ?? ''))))
+    ));
 
     if ($_SERVER['REQUEST_METHOD'] === 'GET' && empty($body)) {
         echo json_encode([
@@ -801,26 +932,89 @@ if ($action === 'kiwify-webhook') {
         exit;
     }
 
+    if ($receivedToken !== $expectedToken) {
+        http_response_code(403);
+        echo json_encode([
+            'success' => false,
+            'error' => 'KIWIFY_WEBHOOK_TOKEN inválido ou ausente.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $orderId = trim((string)($body['order_id'] ?? ($body['id'] ?? ($body['webhook_id'] ?? ''))));
     $status = strtolower((string)($body['order_status'] ?? ($body['status'] ?? ($body['webhook_event_type'] ?? ''))));
     $customerEmail = strtolower(trim((string)($body['Customer']['email'] ?? ($body['email'] ?? ''))));
     $customerName = trim((string)($body['Customer']['full_name'] ?? ($body['name'] ?? 'Membro Ordem Oculta')));
     $productName = strtolower(trim((string)($body['Product']['product_name'] ?? ($body['product_name'] ?? 'Ordem Oculta'))));
     $offerName = strtolower(trim((string)($body['Subscription']['plan']['name'] ?? ($body['Commissions']['product_name'] ?? ($body['offer_name'] ?? '')))));
+    $offerCode = strtolower(trim((string)(
+        $body['offer_code']
+        ?? ($body['offer_id']
+        ?? ($body['checkout_link']
+        ?? ($body['Product']['offer_code']
+        ?? ($body['Subscription']['plan']['id'] ?? ''))))
+    )));
     $bumpsJson = strtolower(json_encode($body['OrderBumps'] ?? ($body['order_bumps'] ?? []), JSON_UNESCAPED_UNICODE));
-    $amountCents = (int)($body['Commissions']['charge_amount'] ?? ($body['amount'] ?? 0));
-    $combinedTitle = $productName . ' ' . $offerName . ' ' . $bumpsJson;
+
+    // Trata valores em centavos (ex: 1990) ou decimal (ex: 19.90 / "19,90")
+    $rawAmount = $body['Commissions']['charge_amount'] ?? ($body['amount'] ?? ($body['total'] ?? ($body['value'] ?? 0)));
+    if (is_string($rawAmount)) {
+        $rawAmount = str_replace(['R$', ' ', ','], ['', '', '.'], $rawAmount);
+    }
+    $numericAmount = (float)$rawAmount;
+    if ($numericAmount > 0 && $numericAmount < 500 && (strpos((string)$rawAmount, '.') !== false || $numericAmount <= 250)) {
+        $amountCents = (int)round($numericAmount * 100);
+    } else {
+        $amountCents = (int)round($numericAmount);
+    }
+
+    $combinedTitle = $productName . ' ' . $offerName . ' ' . $offerCode . ' ' . $bumpsJson;
+    $rawLower = strtolower((string)$rawInput);
 
     $members = loadMembersDb();
 
     $approvedEvents = ['paid', 'approved', 'order_approved', 'subscription_renewed'];
     $revokedEvents = ['refunded', 'chargedback', 'chargeback', 'canceled', 'subscription_canceled', 'subscription_late', 'late', 'order_refunded', 'order_chargedback'];
 
-    if ($customerEmail !== '' && in_array($status, $approvedEvents, true)) {
-        $existing = $members[$customerEmail] ?? ['modules' => [], 'credits_added' => 0, 'password_hash' => ''];
-        $modules = is_array($existing['modules'] ?? null) ? $existing['modules'] : [];
-        $creditsAdded = (int)($existing['credits_added'] ?? 0);
-        $existingPasswordHash = (string)($existing['password_hash'] ?? '');
+    $duplicateBlocked = false;
+    $purchaseCategory = 'none';
 
+    if ($customerEmail !== '' && in_array($status, $approvedEvents, true)) {
+        $isNewMember = !isset($members[$customerEmail]);
+        $existing = $members[$customerEmail] ?? [
+            'modules' => [],
+            'creditos_plano' => 10,
+            'creditos_avulsos' => 0,
+            'password_hash' => null,
+            'processed_orders' => []
+        ];
+
+        $processedOrders = is_array($existing['processed_orders'] ?? null) ? $existing['processed_orders'] : [];
+
+        // Trava de Duplicidade de order_id
+        if ($orderId !== '' && in_array($orderId, $processedOrders, true)) {
+            echo json_encode([
+                'success' => true,
+                'duplicate_blocked' => true,
+                'order_id' => $orderId,
+                'message' => 'Order ID já processado anteriormente. Duplicidade bloqueada.',
+                'email' => $customerEmail,
+                'member' => sanitizeMemberPublic($existing)
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        $modules = is_array($existing['modules'] ?? null) ? $existing['modules'] : [];
+        $planCredits = $isNewMember ? 0 : getMemberPlanCredits($existing);
+        $extraCredits = $isNewMember ? 0 : getMemberExtraCredits($existing);
+        $existingPasswordHash = $existing['password_hash'] ?? null;
+        if ($existingPasswordHash === '') {
+            $existingPasswordHash = null;
+        }
+        $existingPlan = (string)($existing['plan'] ?? 'mensal');
+        $existingExpiresAt = $existing['subscription_expires_at'] ?? gmdate('c', time() + 30 * 86400);
+
+        // Modules / Order Bumps
         if (strpos($combinedTitle, 'perfil') !== false || strpos($combinedTitle, 'magnetico') !== false || strpos($combinedTitle, 'magnético') !== false || strpos($combinedTitle, 'bio') !== false) {
             $modules[] = 'perfil-magnetico';
         }
@@ -830,51 +1024,108 @@ if ($action === 'kiwify-webhook') {
         if (strpos($combinedTitle, 'formula') !== false || strpos($combinedTitle, 'fórmula') !== false) {
             $modules[] = 'formula-seducao';
         }
-        if (strpos($combinedTitle, 'anual') !== false || strpos($combinedTitle, 'pro') !== false) {
-            $modules = ['perfil-magnetico', 'mente-feminina', 'formula-seducao'];
-            $creditsAdded += 40;
-        } elseif (strpos($combinedTitle, 'trimestral') !== false) {
-            $creditsAdded += 20;
-        } elseif (strpos($combinedTitle, '20 cr') !== false || strpos($combinedTitle, 'valor3') !== false || (strpos($combinedTitle, 'cr') !== false && $amountCents === 1990)) {
-            $creditsAdded += 20;
-        } elseif (strpos($combinedTitle, '15 cr') !== false || strpos($combinedTitle, 'valor2') !== false || (strpos($combinedTitle, 'cr') !== false && $amountCents === 1490)) {
-            $creditsAdded += 15;
-        } elseif (strpos($combinedTitle, '10 cr') !== false || strpos($combinedTitle, 'pacote de cr') !== false || (strpos($combinedTitle, 'cr') !== false && $amountCents === 990)) {
-            $creditsAdded += 10;
+
+        // Identificação de Pacotes Avulsos (Ordem Oculta - Consultas Avulsas)
+        $hasCode25 = (strpos($rawLower, 'f8sgclt') !== false);
+        $hasCode15 = (strpos($rawLower, 'mbeun4x') !== false);
+        $hasCode8  = (strpos($rawLower, 'jszvjnu') !== false);
+        $isAvulsoKeyword = (
+            strpos($productName . ' ' . $offerName, 'avuls') !== false
+            || strpos($productName . ' ' . $offerName, 'recarga') !== false
+            || strpos($productName . ' ' . $offerName, 'crédito') !== false
+            || strpos($productName . ' ' . $offerName, 'credito') !== false
+            || strpos($productName . ' ' . $offerName, 'pacote') !== false
+        );
+        $isAvulsoAmount = in_array($amountCents, [990, 1490, 1990], true);
+
+        if ($hasCode25 || $hasCode15 || $hasCode8 || $isAvulsoKeyword || $isAvulsoAmount) {
+            $purchaseCategory = 'pacote_avulso';
+            $addedAvulsos = 0;
+            if ($hasCode25 || $amountCents === 1990 || strpos($combinedTitle, '25 cr') !== false || strpos($combinedTitle, '20 cr') !== false) {
+                $addedAvulsos = 25;
+            } elseif ($hasCode15 || $amountCents === 1490 || strpos($combinedTitle, '15 cr') !== false) {
+                $addedAvulsos = 15;
+            } elseif ($hasCode8 || $amountCents === 990 || strpos($combinedTitle, '8 cr') !== false || strpos($combinedTitle, '10 cr') !== false) {
+                $addedAvulsos = 8;
+            } else {
+                $addedAvulsos = 8;
+            }
+
+            // Soma diretamente em creditos_avulsos (ETERNOS) sem alterar creditos_plano nem vencimento da assinatura
+            $extraCredits += $addedAvulsos;
+            $planType = $existingPlan;
+            $expiresAt = $existingExpiresAt;
+            $memberStatus = $existing['status'] ?? 'ativa';
         } else {
-            // Compra do plano principal Mensal
-            $creditsAdded += 10;
+            // Assinatura Principal (A Ordem Oculta) ou Renovação Mensal
+            $purchaseCategory = 'assinatura_principal';
+            $isAnualPlan = (
+                strpos($combinedTitle, 'anual') !== false
+                || strpos($combinedTitle, 'plano pro') !== false
+                || strpos($combinedTitle, 'vital') !== false
+                || $amountCents === 19790
+            );
+            $isTrimestralPlan = (
+                strpos($combinedTitle, 'trimestral') !== false
+                || $amountCents === 9790
+            );
+
+            if ($isAnualPlan) {
+                $modules = ['perfil-magnetico', 'mente-feminina', 'formula-seducao'];
+                $planCredits = 40;
+                $planType = 'anual';
+                $expiresAt = gmdate('c', time() + 365 * 86400);
+            } elseif ($isTrimestralPlan) {
+                $planCredits = 20;
+                $planType = 'trimestral';
+                $expiresAt = gmdate('c', time() + 90 * 86400);
+            } else {
+                // Plano Mensal (nova assinatura ou renovação mensal)
+                $planCredits = 10;
+                $planType = 'mensal';
+                $expiresAt = gmdate('c', time() + 30 * 86400);
+            }
+            // IMPORTANTE: creditos_avulsos ($extraCredits) NUNCA é zerado nem sobrescrito na renovação!
+            $memberStatus = 'ativa';
         }
 
-        $planType = (strpos($combinedTitle, 'anual') !== false || strpos($combinedTitle, 'vital') !== false)
-            ? 'anual'
-            : ((strpos($combinedTitle, 'trimestral') !== false) ? 'trimestral' : 'mensal');
+        if ($orderId !== '') {
+            $processedOrders[] = $orderId;
+        }
 
         $members[$customerEmail] = [
             'name' => $customerName,
             'email' => $customerEmail,
             'plan' => $planType,
-            'product' => trim($combinedTitle),
+            'product' => trim($productName . ' ' . $offerName),
             'modules' => array_values(array_unique($modules)),
-            'credits_added' => $creditsAdded,
-            'status' => 'ativa',
+            'creditos_plano' => $planCredits,
+            'creditos_avulsos' => $extraCredits,
+            'credits_added' => $planCredits + $extraCredits,
+            'status' => $memberStatus,
             'password_hash' => $existingPasswordHash,
+            'subscription_expires_at' => $expiresAt,
+            'processed_orders' => array_values(array_unique($processedOrders)),
             'updated_at' => gmdate('c')
         ];
         saveMembersDb($members);
     } elseif ($customerEmail !== '' && in_array($status, $revokedEvents, true)) {
-        // Reembolso, chargeback ou cancelamento: revoga acesso imediatamente
-        $existingPasswordHash = (string)($members[$customerEmail]['password_hash'] ?? '');
+        // Reembolso, chargeback ou cancelamento: revoga status da assinatura, mantendo registro
+        $existing = $members[$customerEmail] ?? [];
+        $existingPasswordHash = $existing['password_hash'] ?? null;
         $members[$customerEmail] = [
             'name' => $customerName,
             'email' => $customerEmail,
             'plan' => 'revoked',
-            'product' => trim($combinedTitle),
+            'product' => trim($productName . ' ' . $offerName),
             'modules' => [],
+            'creditos_plano' => 0,
+            'creditos_avulsos' => getMemberExtraCredits($existing),
             'credits_added' => 0,
             'status' => 'revoked',
             'revoked_reason' => $status,
             'password_hash' => $existingPasswordHash,
+            'processed_orders' => is_array($existing['processed_orders'] ?? null) ? $existing['processed_orders'] : [],
             'updated_at' => gmdate('c')
         ];
         saveMembersDb($members);
@@ -905,11 +1156,32 @@ if ($action === 'kiwify-webhook') {
 
     echo json_encode([
         'success' => true,
+        'duplicate_blocked' => $duplicateBlocked,
+        'purchase_category' => $purchaseCategory,
+        'order_id' => $orderId,
         'message' => 'Webhook Kiwify processado, acesso atualizado e VeroTrack/CAPI notificado',
         'email' => $customerEmail,
         'status_processed' => $status,
+        'member' => isset($members[$customerEmail]) ? sanitizeMemberPublic($members[$customerEmail]) : null,
         'verotrack_http' => $vtCode ?? null
     ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($action === 'cleanup-test-webhook-user') {
+    $expectedToken = getenv('KIWIFY_WEBHOOK_TOKEN') ?: 'cg95nvcn2wg';
+    $receivedToken = trim((string)($_GET['token'] ?? ($body['token'] ?? '')));
+    if ($receivedToken !== $expectedToken) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Forbidden']);
+        exit;
+    }
+    $testEmail = 'teste_webhook@ordemoculta.com';
+    $members = loadMembersDb();
+    $existed = isset($members[$testEmail]);
+    unset($members[$testEmail]);
+    saveMembersDb($members);
+    echo json_encode(['success' => true, 'deleted' => $existed, 'email' => $testEmail]);
     exit;
 }
 
