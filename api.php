@@ -213,6 +213,105 @@ function extractRequestToken(array $body): string {
     return trim((string)($body['auth_token'] ?? ($body['token'] ?? ($_GET['auth_token'] ?? ''))));
 }
 
+function sendPurchaseWelcomeEmail(string $toEmail, string $name, string $plan, array $modules = []): bool {
+    $cleanName = !empty($name) ? htmlspecialchars($name, ENT_QUOTES, 'UTF-8') : 'Membro';
+    $accessLink = "https://pontoideal.online/app/?acesso=1&email=" . urlencode($toEmail);
+    
+    $modulesHtml = '';
+    if (in_array('perfil-magnetico', $modules, true)) {
+        $modulesHtml .= '<li style="margin-bottom:6px; color:#d1d5db;">📘 <strong>Livro:</strong> Como Criar um Perfil Magnético (Liberado no Arsenal)</li>';
+    }
+    if (in_array('mente-feminina', $modules, true)) {
+        $modulesHtml .= '<li style="margin-bottom:6px; color:#d1d5db;">🧠 <strong>Livro:</strong> A Mente Feminina Decodificada (Liberado no Arsenal)</li>';
+    }
+    if (in_array('formula-seducao', $modules, true)) {
+        $modulesHtml .= '<li style="margin-bottom:6px; color:#d1d5db;">🎬 <strong>Curso:</strong> A Fórmula Secreta da Sedução (Liberado na Kiwify)</li>';
+    }
+
+    $modulesSection = '';
+    if (!empty($modulesHtml)) {
+        $modulesSection = <<<HTML
+        <div style="background:#14141c; border:1px solid rgba(212,175,55,0.25); border-radius:12px; padding:16px; margin:20px 0; text-align:left;">
+            <div style="color:#d4af37; font-weight:800; font-size:12px; letter-spacing:1px; margin-bottom:10px; text-transform:uppercase;">Bônus e Materiais Inclusos:</div>
+            <ul style="margin:0; padding-left:18px; font-size:13px; line-height:1.5;">
+                {$modulesHtml}
+            </ul>
+        </div>
+HTML;
+    }
+
+    $subject = "=?UTF-8?B?" . base64_encode("[ACESSO LIBERADO] ⚡ Seu acesso à Ordem Oculta chegou!") . "?=";
+
+    $bodyHtml = <<<HTML
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Acesso Liberado - Ordem Oculta</title>
+</head>
+<body style="margin:0; padding:0; background-color:#08080a; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color:#f3f4f6;">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#08080a; padding:30px 10px;">
+  <tr>
+    <td align="center">
+      <table width="100%" max-width="580" border="0" cellspacing="0" cellpadding="0" style="max-width:580px; background:linear-gradient(180deg, #12121a 0%, #0c0c12 100%); border:1px solid rgba(212,175,55,0.35); border-radius:20px; padding:35px 25px; box-shadow:0 15px 40px rgba(0,0,0,0.85); text-align:center;">
+        <tr>
+          <td>
+            <div style="display:inline-block; margin-bottom:15px;">
+              <span style="display:inline-block; background:rgba(212,175,55,0.15); border:1px solid #d4af37; color:#d4af37; font-size:11px; font-weight:800; letter-spacing:1.5px; padding:6px 14px; border-radius:99px; text-transform:uppercase;">
+                ⚡ Vaga Confirmada
+              </span>
+            </div>
+            
+            <h1 style="color:#ffffff; font-size:24px; font-weight:900; margin:0 0 14px; letter-spacing:0.3px; line-height:1.3;">
+              Bem-vindo à <span style="color:#d4af37;">Ordem Oculta</span>
+            </h1>
+            
+            <p style="color:#9ca3af; font-size:14.5px; line-height:1.6; margin:0 0 22px;">
+              Olá, <strong>{$cleanName}</strong>! Seu pagamento foi aprovado com sucesso e o seu acesso oficial às ferramentas do Mestre da Sedução já está pronto para uso.
+            </p>
+
+            <div style="background:rgba(255,255,255,0.03); border:1px dashed rgba(255,255,255,0.15); border-radius:12px; padding:14px; margin:0 0 22px; text-align:left;">
+              <div style="font-size:12px; color:#9ca3af; margin-bottom:4px;">Seu e-mail de acesso cadastrado:</div>
+              <div style="font-size:14px; font-weight:700; color:#ffffff;">{$toEmail}</div>
+            </div>
+
+            {$modulesSection}
+
+            <div style="margin:28px 0 24px;">
+              <a href="{$accessLink}" target="_blank" style="display:inline-block; width:88%; max-width:380px; background:linear-gradient(135deg, #d4af37 0%, #aa8210 100%); color:#08080a; font-size:15px; font-weight:900; text-transform:uppercase; letter-spacing:0.5px; padding:16px 20px; border-radius:12px; text-decoration:none; box-shadow:0 6px 25px rgba(212,175,55,0.35);">
+                Entrar no Aplicativo Agora &rarr;
+              </a>
+            </div>
+
+            <p style="color:#6b7280; font-size:12px; line-height:1.5; margin:0 0 25px;">
+              💡 <strong>Dica importante:</strong> Salve este e-mail nos seus favoritos para nunca perder o link de entrada. Você também pode fixar o aplicativo na tela inicial do seu celular.
+            </p>
+
+            <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:20px; font-size:11.5px; color:#6b7280; line-height:1.5;">
+              Precisa de ajuda com seu acesso? Fale com nosso suporte oficial:<br>
+              <a href="mailto:assistente@pontoideal.online" style="color:#d4af37; text-decoration:none; font-weight:700;">assistente@pontoideal.online</a>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
+HTML;
+
+    $headers = [
+        'MIME-Version: 1.0',
+        'Content-Type: text/html; charset=UTF-8',
+        'From: Ordem Oculta <assistente@pontoideal.online>',
+        'Reply-To: assistente@pontoideal.online',
+        'X-Mailer: PHP/' . phpversion()
+    ];
+
+    return @mail($toEmail, $subject, $bodyHtml, implode("\r\n", $headers));
+}
+
 function sanitizeMemberPublic(array $member): array {
     $planCr = getMemberPlanCredits($member);
     $extraCr = getMemberExtraCredits($member);
@@ -1140,6 +1239,9 @@ if ($action === 'kiwify-webhook') {
             'updated_at' => gmdate('c')
         ];
         saveMembersDb($members);
+
+        // Dispara e-mail oficial com o link de acesso e credenciais
+        $emailSent = sendPurchaseWelcomeEmail($customerEmail, $customerName, $planType, $modules);
     } elseif ($customerEmail !== '' && in_array($status, $revokedEvents, true)) {
         // Reembolso, chargeback ou cancelamento: revoga status da assinatura, mantendo registro
         $existing = $members[$customerEmail] ?? [];
