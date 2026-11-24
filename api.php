@@ -98,17 +98,32 @@ function saveMembersDb(array $members): void {
     @file_put_contents($dbFile, json_encode($members, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
 }
 
-function isMemberStatusActive(array $member): bool {
+define('DEMO_SCAN_COOLDOWN_SECONDS', 1800); // 30 minutos para liberar o 2º Scan no modo Demo
+define('GOOGLE_OAUTH_CLIENT_ID', '24987514921-tvlgolv7ommioi52qhobg693bpgq10dc.apps.googleusercontent.com');
+
+function isDemoMember(array $member): bool {
     $st = strtolower(trim((string)($member['status'] ?? '')));
-    return in_array($st, ['ativa', 'active', 'paid', 'approved', 'demo'], true);
+    $pl = strtolower(trim((string)($member['plan'] ?? '')));
+    return $st === 'demo' || $pl === 'demo';
+}
+
+function isPaidMemberActive(array $member): bool {
+    if (isDemoMember($member)) {
+        return false;
+    }
+    $st = strtolower(trim((string)($member['status'] ?? '')));
+    return in_array($st, ['ativa', 'active', 'paid', 'approved'], true);
+}
+
+function isMemberStatusActive(array $member): bool {
+    return isPaidMemberActive($member) || isDemoMember($member);
 }
 
 function getMemberRank(array $member): string {
-    $plan = strtolower(trim((string)($member['plan'] ?? 'mensal')));
-    $st = strtolower(trim((string)($member['status'] ?? '')));
-    if ($st === 'demo' || $plan === 'demo') {
+    if (isDemoMember($member)) {
         return 'Iniciado da Ordem';
     }
+    $plan = strtolower(trim((string)($member['plan'] ?? 'mensal')));
     if ($plan === 'anual') {
         return 'Mestre da Ordem';
     }
@@ -118,7 +133,163 @@ function getMemberRank(array $member): string {
     return 'Membro Guardião';
 }
 
+function getDemoQuotas(array $member): array {
+    $dq = is_array($member['demo_quotas'] ?? null) ? $member['demo_quotas'] : [];
+    $scanUsed = max(0, (int)($dq['scan_used'] ?? 0));
+    $firstScanAt = !empty($dq['first_scan_at']) ? (int)$dq['first_scan_at'] : null;
+    $coachUsed = max(0, (int)($dq['coach_used'] ?? 0));
+    $desfUsed = max(0, (int)($dq['desfibrilador_used'] ?? 0));
+    $fzUsed = max(0, (int)($dq['friendzone_used'] ?? 0));
+
+    $scanLimit = 2;
+    $coachLimit = 1;
+    $desfLimit = 1;
+    $fzLimit = 1;
+
+    $scanRem = max(0, $scanLimit - $scanUsed);
+    $coachRem = max(0, $coachLimit - $coachUsed);
+    $desfRem = max(0, $desfLimit - $desfUsed);
+    $fzRem = max(0, $fzLimit - $fzUsed);
+
+    $now = time();
+    $nextScanUnlockAt = null;
+    $scanCooldownSeconds = 0;
+    if ($scanUsed === 1 && $firstScanAt !== null) {
+        $nextScanUnlockAt = $firstScanAt + DEMO_SCAN_COOLDOWN_SECONDS;
+        $scanCooldownSeconds = max(0, $nextScanUnlockAt - $now);
+    }
+
+    return [
+        'scan_limit' => $scanLimit,
+        'scan_used' => $scanUsed,
+        'scan_remaining' => $scanRem,
+        'first_scan_at' => $firstScanAt,
+        'next_scan_unlock_at' => $nextScanUnlockAt,
+        'scan_cooldown_seconds' => $scanCooldownSeconds,
+        'coach_limit' => $coachLimit,
+        'coach_used' => $coachUsed,
+        'coach_remaining' => $coachRem,
+        'desfibrilador_limit' => $desfLimit,
+        'desfibrilador_used' => $desfUsed,
+        'desfibrilador_remaining' => $desfRem,
+        'friendzone_limit' => $fzLimit,
+        'friendzone_used' => $fzUsed,
+        'friendzone_remaining' => $fzRem,
+        'total_remaining' => $scanRem + $coachRem + $desfRem + $fzRem
+    ];
+}
+
+function checkDemoToolAccess(array $member, string $tool): void {
+    if (!isDemoMember($member)) {
+        return;
+    }
+    $cleanEmail = strtolower(trim((string)($member['email'] ?? '')));
+    $members = loadMembersDb();
+    $fresh = $members[$cleanEmail] ?? $member;
+    if (!isDemoMember($fresh)) {
+        return;
+    }
+
+    $q = getDemoQuotas($fresh);
+
+    if ($tool === 'scan') {
+        if ($q['scan_used'] >= $q['scan_limit']) {
+            http_response_code(402);
+            echo json_encode([
+                'success' => false,
+                'no_credits' => true,
+                'is_demo' => true,
+                'tool_locked' => 'scan',
+                'demo_quotas' => $q,
+                'credits' => ['creditos_plano' => $q['total_remaining'], 'creditos_avulsos' => 0, 'total' => $q['total_remaining']],
+                'error' => 'Você concluiu seus 2 Scans gratuitos no Oráculo. Escolha seu plano oficial abaixo para liberar Scans de Prints ILIMITADOS agora mesmo.'
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        if ($q['scan_used'] === 1 && $q['scan_cooldown_seconds'] > 0) {
+            http_response_code(429);
+            $mins = (int)ceil($q['scan_cooldown_seconds'] / 60);
+            echo json_encode([
+                'success' => false,
+                'scan_cooldown' => true,
+                'is_demo' => true,
+                'remaining_seconds' => $q['scan_cooldown_seconds'],
+                'unlock_at' => $q['next_scan_unlock_at'],
+                'demo_quotas' => $q,
+                'error' => "Seu 2º Scan Gratuito libera em {$mins} min para você escanear a resposta dela — ou desbloqueie o Oráculo ILIMITADO agora!"
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        return;
+    }
+
+    $toolMessages = [
+        'coach' => [
+            'used' => $q['coach_used'],
+            'limit' => $q['coach_limit'],
+            'msg' => 'Você concluiu sua consulta gratuita ao Mestre da Sedução. Escolha seu plano oficial abaixo para continuar este caso sem interrupções.'
+        ],
+        'desfibrilador' => [
+            'used' => $q['desfibrilador_used'],
+            'limit' => $q['desfibrilador_limit'],
+            'msg' => 'Você concluiu seu teste gratuito no Desfibrilador. Escolha seu plano oficial abaixo para gerar gatilhos anti-vácuo ilimitados.'
+        ],
+        'friendzone' => [
+            'used' => $q['friendzone_used'],
+            'limit' => $q['friendzone_limit'],
+            'msg' => 'Você concluiu seu teste gratuito na Rota de Fuga. Escolha seu plano oficial abaixo para continuar desarmando os testes dela.'
+        ]
+    ];
+
+    if (isset($toolMessages[$tool]) && $toolMessages[$tool]['used'] >= $toolMessages[$tool]['limit']) {
+        http_response_code(402);
+        echo json_encode([
+            'success' => false,
+            'no_credits' => true,
+            'is_demo' => true,
+            'tool_locked' => $tool,
+            'demo_quotas' => $q,
+            'credits' => ['creditos_plano' => $q['total_remaining'], 'creditos_avulsos' => 0, 'total' => $q['total_remaining']],
+            'error' => $toolMessages[$tool]['msg']
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
+function recordDemoToolUse(string $email, string $tool): array {
+    $cleanEmail = strtolower(trim($email));
+    $members = loadMembersDb();
+    if (!isset($members[$cleanEmail])) {
+        return [];
+    }
+    $dq = is_array($members[$cleanEmail]['demo_quotas'] ?? null) ? $members[$cleanEmail]['demo_quotas'] : [];
+    if ($tool === 'scan') {
+        $prev = max(0, (int)($dq['scan_used'] ?? 0));
+        $dq['scan_used'] = $prev + 1;
+        if ($prev === 0 || empty($dq['first_scan_at'])) {
+            $dq['first_scan_at'] = time();
+        } else {
+            $dq['second_scan_at'] = time();
+        }
+    } else {
+        $key = $tool . '_used';
+        $dq[$key] = max(0, (int)($dq[$key] ?? 0)) + 1;
+    }
+
+    $members[$cleanEmail]['demo_quotas'] = $dq;
+    $q = getDemoQuotas($members[$cleanEmail]);
+    $members[$cleanEmail]['creditos_plano'] = $q['total_remaining'];
+    $members[$cleanEmail]['credits_added'] = $q['total_remaining'];
+    $members[$cleanEmail]['updated_at'] = gmdate('c');
+    saveMembersDb($members);
+
+    return $q;
+}
+
 function getMemberPlanCredits(array $member): int {
+    if (isDemoMember($member)) {
+        return getDemoQuotas($member)['total_remaining'];
+    }
     if (isset($member['creditos_plano'])) {
         return max(0, (int)$member['creditos_plano']);
     }
@@ -126,6 +297,9 @@ function getMemberPlanCredits(array $member): int {
 }
 
 function getMemberExtraCredits(array $member): int {
+    if (isDemoMember($member)) {
+        return 0;
+    }
     return max(0, (int)($member['creditos_avulsos'] ?? 0));
 }
 
@@ -134,14 +308,14 @@ function getMemberTotalCredits(array $member): int {
 }
 
 /**
- * Desconta 1 crédito do membro ativo:
+ * Desconta 1 crédito do membro assinante ativo:
  * - Primeiro desconta de creditos_plano
  * - Só desconta de creditos_avulsos quando creditos_plano === 0
  */
 function consumeMemberCredit(string $email): array {
     $cleanEmail = strtolower(trim($email));
     $members = loadMembersDb();
-    if (!isset($members[$cleanEmail]) || !isMemberStatusActive($members[$cleanEmail])) {
+    if (!isset($members[$cleanEmail]) || !isPaidMemberActive($members[$cleanEmail])) {
         http_response_code(403);
         echo json_encode([
             'success' => false,
@@ -156,20 +330,17 @@ function consumeMemberCredit(string $email): array {
     $extraCr = getMemberExtraCredits($member);
 
     if (($planCr + $extraCr) <= 0) {
-        $isDemo = (($member['status'] ?? '') === 'demo' || ($member['plan'] ?? '') === 'demo');
         http_response_code(402);
         echo json_encode([
             'success' => false,
             'no_credits' => true,
-            'is_demo' => $isDemo,
+            'is_demo' => false,
             'credits' => [
                 'creditos_plano' => 0,
                 'creditos_avulsos' => 0,
                 'total' => 0
             ],
-            'error' => $isDemo
-                ? 'Você concluiu sua consulta de Iniciação na Ordem Oculta. Suba para Membro Guardião ou Mestre da Ordem para manter seu acesso irrestrito.'
-                : 'Seus créditos acabaram. Recarregue créditos avulsos ou faça upgrade para continuar.'
+            'error' => 'Seus créditos acabaram. Recarregue créditos avulsos ou faça upgrade para continuar.'
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
@@ -333,16 +504,18 @@ HTML;
 }
 
 function sanitizeMemberPublic(array $member): array {
-    $planCr = getMemberPlanCredits($member);
-    $extraCr = getMemberExtraCredits($member);
+    $isDemo = isDemoMember($member);
+    $demoQuotas = $isDemo ? getDemoQuotas($member) : null;
+    $planCr = $isDemo ? $demoQuotas['total_remaining'] : getMemberPlanCredits($member);
+    $extraCr = $isDemo ? 0 : getMemberExtraCredits($member);
     $totalCr = $planCr + $extraCr;
-    $isDemo = (($member['status'] ?? '') === 'demo' || ($member['plan'] ?? '') === 'demo');
     return [
         'name' => $member['name'] ?? ($isDemo ? 'Iniciado da Ordem' : 'Membro da Ordem'),
         'email' => $member['email'] ?? '',
         'plan' => $member['plan'] ?? ($isDemo ? 'demo' : 'mensal'),
         'rank' => getMemberRank($member),
         'is_demo' => $isDemo,
+        'demo_quotas' => $demoQuotas,
         'modules' => $member['modules'] ?? [],
         'creditos_plano' => $planCr,
         'creditos_avulsos' => $extraCr,
@@ -555,7 +728,7 @@ function runPhotoStoryMasterAI(array $ocrData, string $phase): array {
     $legendaStory = trim((string)($ocrData['legenda_do_story'] ?? ''));
 
     $phaseInstruction = ($phase !== 'auto' && $phase !== '')
-        ? "O aluno selecionou a fase '{$phase}'. Calibre as 3 respostas para essa fase."
+        ? "O membro da Ordem selecionou a fase '{$phase}'. Calibre as 3 respostas para essa fase."
         : "Use 'invasao' (Fase I: A Abordagem Magnética) como padrão para fotos/stories.";
 
     $photoSystem = <<<PROMPT
@@ -612,12 +785,12 @@ function runChatConversationMasterAI(array $ocrData, string $phase): array {
         : $lastHerMsg;
 
     $phaseInstruction = ($phase !== 'auto' && $phase !== '')
-        ? "O aluno selecionou especificamente a fase '{$phase}'. Calibre as 3 respostas para cumprir o objetivo dessa fase, mantendo 100% de conexão com o texto da conversa."
+        ? "O membro da Ordem selecionou especificamente a fase '{$phase}'. Calibre as 3 respostas para cumprir o objetivo dessa fase, mantendo 100% de conexão com o texto da conversa."
         : "Classifique a fase ideal da conversa ('conducao' para Fase II: A Condução & Tensão, 'extracao' para Fase III: A Transição pro WhatsApp, ou 'fechamento' para Fase IV: O Convite a Dois).";
 
     $chatSystem = <<<PROMPT
 Você é "O Mestre da Sedução", especialista exclusivamente em RESPONDER CONVERSAS DE DM E WHATSAPP da plataforma "Ordem Oculta — O Segredo das Respostas Imediatas".
-Você receberá a transcrição exata das mensagens lidas do print da conversa do aluno com a mulher.
+Você receberá a transcrição exata das mensagens lidas do print da conversa do membro da Ordem com a mulher.
 
 ═══════════════════════════════════════════════════════════════════════
 DIRETRIZES EXCLUSIVAS DO MOTOR DE CONVERSAS (TEXTO DE MENSAGENS):
@@ -694,7 +867,7 @@ if ($action === 'auth-login') {
         http_response_code(401);
         echo json_encode([
             'success' => false,
-            'error' => 'E-mail não encontrado como assinante. Se você acabou de comprar na Kiwify, toque em "Primeiro acesso após compra".'
+            'error' => 'E-mail não encontrado. Use a aba "Teste Grátis" para iniciar sua degustação ou "Primeiro Acesso" se acabou de comprar.'
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
@@ -711,7 +884,16 @@ if ($action === 'auth-login') {
 
     $storedHash = (string)($member['password_hash'] ?? '');
     if ($storedHash === '') {
-        // Primeiro acesso: se o membro já está aprovado na Kiwify e ainda não tinha senha, registra a senha digitada e libera na hora!
+        // Blindagem crítica: conta Demo criada via Google não pode ganhar status 'ativa' nem ter senha definida sem Google
+        if (isDemoMember($member)) {
+            http_response_code(401);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Esta conta foi criada com o Google. Toque em "Continuar com o Google" acima para entrar com 1 clique.'
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        // Primeiro acesso de membro PAGO aprovado na Kiwify que ainda não tinha senha
         if (strlen($password) < 4) {
             http_response_code(400);
             echo json_encode(['success' => false, 'error' => 'Crie uma senha com pelo menos 4 caracteres.'], JSON_UNESCAPED_UNICODE);
@@ -733,6 +915,7 @@ if ($action === 'auth-login') {
     $token = generateMemberToken($email);
     echo json_encode([
         'success' => true,
+        'is_demo' => isDemoMember($member),
         'token' => $token,
         'member' => sanitizeMemberPublic($member)
     ], JSON_UNESCAPED_UNICODE);
@@ -755,8 +938,8 @@ if ($action === 'auth-activate') {
     }
 
     $members = loadMembersDb();
-    if (!isset($members[$email])) {
-        // Webhook da Kiwify ainda não chegou ou e-mail aguardando compensação Pix
+    // Se não existe OU se ainda está como 'demo' (acabou de pagar no Pix/Cartão e aguarda o webhook da Kiwify promover para 'ativa')
+    if (!isset($members[$email]) || isDemoMember($members[$email])) {
         echo json_encode([
             'success' => false,
             'pending_webhook' => true,
@@ -766,7 +949,7 @@ if ($action === 'auth-activate') {
     }
 
     $member = $members[$email];
-    if (!isMemberStatusActive($member)) {
+    if (!isPaidMemberActive($member)) {
         http_response_code(403);
         echo json_encode([
             'success' => false,
@@ -781,7 +964,7 @@ if ($action === 'auth-activate') {
         echo json_encode([
             'success' => false,
             'already_activated' => true,
-            'error' => 'Este e-mail já possui senha cadastrada. Volte para a tela de Login e entre com sua senha.'
+            'error' => 'Este e-mail já possui senha cadastrada. Volte para a aba "Entrar" e acesse com sua senha (ou com o Google).'
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
@@ -825,41 +1008,43 @@ if ($action === 'auth-register-demo') {
 
     if (isset($members[$email])) {
         $existing = $members[$email];
-        $isPaid = in_array(strtolower((string)($existing['status'] ?? '')), ['ativa', 'active', 'paid', 'approved'], true)
-            && strtolower((string)($existing['plan'] ?? '')) !== 'demo';
-
-        if ($isPaid) {
+        if (isPaidMemberActive($existing)) {
             http_response_code(409);
             echo json_encode([
                 'success' => false,
                 'is_paid_member' => true,
-                'error' => 'Este e-mail já é um Membro Oficial da Ordem Oculta! Vá para a aba de Login e entre com sua senha.'
+                'error' => 'Este e-mail já é um Membro Oficial da Ordem Oculta! Redirecionando para o Login...'
             ], JSON_UNESCAPED_UNICODE);
             exit;
         }
 
-        // Já existia como conta demo
-        $totalCredits = getMemberTotalCredits($existing);
-        if ($totalCredits <= 0) {
+        if (!isDemoMember($existing)) {
             http_response_code(403);
             echo json_encode([
                 'success' => false,
-                'demo_expired' => true,
-                'error' => 'Sua consulta de Iniciação Gratuita com este e-mail já foi concluída. Escolha seu plano oficial para desbloquear o acesso ilimitado.'
+                'error' => 'Esta conta consta como inativa. Escolha um plano oficial para ativar seu acesso.'
             ], JSON_UNESCAPED_UNICODE);
             exit;
         }
 
-        // Se ainda tem crédito demo e digitou senha correta (ou ainda não tinha)
+        // Já existia como conta demo: valida senha (ou exige Google se criada via Google) e permite re-entrar!
         $storedHash = (string)($existing['password_hash'] ?? '');
         if ($storedHash === '') {
+            if (!empty($existing['google_id'])) {
+                http_response_code(401);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Este e-mail foi iniciado pelo Google. Clique em "Continuar com o Google" acima para entrar.'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
             $members[$email]['password_hash'] = password_hash($password, PASSWORD_DEFAULT);
             saveMembersDb($members);
         } elseif (!password_verify($password, $storedHash)) {
             http_response_code(401);
             echo json_encode([
                 'success' => false,
-                'error' => 'Este e-mail já foi registrado no teste gratuito. Digite a senha cadastrada ou escolha outro e-mail.'
+                'error' => 'Este e-mail já possui cadastro de Iniciação. Digite a mesma senha criada anteriormente (ou entre com o Google).'
             ], JSON_UNESCAPED_UNICODE);
             exit;
         }
@@ -874,15 +1059,22 @@ if ($action === 'auth-register-demo') {
         exit;
     }
 
-    // Novo cadastro Demo (1 crédito para degustação do Oráculo/Mestre)
+    // Novo cadastro Demo (1 teste em cada uma das 4 ferramentas + 2º Scan liberado após 30 min = 5 testes totais)
     $newMember = [
         'name' => $name !== '' ? $name : 'Iniciado da Ordem',
         'email' => $email,
         'status' => 'demo',
         'plan' => 'demo',
-        'creditos_plano' => 1,
+        'demo_quotas' => [
+            'scan_used' => 0,
+            'first_scan_at' => null,
+            'coach_used' => 0,
+            'desfibrilador_used' => 0,
+            'friendzone_used' => 0
+        ],
+        'creditos_plano' => 5,
         'creditos_avulsos' => 0,
-        'credits_added' => 1,
+        'credits_added' => 5,
         'password_hash' => password_hash($password, PASSWORD_DEFAULT),
         'created_at' => gmdate('c'),
         'updated_at' => gmdate('c'),
@@ -934,62 +1126,90 @@ if ($action === 'auth-google') {
         exit;
     }
 
+    // Valida audiência (Client ID oficial) e e-mail verificado
+    $aud = trim((string)($googleUser['aud'] ?? ''));
+    $emailVerified = ($googleUser['email_verified'] ?? false);
+    if ($aud !== GOOGLE_OAUTH_CLIENT_ID || ($emailVerified !== true && $emailVerified !== 'true')) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'error' => 'Token Google inválido para este aplicativo.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
     $email = strtolower(trim($googleUser['email']));
-    $name = trim($googleUser['name'] ?? 'Membro da Ordem');
+    $name = trim($googleUser['name'] ?? 'Iniciado da Ordem');
     $googleId = trim($googleUser['sub'] ?? '');
 
     $members = loadMembersDb();
 
-    // Se o usuário já existe
+    // Se o usuário já existe (Membro Oficial Pago ou Iniciado Demo retornando após 30 min / comprando plano)
     if (isset($members[$email])) {
         $existing = $members[$email];
-        $isPaid = in_array(strtolower((string)($existing['status'] ?? '')), ['ativa', 'active', 'paid', 'approved'], true)
-            && strtolower((string)($existing['plan'] ?? '')) !== 'demo';
-
-        if ($isPaid) {
-            // Membro oficial assinante: login direto sem senha!
+        if (isPaidMemberActive($existing)) {
+            if (empty($existing['google_id']) && $googleId !== '') {
+                $members[$email]['google_id'] = $googleId;
+                saveMembersDb($members);
+                $existing = $members[$email];
+            }
             $token = generateMemberToken($email);
             echo json_encode([
                 'success' => true,
+                'is_demo' => false,
                 'token' => $token,
                 'member' => sanitizeMemberPublic($existing)
             ], JSON_UNESCAPED_UNICODE);
             exit;
         }
 
-        // Já existia como demo
-        $totalCredits = getMemberTotalCredits($existing);
-        if ($totalCredits <= 0) {
+        if (!isDemoMember($existing)) {
             http_response_code(403);
             echo json_encode([
                 'success' => false,
-                'demo_expired' => true,
-                'error' => 'Sua consulta de Iniciação Gratuita com este e-mail do Google já foi concluída. Escolha seu plano oficial para desbloquear o acesso ilimitado.'
+                'error' => 'Sua assinatura consta como inativa ou reembolsada. Regularize seu acesso para entrar.'
             ], JSON_UNESCAPED_UNICODE);
             exit;
         }
 
-        // Se ainda tem créditos demo
+        if (empty($existing['google_id']) && $googleId !== '') {
+            $members[$email]['google_id'] = $googleId;
+        }
+        if (!isset($existing['demo_quotas'])) {
+            $members[$email]['demo_quotas'] = [
+                'scan_used' => 0,
+                'first_scan_at' => null,
+                'coach_used' => 0,
+                'desfibrilador_used' => 0,
+                'friendzone_used' => 0
+            ];
+        }
+        saveMembersDb($members);
+
         $token = generateMemberToken($email);
         echo json_encode([
             'success' => true,
             'is_demo' => true,
             'token' => $token,
-            'member' => sanitizeMemberPublic($existing)
+            'member' => sanitizeMemberPublic($members[$email])
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
 
-    // Novo cadastro Demo via Google (1 clique!)
+    // Novo cadastro Demo via Google (1 clique -> 2 Scans c/ 30min + 1 teste nas 4 ferramentas)
     $newMember = [
         'name' => $name !== '' ? $name : 'Iniciado da Ordem',
         'email' => $email,
         'google_id' => $googleId,
         'status' => 'demo',
         'plan' => 'demo',
-        'creditos_plano' => 1,
+        'demo_quotas' => [
+            'scan_used' => 0,
+            'first_scan_at' => null,
+            'coach_used' => 0,
+            'desfibrilador_used' => 0,
+            'friendzone_used' => 0
+        ],
+        'creditos_plano' => 5,
         'creditos_avulsos' => 0,
-        'credits_added' => 1,
+        'credits_added' => 5,
         'password_hash' => '',
         'created_at' => gmdate('c'),
         'updated_at' => gmdate('c'),
@@ -1011,17 +1231,9 @@ if ($action === 'auth-google') {
 
 if ($action === 'scan') {
     $member = requireActiveMemberSession($body);
-    $isDemo = (($member['status'] ?? '') === 'demo' || ($member['plan'] ?? '') === 'demo');
-    if ($isDemo && getMemberTotalCredits($member) <= 0) {
-        http_response_code(402);
-        echo json_encode([
-            'success' => false,
-            'no_credits' => true,
-            'is_demo' => true,
-            'credits' => ['creditos_plano' => 0, 'creditos_avulsos' => 0, 'total' => 0],
-            'error' => 'Você concluiu sua consulta de Iniciação na Ordem Oculta. Suba para Membro Guardião ou Mestre da Ordem para manter seu acesso irrestrito.'
-        ], JSON_UNESCAPED_UNICODE);
-        exit;
+    $isDemo = isDemoMember($member);
+    if ($isDemo) {
+        checkDemoToolAccess($member, 'scan');
     }
 
     $image = $body['image'] ?? '';
@@ -1092,10 +1304,14 @@ if ($action === 'scan') {
         http_response_code(500);
     } else {
         if ($isDemo) {
-            $creditRes = consumeMemberCredit($member['email']);
-            if (!empty($creditRes['ok'])) {
-                $result['credits'] = $creditRes;
-            }
+            $q = recordDemoToolUse($member['email'], 'scan');
+            $result['demo_quotas'] = $q;
+            $result['credits'] = [
+                'ok' => true,
+                'creditos_plano' => $q['total_remaining'] ?? 0,
+                'creditos_avulsos' => 0,
+                'total' => $q['total_remaining'] ?? 0
+            ];
         }
     }
     echo json_encode($result, JSON_UNESCAPED_UNICODE);
@@ -1104,19 +1320,21 @@ if ($action === 'scan') {
 
 if ($action === 'coach') {
     $member = requireActiveMemberSession($body);
-    $totalAvailable = getMemberPlanCredits($member) + getMemberExtraCredits($member);
-    $isDemo = (($member['status'] ?? '') === 'demo' || ($member['plan'] ?? '') === 'demo');
-    if ($totalAvailable <= 0) {
-        http_response_code(402);
-        echo json_encode([
-            'success' => false,
-            'no_credits' => true,
-            'is_demo' => $isDemo,
-            'error' => $isDemo
-                ? 'Você concluiu sua consulta de Iniciação na Ordem Oculta. Suba para Membro Guardião ou Mestre da Ordem para manter seu acesso irrestrito.'
-                : 'Seus Créditos Táticos acabaram. Faça uma recarga avulsa para continuar.'
-        ], JSON_UNESCAPED_UNICODE);
-        exit;
+    $isDemo = isDemoMember($member);
+    if ($isDemo) {
+        checkDemoToolAccess($member, 'coach');
+    } else {
+        $totalAvailable = getMemberPlanCredits($member) + getMemberExtraCredits($member);
+        if ($totalAvailable <= 0) {
+            http_response_code(402);
+            echo json_encode([
+                'success' => false,
+                'no_credits' => true,
+                'is_demo' => false,
+                'error' => 'Seus Créditos Táticos acabaram. Faça uma recarga avulsa para continuar.'
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
     }
 
     $situation = trim((string)($body['situation'] ?? ''));
@@ -1140,15 +1358,15 @@ if ($action === 'coach') {
             $s = $item['situation'] ?? '';
             $d = $item['diagnosis'] ?? '';
             $sc = $item['script'] ?? '';
-            $lines[] = "[RODADA {$round}]\n- Relato do aluno: \"{$s}\"\n- Leitura do Mestre: \"{$d}\"\n- Mensagem recomendada: \"{$sc}\"";
+            $lines[] = "[RODADA {$round}]\n- Relato do membro: \"{$s}\"\n- Leitura do Mestre: \"{$d}\"\n- Mensagem recomendada: \"{$sc}\"";
         }
-        $historyPrompt = "\nHISTÓRICO DAS RODADAS ANTERIORES (ÚLTIMAS " . count($history) . "):\n" . implode("\n", $lines) . "\n\nATUALIZAÇÃO ATUAL DO ALUNO:\n\"{$situation}\"\n";
+        $historyPrompt = "\nHISTÓRICO DAS RODADAS ANTERIORES (ÚLTIMAS " . count($history) . "):\n" . implode("\n", $lines) . "\n\nATUALIZAÇÃO ATUAL DO MEMBRO:\n\"{$situation}\"\n";
     }
 
     $systemPrompt = <<<PROMPT
 Você é "O Mestre da Sedução" (Professor de Bolso 24h) da plataforma "Ordem Oculta — O Segredo das Respostas Imediatas".
-Aplique as 3 Skills Mestres de Relacionamento (Moldura de Alto Valor, Loop de Curiosidade e Linguagem Limpa sem Bajulação) para orientar o aluno:
-Analise o relato do aluno e entregue:
+Aplique as 3 Skills Mestres de Relacionamento (Moldura de Alto Valor, Loop de Curiosidade e Linguagem Limpa sem Bajulação) para orientar o membro da Ordem:
+Analise o relato do membro e entregue:
 1. "diagnosis": Análise comportamental direta (2 a 3 frases) revelando a psicologia dela nessa situação e o que ela está realmente testando no homem.
 2. "script": Frase exata, curta (1 a 2 linhas), inteligente e magnética para copiar e enviar agora mesmo.
 3. "actionGuide": Orientação tática de postura mental, tempo ideal de espera antes de mandar e o próximo movimento.
@@ -1160,14 +1378,25 @@ Responda EXCLUSIVAMENTE em JSON puro:
 }
 PROMPT;
 
-    $userText = $historyPrompt ?: "RELATO DO ALUNO:\n\"{$situation}\"";
+    $userText = $historyPrompt ?: "RELATO DO MEMBRO:\n\"{$situation}\"";
     $result = callOpenRouter($systemPrompt, $userText, null, 0.72, 1600);
     if (!$result['success']) {
         http_response_code(500);
     } else {
-        $creditRes = consumeMemberCredit($member['email']);
-        if ($creditRes['ok']) {
-            $result['credits'] = $creditRes;
+        if ($isDemo) {
+            $q = recordDemoToolUse($member['email'], 'coach');
+            $result['demo_quotas'] = $q;
+            $result['credits'] = [
+                'ok' => true,
+                'creditos_plano' => $q['total_remaining'] ?? 0,
+                'creditos_avulsos' => 0,
+                'total' => $q['total_remaining'] ?? 0
+            ];
+        } else {
+            $creditRes = consumeMemberCredit($member['email']);
+            if (!empty($creditRes['ok'])) {
+                $result['credits'] = $creditRes;
+            }
         }
     }
     echo json_encode($result, JSON_UNESCAPED_UNICODE);
@@ -1175,7 +1404,12 @@ PROMPT;
 }
 
 if ($action === 'desfibrilador') {
-    requireActiveMemberSession($body);
+    $member = requireActiveMemberSession($body);
+    $isDemo = isDemoMember($member);
+    if ($isDemo) {
+        checkDemoToolAccess($member, 'desfibrilador');
+    }
+
     $timeWindow = $body['timeWindow'] ?? '3dias';
     $topic = $body['topic'] ?? '';
 
@@ -1196,6 +1430,17 @@ PROMPT;
     $result = callOpenRouter($systemPrompt, $userText, null, 0.78, 1800);
     if (!$result['success']) {
         http_response_code(500);
+    } else {
+        if ($isDemo) {
+            $q = recordDemoToolUse($member['email'], 'desfibrilador');
+            $result['demo_quotas'] = $q;
+            $result['credits'] = [
+                'ok' => true,
+                'creditos_plano' => $q['total_remaining'] ?? 0,
+                'creditos_avulsos' => 0,
+                'total' => $q['total_remaining'] ?? 0
+            ];
+        }
     }
     echo json_encode($result, JSON_UNESCAPED_UNICODE);
     exit;
@@ -1203,15 +1448,21 @@ PROMPT;
 
 if ($action === 'friendzone') {
     $member = requireActiveMemberSession($body);
-    $totalAvailable = getMemberPlanCredits($member) + getMemberExtraCredits($member);
-    if ($totalAvailable <= 0) {
-        http_response_code(402);
-        echo json_encode([
-            'success' => false,
-            'no_credits' => true,
-            'error' => 'Seus Créditos Táticos acabaram. Faça uma recarga avulsa para continuar.'
-        ], JSON_UNESCAPED_UNICODE);
-        exit;
+    $isDemo = isDemoMember($member);
+    if ($isDemo) {
+        checkDemoToolAccess($member, 'friendzone');
+    } else {
+        $totalAvailable = getMemberPlanCredits($member) + getMemberExtraCredits($member);
+        if ($totalAvailable <= 0) {
+            http_response_code(402);
+            echo json_encode([
+                'success' => false,
+                'no_credits' => true,
+                'is_demo' => false,
+                'error' => 'Seus Créditos Táticos acabaram. Faça uma recarga avulsa para continuar.'
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
     }
 
     $message = trim((string)($body['message'] ?? ''));
@@ -1254,9 +1505,20 @@ PROMPT;
     if (!$result['success']) {
         http_response_code(500);
     } else {
-        $creditRes = consumeMemberCredit($member['email']);
-        if ($creditRes['ok']) {
-            $result['credits'] = $creditRes;
+        if ($isDemo) {
+            $q = recordDemoToolUse($member['email'], 'friendzone');
+            $result['demo_quotas'] = $q;
+            $result['credits'] = [
+                'ok' => true,
+                'creditos_plano' => $q['total_remaining'] ?? 0,
+                'creditos_avulsos' => 0,
+                'total' => $q['total_remaining'] ?? 0
+            ];
+        } else {
+            $creditRes = consumeMemberCredit($member['email']);
+            if (!empty($creditRes['ok'])) {
+                $result['credits'] = $creditRes;
+            }
         }
     }
     echo json_encode($result, JSON_UNESCAPED_UNICODE);
@@ -1355,14 +1617,16 @@ if ($action === 'kiwify-webhook') {
             exit;
         }
 
+        $wasDemo = !$isNewMember && isDemoMember($existing);
         $modules = is_array($existing['modules'] ?? null) ? $existing['modules'] : [];
-        $planCredits = $isNewMember ? 0 : getMemberPlanCredits($existing);
-        $extraCredits = $isNewMember ? 0 : getMemberExtraCredits($existing);
+        $planCredits = ($isNewMember || $wasDemo) ? 0 : getMemberPlanCredits($existing);
+        $extraCredits = ($isNewMember || $wasDemo) ? 0 : getMemberExtraCredits($existing);
         $existingPasswordHash = $existing['password_hash'] ?? null;
         if ($existingPasswordHash === '') {
             $existingPasswordHash = null;
         }
-        $existingPlan = (string)($existing['plan'] ?? 'mensal');
+        $existingGoogleId = $existing['google_id'] ?? null;
+        $existingPlan = $wasDemo ? 'mensal' : (string)($existing['plan'] ?? 'mensal');
         $existingExpiresAt = $existing['subscription_expires_at'] ?? gmdate('c', time() + 30 * 86400);
 
         // Modules / Order Bumps (verifica tanto nos campos estruturados quanto no payload bruto)
@@ -1414,12 +1678,21 @@ if ($action === 'kiwify-webhook') {
         );
         $isAvulsoAmount = (!$isModuleProductOnly && in_array($amountCents, [990, 1490, 1990], true));
 
+        $keepDemoQuotas = null;
         if ($isModuleProductOnly) {
             // Webhook avulso apenas de um e-book / módulo do Arsenal (ou Order Bump enviado separado pela Kiwify)
             $purchaseCategory = 'modulo_arsenal';
-            $planType = $existingPlan;
-            $expiresAt = $existingExpiresAt;
-            $memberStatus = $existing['status'] ?? 'ativa';
+            if ($wasDemo) {
+                $planType = 'demo';
+                $expiresAt = null;
+                $memberStatus = 'demo';
+                $keepDemoQuotas = $existing['demo_quotas'] ?? null;
+                $planCredits = getDemoQuotas($existing)['total_remaining'];
+            } else {
+                $planType = $existingPlan;
+                $expiresAt = $existingExpiresAt;
+                $memberStatus = $existing['status'] ?? 'ativa';
+            }
         } elseif ($hasCode25 || $hasCode15 || $hasCode8 || $isAvulsoKeyword || $isAvulsoAmount) {
             $purchaseCategory = 'pacote_avulso';
             $addedAvulsos = 0;
@@ -1437,7 +1710,7 @@ if ($action === 'kiwify-webhook') {
             $extraCredits += $addedAvulsos;
             $planType = $existingPlan;
             $expiresAt = $existingExpiresAt;
-            $memberStatus = $existing['status'] ?? 'ativa';
+            $memberStatus = 'ativa';
         } else {
             // Assinatura Principal (A Ordem Oculta) ou Renovação Mensal
             $purchaseCategory = 'assinatura_principal';
@@ -1475,9 +1748,10 @@ if ($action === 'kiwify-webhook') {
             $processedOrders[] = $orderId;
         }
 
-        $members[$customerEmail] = [
+        $updatedRecord = [
             'name' => $customerName,
             'email' => $customerEmail,
+            'google_id' => $existingGoogleId,
             'plan' => $planType,
             'product' => trim($productName . ' ' . $offerName),
             'modules' => array_values(array_unique($modules)),
@@ -1490,6 +1764,10 @@ if ($action === 'kiwify-webhook') {
             'processed_orders' => array_values(array_unique($processedOrders)),
             'updated_at' => gmdate('c')
         ];
+        if ($keepDemoQuotas !== null) {
+            $updatedRecord['demo_quotas'] = $keepDemoQuotas;
+        }
+        $members[$customerEmail] = $updatedRecord;
         saveMembersDb($members);
 
         // Dispara e-mail oficial com o link de acesso e credenciais

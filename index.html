@@ -38,6 +38,11 @@
         };
       }
       S.sid = S.sid || getCookie('vt_sid') || ('vt_' + Date.now().toString(36));
+      S.utm = S.utm || {};
+      ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(function(k) {
+        var v = params.get(k);
+        if (v) S.utm[k] = v;
+      });
       S.seen = now;
       if (urlFbclid) {
         S.fbclid = urlFbclid;
@@ -82,7 +87,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="stylesheet" href="style.css?v=39.0">
+    <link rel="stylesheet" href="style.css?v=40.0">
 </head>
 <body>
     <!-- ====================================================================
@@ -111,12 +116,12 @@
                 </button>
             </div>
 
-            <!-- TELA 0: DEGUSTAÇÃO / DEMO GRÁTIS (1 CONSULTA) -->
+            <!-- TELA 0: DEGUSTAÇÃO / DEMO GRÁTIS (4 FERRAMENTAS + 2 SCANS) -->
             <div id="authViewDemo" class="auth-view-pane">
                 <div class="auth-demo-badge">
-                    <i class="fa-solid fa-bolt"></i> 1 CONSULTA DE INICIAÇÃO GRATUITA
+                    <i class="fa-solid fa-bolt"></i> INICIAÇÃO GRATUITA NAS 4 FERRAMENTAS
                 </div>
-                <p class="auth-subtitle">Entre com seu Google em 1 clique para receber <strong>1 consulta imediata</strong> no Oráculo de Prints ou no Mestre da Sedução:</p>
+                <p class="auth-subtitle">Entre com seu Google em 1 clique e receba <strong>2 Scans de Prints no Oráculo</strong> + <strong>1 teste gratuito</strong> em cada ferramenta da Ordem:</p>
 
                 <!-- BOTÃO OFICIAL GOOGLE SIGN-IN (1 CLIQUE) -->
                 <div class="auth-google-box">
@@ -331,7 +336,7 @@
                         <!-- Card 1: O Oráculo (Scanner de Prints) -->
                         <div class="hub-tool-card pm-tool-card card-oraculo" data-action="open-oraculo">
                             <div class="pm-tool-cover" style="--cover: url('assets/card-oraculo.jpg?v=3');">
-                                <span class="pm-tool-tag tag-red"><i class="fa-solid fa-infinity"></i> ILIMITADO</span>
+                                <span class="pm-tool-tag tag-red" id="hubTagOraculo"><i class="fa-solid fa-infinity"></i> ILIMITADO</span>
                                 <span class="pm-tool-number">01</span>
                             </div>
                             <div class="tool-card-body pm-tool-body">
@@ -349,7 +354,7 @@
                         <!-- Card 2: O Mestre da Sedução (Seu Professor de Bolso) -->
                         <div class="hub-tool-card pm-tool-card card-coach" data-action="open-coach">
                             <div class="pm-tool-cover" style="--cover: url('assets/card-coach.jpg');">
-                                <span class="pm-tool-tag tag-gold"><i class="fa-solid fa-crown"></i> MENTOR DE BOLSO</span>
+                                <span class="pm-tool-tag tag-gold" id="hubTagCoach"><i class="fa-solid fa-crown"></i> MENTOR DE BOLSO</span>
                                 <span class="pm-tool-number">02</span>
                             </div>
                             <div class="tool-card-body pm-tool-body">
@@ -367,7 +372,7 @@
                         <!-- Card 3: O Desfibrilador -->
                         <div class="hub-tool-card pm-tool-card card-desfibrilador" data-action="open-desfibrilador">
                             <div class="pm-tool-cover" style="--cover: url('assets/card-desfibrilador.jpg');">
-                                <span class="pm-tool-tag tag-gold"><i class="fa-solid fa-bolt"></i> ANTI-GHOSTING</span>
+                                <span class="pm-tool-tag tag-gold" id="hubTagDesf"><i class="fa-solid fa-bolt"></i> ANTI-GHOSTING</span>
                                 <span class="pm-tool-number">03</span>
                             </div>
                             <div class="tool-card-body pm-tool-body">
@@ -385,7 +390,7 @@
                         <!-- Card 4: A Rota de Fuga -->
                         <div class="hub-tool-card pm-tool-card card-friendzone" data-action="open-friendzone">
                             <div class="pm-tool-cover" style="--cover: url('assets/card-friendzone.jpg');">
-                                <span class="pm-tool-tag tag-emerald"><i class="fa-solid fa-door-open"></i> ANTI-FRIENDZONE</span>
+                                <span class="pm-tool-tag tag-emerald" id="hubTagFz"><i class="fa-solid fa-door-open"></i> ANTI-FRIENDZONE</span>
                                 <span class="pm-tool-number">04</span>
                             </div>
                             <div class="tool-card-body pm-tool-body">
@@ -554,6 +559,20 @@
                         <i class="fa-solid fa-circle-info"></i>
                         <span id="submodeExplText"><strong>Leitura de Story:</strong> O Mestre varre o cenário da foto (comidas, fundo, roupas) para criar um gancho espontâneo que força ela a responder.</span>
                     </div>
+                </div>
+
+                <!-- Barra de Status do Modo Teste (2 Scans com 2º em 30 min) -->
+                <div class="oraculo-demo-strip hidden" id="oraculoDemoStatusStrip">
+                    <div class="oraculo-demo-strip-left">
+                        <i class="fa-solid fa-bolt" id="oraculoDemoStripIcon"></i>
+                        <div class="oraculo-demo-strip-text">
+                            <strong id="oraculoDemoStripTitle">Iniciação no Oráculo: 2 Scans Gratuitos</strong>
+                            <span id="oraculoDemoStripSub">1º Scan imediato · 2º Scan libera em 30 min para escanear a resposta dela</span>
+                        </div>
+                    </div>
+                    <button type="button" class="oraculo-demo-strip-btn hidden" id="oraculoDemoStripBtn">
+                        Desbloquear Ilimitado
+                    </button>
                 </div>
 
                 <!-- Upload Dropzone & File Picker -->
@@ -1051,14 +1070,14 @@
                         </div>
                         <div class="pm-value-item bad">
                             <span>Mensal pago o ano inteiro</span>
-                            <strong>R$ 564</strong>
+                            <strong>R$ 454</strong>
                         </div>
                         <div class="pm-value-item good">
                             <span>Plano PRO Anual</span>
                             <strong>R$ 0,54/dia</strong>
                         </div>
                     </div>
-                    <p class="pm-value-foot">No Anual você economiza <b>R$ 367</b> comparado ao Mensal e recebe <b>8x mais créditos</b> por mês. É menos que um café por semana para nunca mais ficar sem saber o que responder.</p>
+                    <p class="pm-value-foot">No Anual você economiza <b>R$ 256,90</b> comparado ao Mensal e recebe <b>4x mais créditos</b> por mês (além dos 3 livros e aulas inclusos). É menos que um café por semana para nunca mais travar na conversa.</p>
                 </div>
 
                 <!-- Benefits List (Padrão PuxeAssunto) -->
@@ -1162,7 +1181,7 @@
                     </div>
 
                     <!-- Botão CTA Gigante de Pagamento -->
-                    <a href="https://pay.kiwify.com.br/ZvKHa3Z" target="_blank" class="btn-subscribe-cta" id="btnSubscribeCTA">
+                    <a href="https://pay.kiwify.com.br/ZvKHa3Z" target="_blank" class="btn-subscribe-cta kiwify-dynamic-link" id="btnSubscribeCTA" data-base-href="https://pay.kiwify.com.br/ZvKHa3Z" data-plan-ic="1" data-plan-name="Plano Anual PRO - Mestre da Ordem" data-plan-price="197.90">
                         <span>Assinar Anual PRO · R$ 197,90</span>
                         <i class="fa-solid fa-arrow-right"></i>
                     </a>
@@ -1401,93 +1420,126 @@
                         </div>
                     </div>
 
-                    <!-- Ferramentas Dev/Teste para Simular Desbloqueio e Troca de Cor dos Botões -->
-                    <div class="arsenal-dev-tools">
-                        <button class="btn-dev-toggle-modules" id="btnDevUnlockAllModules">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i>
-                            <span>Liberar Todos os Módulos (Modo Teste)</span>
-                        </button>
-                        <button class="btn-dev-toggle-modules reset" id="btnDevLockAllModules">
-                            <i class="fa-solid fa-lock"></i>
-                            <span>Resetar/Bloquear Todos (Modo Teste)</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Modal de Conteúdo do Módulo Desbloqueado -->
-                <div class="module-modal hidden" id="moduleModal">
-                    <div class="module-modal-overlay" id="moduleModalOverlay"></div>
-                    <div class="module-modal-card">
-                        <div class="module-modal-header">
-                            <div class="modal-header-info">
-                                <span class="modal-badge-unlocked"><i class="fa-solid fa-unlock"></i> ACESSO LIBERADO</span>
-                                <h3 class="modal-title" id="modalTitle">Módulo Liberado</h3>
-                            </div>
-                            <button class="btn-close-modal" id="btnCloseModal">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
-                        </div>
-                        <div class="module-modal-body" id="modalBody">
-                            <!-- Injetado dinamicamente -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Paywall Modal de Bloqueio (Trava dos 5 Créditos do Coach) -->
-                <div class="paywall-lock-modal hidden" id="paywallLockModal">
-                    <div class="paywall-lock-overlay" id="paywallLockOverlay"></div>
-                    <div class="paywall-lock-card">
-                        <div class="lock-header">
-                            <div class="lock-icon-box">
-                                <i class="fa-solid fa-lock"></i>
-                            </div>
-                            <button class="btn-close-lock" id="btnCloseLockModal">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
-                        </div>
-                        <span class="lock-badge">SEUS CRÉDITOS ACABARAM</span>
-                        <h3 class="lock-title">Ela está esperando a sua resposta.</h3>
-                        <p class="lock-desc">Cada minuto de demora esfria a conversa. Recarregue seus <strong>Créditos Táticos</strong> (eles nunca expiram na virada do mês) e continue exatamente de onde parou:</p>
-
-                        <div class="lock-plan-cta-box">
-                            <!-- Ação Principal no Topo: 3 Pacotes de Recarga Avulsa -->
-                            <a href="https://pay.kiwify.com.br/f8sgCLT" target="_blank" class="btn-lock-upgrade-pro kiwify-dynamic-link" data-base-href="https://pay.kiwify.com.br/f8sgCLT" style="margin-bottom:8px;position:relative;">
-                                <div class="upgrade-text">
-                                    <span style="display:inline-block;background:#d4af37;color:#0a0a0c;font-size:10px;font-weight:800;padding:2px 7px;border-radius:99px;margin-bottom:4px;letter-spacing:0.04em;">+5 BÔNUS · MELHOR VALOR</span>
-                                    <strong>Recarga Arsenal — 25 Créditos Táticos (R$ 19,90)</strong>
-                                    <span>20 créditos + 5 bônus de presente · Nunca expiram</span>
-                                </div>
-                                <i class="fa-solid fa-bolt"></i>
-                            </a>
-
-                            <a href="https://pay.kiwify.com.br/MBeUN4x" target="_blank" class="btn-lock-view-plans kiwify-dynamic-link" data-base-href="https://pay.kiwify.com.br/MBeUN4x" style="text-decoration:none;display:flex;justify-content:space-between;align-items:center;text-align:left;padding:12px 14px;margin-bottom:8px;">
-                                <div style="display:flex;flex-direction:column;gap:2px;">
-                                    <strong style="color:#f5f0e6;font-size:13px;"><i class="fa-solid fa-bolt" style="color:#d4af37;"></i> Recarga Tática — 15 Créditos Táticos (R$ 14,90)</strong>
-                                    <span style="font-size:11.5px;color:#a9a297;">Economia de 20% por consulta</span>
-                                </div>
-                                <i class="fa-solid fa-arrow-right" style="color:#d4af37;"></i>
-                            </a>
-
-                            <a href="https://pay.kiwify.com.br/JszvJNU" target="_blank" class="btn-lock-view-plans kiwify-dynamic-link" data-base-href="https://pay.kiwify.com.br/JszvJNU" style="text-decoration:none;display:flex;justify-content:space-between;align-items:center;text-align:left;padding:12px 14px;margin-bottom:12px;">
-                                <div style="display:flex;flex-direction:column;gap:2px;">
-                                    <strong style="color:#f5f0e6;font-size:13px;"><i class="fa-solid fa-bolt" style="color:#d4af37;"></i> Recarga de Emergência — 8 Créditos Táticos (R$ 9,90)</strong>
-                                    <span style="font-size:11.5px;color:#a9a297;">Ideal para destravar uma conversa agora</span>
-                                </div>
-                                <i class="fa-solid fa-arrow-right" style="color:#d4af37;"></i>
-                            </a>
-
-                            <!-- Rodapé: Opção Secundária de Upgrade para o Plano Anual de R$ 197,90 -->
-                            <div style="border-top:1px solid rgba(212,175,55,0.18);padding-top:10px;margin-top:2px;">
-                                <a href="https://pay.kiwify.com.br/ZvKHa3Z" target="_blank" class="btn-lock-recharge kiwify-dynamic-link" data-base-href="https://pay.kiwify.com.br/ZvKHa3Z" style="text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;">
-                                    <i class="fa-solid fa-crown" style="color:#d4af37;"></i>
-                                    <span>Ou faça upgrade para o <strong>Plano Anual PRO (R$ 197,90)</strong> · 40 créditos/mês</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </section>
         </main>
+
+        <!-- ============================================================
+             MODAL GLOBAL DE LEITURA DE LIVRO / MÓDULO DESBLOQUEADO
+             ============================================================ -->
+        <div class="module-modal hidden" id="moduleModal">
+            <div class="module-modal-overlay" id="moduleModalOverlay"></div>
+            <div class="module-modal-card">
+                <div class="module-modal-header">
+                    <div class="modal-header-info">
+                        <span class="modal-badge-unlocked"><i class="fa-solid fa-unlock"></i> ACESSO LIBERADO</span>
+                        <h3 class="modal-title" id="modalTitle">Módulo Liberado</h3>
+                    </div>
+                    <button class="btn-close-modal" id="btnCloseModal">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="module-modal-body" id="modalBody">
+                    <!-- Injetado dinamicamente -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+             PAYWALL MODAL GLOBAL (VISÍVEL EM QUALQUER ABA DO APP!)
+             Exibe os 3 Planos Oficiais para Iniciados (Demo) ou Recargas para Assinantes
+             ============================================================ -->
+        <div class="paywall-lock-modal hidden" id="paywallLockModal">
+            <div class="paywall-lock-overlay" id="paywallLockOverlay"></div>
+            <div class="paywall-lock-card">
+                <div class="lock-header">
+                    <div class="lock-icon-box" id="lockIconBox">
+                        <i class="fa-solid fa-lock" id="lockHeaderIcon"></i>
+                    </div>
+                    <button class="btn-close-lock" id="btnCloseLockModal">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <span class="lock-badge" id="lockBadgeText">INICIAÇÃO CONCLUÍDA</span>
+                <h3 class="lock-title" id="lockTitleText">Desbloqueie seu Acesso Oficial à Ordem.</h3>
+                <p class="lock-desc" id="lockDescText">Escolha sua patente abaixo para liberar <strong>Scans de Prints Ilimitados</strong> e acesso completo às 4 ferramentas:</p>
+
+                <!-- Cronômetro Ao Vivo de 30 Minutos para o 2º Scan do Oráculo -->
+                <div class="lock-cooldown-box hidden" id="lockCooldownTimerBox">
+                    <div class="cooldown-clock-row">
+                        <i class="fa-regular fa-clock fa-spin-pulse"></i>
+                        <div class="cooldown-clock-info">
+                            <span>SEU 2º SCAN GRATUITO LIBERA EM:</span>
+                            <strong id="lockCooldownClock">30:00</strong>
+                        </div>
+                    </div>
+                    <p class="cooldown-hint">Envie agora uma das 3 respostas geradas para ela! Quando ela responder, volte aqui para usar seu 2º Scan — ou <strong>libere Scans Ilimitados agora sem esperar</strong>:</p>
+                </div>
+
+                <!-- MODO INICIADO (DEMO): OS 3 PLANOS OFICIAIS (Disparam InitiateCheckout no VeroTrack) -->
+                <div class="lock-plan-cta-box" id="lockDemoPlansBox">
+                    <a href="https://pay.kiwify.com.br/ZvKHa3Z" target="_blank" class="btn-lock-upgrade-pro kiwify-dynamic-link" data-base-href="https://pay.kiwify.com.br/ZvKHa3Z" data-plan-ic="1" data-plan-name="Plano Anual PRO - Mestre da Ordem" data-plan-price="197.90" style="margin-bottom:8px;position:relative;">
+                        <div class="upgrade-text">
+                            <span style="display:inline-block;background:#d4af37;color:#0a0a0c;font-size:10px;font-weight:800;padding:2px 7px;border-radius:99px;margin-bottom:4px;letter-spacing:0.04em;">MAIS VANTAJOSO · R$ 16,49/MÊS</span>
+                            <strong>Mestre da Ordem — Plano Anual PRO (R$ 197,90)</strong>
+                            <span>Scans Ilimitados + 40 créditos/mês + Todos os Livros Inclusos</span>
+                        </div>
+                        <i class="fa-solid fa-crown"></i>
+                    </a>
+
+                    <a href="https://pay.kiwify.com.br/Q3mXfsV" target="_blank" class="btn-lock-view-plans kiwify-dynamic-link" data-base-href="https://pay.kiwify.com.br/Q3mXfsV" data-plan-ic="1" data-plan-name="Plano Trimestral - Membro Conselheiro" data-plan-price="97.90" style="text-decoration:none;display:flex;justify-content:space-between;align-items:center;text-align:left;padding:12px 14px;margin-bottom:8px;">
+                        <div style="display:flex;flex-direction:column;gap:2px;">
+                            <strong style="color:#f5f0e6;font-size:13px;"><i class="fa-solid fa-shield-halved" style="color:#d4af37;"></i> Membro Conselheiro — Trimestral (R$ 97,90)</strong>
+                            <span style="font-size:11.5px;color:#a9a297;">Scans Ilimitados + 20 créditos/mês (equiv. R$ 32,63/mês)</span>
+                        </div>
+                        <i class="fa-solid fa-arrow-right" style="color:#d4af37;"></i>
+                    </a>
+
+                    <a href="https://pay.kiwify.com.br/8X6hibI" target="_blank" class="btn-lock-view-plans kiwify-dynamic-link" data-base-href="https://pay.kiwify.com.br/8X6hibI" data-plan-ic="1" data-plan-name="Plano Mensal - Membro Guardiao" data-plan-price="37.90" style="text-decoration:none;display:flex;justify-content:space-between;align-items:center;text-align:left;padding:12px 14px;">
+                        <div style="display:flex;flex-direction:column;gap:2px;">
+                            <strong style="color:#f5f0e6;font-size:13px;"><i class="fa-solid fa-bolt" style="color:#10b981;"></i> Membro Guardião — Mensal (R$ 37,90/mês)</strong>
+                            <span style="font-size:11.5px;color:#a9a297;">Scans Ilimitados + 10 créditos/mês · Acesso Imediato</span>
+                        </div>
+                        <i class="fa-solid fa-arrow-right" style="color:#d4af37;"></i>
+                    </a>
+                </div>
+
+                <!-- MODO ASSINANTE ATIVO: 3 PACOTES DE RECARGA AVULSA -->
+                <div class="lock-plan-cta-box hidden" id="lockSubscriberRechargeBox">
+                    <a href="https://pay.kiwify.com.br/f8sgCLT" target="_blank" class="btn-lock-upgrade-pro kiwify-dynamic-link" data-base-href="https://pay.kiwify.com.br/f8sgCLT" style="margin-bottom:8px;position:relative;">
+                        <div class="upgrade-text">
+                            <span style="display:inline-block;background:#d4af37;color:#0a0a0c;font-size:10px;font-weight:800;padding:2px 7px;border-radius:99px;margin-bottom:4px;letter-spacing:0.04em;">+5 BÔNUS · MELHOR VALOR</span>
+                            <strong>Recarga Arsenal — 25 Créditos Táticos (R$ 19,90)</strong>
+                            <span>20 créditos + 5 bônus de presente · Nunca expiram</span>
+                        </div>
+                        <i class="fa-solid fa-bolt"></i>
+                    </a>
+
+                    <a href="https://pay.kiwify.com.br/MBeUN4x" target="_blank" class="btn-lock-view-plans kiwify-dynamic-link" data-base-href="https://pay.kiwify.com.br/MBeUN4x" style="text-decoration:none;display:flex;justify-content:space-between;align-items:center;text-align:left;padding:12px 14px;margin-bottom:8px;">
+                        <div style="display:flex;flex-direction:column;gap:2px;">
+                            <strong style="color:#f5f0e6;font-size:13px;"><i class="fa-solid fa-bolt" style="color:#d4af37;"></i> Recarga Tática — 15 Créditos Táticos (R$ 14,90)</strong>
+                            <span style="font-size:11.5px;color:#a9a297;">Economia de 20% por consulta</span>
+                        </div>
+                        <i class="fa-solid fa-arrow-right" style="color:#d4af37;"></i>
+                    </a>
+
+                    <a href="https://pay.kiwify.com.br/JszvJNU" target="_blank" class="btn-lock-view-plans kiwify-dynamic-link" data-base-href="https://pay.kiwify.com.br/JszvJNU" style="text-decoration:none;display:flex;justify-content:space-between;align-items:center;text-align:left;padding:12px 14px;margin-bottom:12px;">
+                        <div style="display:flex;flex-direction:column;gap:2px;">
+                            <strong style="color:#f5f0e6;font-size:13px;"><i class="fa-solid fa-bolt" style="color:#d4af37;"></i> Recarga de Emergência — 8 Créditos Táticos (R$ 9,90)</strong>
+                            <span style="font-size:11.5px;color:#a9a297;">Ideal para destravar uma conversa agora</span>
+                        </div>
+                        <i class="fa-solid fa-arrow-right" style="color:#d4af37;"></i>
+                    </a>
+
+                    <div style="border-top:1px solid rgba(212,175,55,0.18);padding-top:10px;margin-top:2px;">
+                        <a href="https://pay.kiwify.com.br/ZvKHa3Z" target="_blank" class="btn-lock-recharge kiwify-dynamic-link" data-base-href="https://pay.kiwify.com.br/ZvKHa3Z" data-plan-ic="1" data-plan-name="Plano Anual PRO - Mestre da Ordem" data-plan-price="197.90" style="text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;">
+                            <i class="fa-solid fa-crown" style="color:#d4af37;"></i>
+                            <span>Ou faça upgrade para o <strong>Plano Anual PRO (R$ 197,90)</strong> · 40 créditos/mês</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- ============================================================
              DRAWER / MODAL DE PERFIL DO MEMBRO DA ORDEM
@@ -1510,7 +1562,7 @@
                         </div>
                         <div class="profile-rank-info">
                             <h3 class="profile-rank-title" id="profileDrawerRank">Iniciado da Ordem</h3>
-                            <span class="profile-rank-badge" id="profileDrawerBadge">[ ACESSO PROVISÓRIO · 1 CONSULTA ]</span>
+                            <span class="profile-rank-badge" id="profileDrawerBadge">[ ACESSO PROVISÓRIO · 4 FERRAMENTAS ]</span>
                         </div>
                     </div>
 
@@ -1526,7 +1578,7 @@
                         </div>
                         <div class="profile-info-row">
                             <span class="profile-info-label"><i class="fa-solid fa-crown"></i> Patente Atual:</span>
-                            <span class="profile-info-val rank-val" id="profileDrawerPlanName">Plano de Degustação</span>
+                            <span class="profile-info-val rank-val" id="profileDrawerPlanName">Iniciação Gratuita</span>
                         </div>
                     </div>
 
@@ -1534,19 +1586,41 @@
                     <div class="profile-credits-card">
                         <div class="profile-credits-header">
                             <i class="fa-solid fa-bolt"></i>
-                            <span>SALDO DE CONSULTAS & ANÁLISES</span>
+                            <span id="profileCreditsHeaderTitle">SALDO DE CONSULTAS & ANÁLISES</span>
                         </div>
                         <div class="profile-credits-main">
-                            <div class="profile-credits-number" id="profileDrawerTotalCredits">1</div>
+                            <div class="profile-credits-number" id="profileDrawerTotalCredits">5</div>
                             <div class="profile-credits-text">
-                                <strong>Consultas Disponíveis</strong>
-                                <span id="profileDrawerCreditsSub">Disponível para escanear print ou tirar dúvida</span>
+                                <strong id="profileDrawerCreditsMainLbl">Testes Gratuitos Restantes</strong>
+                                <span id="profileDrawerCreditsSub">2 Scans no Oráculo + 1 uso em cada ferramenta</span>
                             </div>
                         </div>
-                        <div class="profile-credits-breakdown">
+
+                        <!-- Checklist por Ferramenta (Exibido para Iniciados Demo) -->
+                        <div class="profile-demo-quotas" id="profileDemoQuotasList">
+                            <div class="demo-quota-row">
+                                <span><i class="fa-solid fa-camera"></i> O Oráculo (Prints):</span>
+                                <strong id="dqStatusScan">2/2 disponíveis</strong>
+                            </div>
+                            <div class="demo-quota-row">
+                                <span><i class="fa-solid fa-chess-king"></i> Mestre da Sedução:</span>
+                                <strong id="dqStatusCoach">1/1 disponível</strong>
+                            </div>
+                            <div class="demo-quota-row">
+                                <span><i class="fa-solid fa-bolt"></i> O Desfibrilador:</span>
+                                <strong id="dqStatusDesf">1/1 disponível</strong>
+                            </div>
+                            <div class="demo-quota-row">
+                                <span><i class="fa-solid fa-door-open"></i> A Rota de Fuga:</span>
+                                <strong id="dqStatusFz">1/1 disponível</strong>
+                            </div>
+                        </div>
+
+                        <!-- Extrato de Assinante Oficial (Exibido para Membros Pagos) -->
+                        <div class="profile-credits-breakdown hidden" id="profilePaidBreakdown">
                             <div class="breakdown-item">
                                 <span class="breakdown-lbl">Franquia do Plano:</span>
-                                <strong class="breakdown-val" id="profileDrawerPlanCredits">1</strong>
+                                <strong class="breakdown-val" id="profileDrawerPlanCredits">10</strong>
                             </div>
                             <div class="breakdown-item">
                                 <span class="breakdown-lbl">Créditos Avulsos (Eternos):</span>
@@ -1607,8 +1681,8 @@
         <span id="toastMsg">Script copiado!</span>
     </div>
 
-    <script src="app.js?v=39.0"></script>
+    <script src="app.js?v=40.0"></script>
     <!-- VeroTrack Tracker -->
-    <script src="https://api.pontoideal.online/vt.js" data-page="upsell" defer></script>
+    <script src="https://api.pontoideal.online/vt.js" data-page="app" defer></script>
 </body>
 </html>

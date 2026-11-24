@@ -5697,3 +5697,191 @@ body {
     width: 100%;
     max-width: 340px;
 }
+
+/* ====================================================================
+   BARRA DE STATUS & CRONÔMETRO DE 30 MIN DO ORÁCULO (MODO DEMO)
+   ==================================================================== */
+.oraculo-demo-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.14) 0%, rgba(16, 16, 24, 0.95) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.38);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.oraculo-demo-strip.hidden {
+    display: none !important;
+}
+
+.oraculo-demo-strip.cooldown-active {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(20, 15, 12, 0.96) 100%);
+    border-color: rgba(245, 158, 11, 0.55);
+}
+
+.oraculo-demo-strip.ready-unlocked {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.18) 0%, rgba(12, 22, 18, 0.96) 100%);
+    border-color: rgba(16, 185, 129, 0.55);
+}
+
+.oraculo-demo-strip-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+
+.oraculo-demo-strip-left > i {
+    font-size: 18px;
+    color: #d4af37;
+    flex-shrink: 0;
+}
+
+.oraculo-demo-strip.ready-unlocked .oraculo-demo-strip-left > i {
+    color: #10b981;
+}
+
+.oraculo-demo-strip-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-align: left;
+}
+
+.oraculo-demo-strip-text strong {
+    font-size: 12.5px;
+    color: #ffffff;
+    font-weight: 800;
+    line-height: 1.25;
+}
+
+.oraculo-demo-strip-text span {
+    font-size: 11px;
+    color: #cbd5e1;
+    line-height: 1.35;
+}
+
+.oraculo-demo-strip-btn {
+    background: linear-gradient(135deg, #d4af37, #b89728);
+    color: #08080a;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 11px;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+    flex-shrink: 0;
+}
+
+/* ====================================================================
+   CRONÔMETRO DE 30 MIN NO PAYWALL & CHECKLIST NO DRAWER DE PERFIL
+   ==================================================================== */
+.lock-cooldown-box {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.45);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin: 0 0 14px;
+    text-align: left;
+}
+
+.lock-cooldown-box.hidden {
+    display: none !important;
+}
+
+.cooldown-clock-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.cooldown-clock-row > i {
+    font-size: 22px;
+    color: #fbbf24;
+}
+
+.cooldown-clock-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.cooldown-clock-info span {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: #fbbf24;
+}
+
+.cooldown-clock-info strong {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 900;
+    color: #ffffff;
+    line-height: 1.15;
+}
+
+.cooldown-hint {
+    font-size: 11.5px;
+    color: #cbd5e1;
+    line-height: 1.45;
+    margin: 0;
+}
+
+.profile-demo-quotas {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding-top: 4px;
+}
+
+.profile-demo-quotas.hidden,
+.profile-credits-breakdown.hidden {
+    display: none !important;
+}
+
+.demo-quota-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11.5px;
+    color: #cbd5e1;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.demo-quota-row span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.demo-quota-row span i {
+    color: #d4af37;
+    width: 14px;
+    text-align: center;
+}
+
+.demo-quota-row strong {
+    font-size: 11px;
+    font-weight: 800;
+    color: #10b981;
+}
+
+.demo-quota-row strong.quota-cooldown {
+    color: #fbbf24;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.demo-quota-row strong.quota-used {
+    color: #94a3b8;
+}

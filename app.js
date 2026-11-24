@@ -253,56 +253,141 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!rawUrl.includes('pay.kiwify.com.br')) return rawUrl;
         const email = (localStorage.getItem('ordem_vip_email') || '').toLowerCase().trim();
         try {
-            const urlObj = new URL(rawUrl);
+            // Primeiro aplica decoração oficial do VeroTrack (sck, src, tracker, fbclid, utms)
+            let decorated = (window.VT && typeof window.VT.decorateUrl === 'function')
+                ? window.VT.decorateUrl(rawUrl)
+                : rawUrl;
+            const urlObj = new URL(decorated);
+
+            // Fallback caso vt.js ainda esteja carregando: lê vt_state diretamente
+            try {
+                const vtS = JSON.parse(localStorage.getItem('vt_state') || '{}') || {};
+                if (vtS.sid) {
+                    if (!urlObj.searchParams.get('sck')) urlObj.searchParams.set('sck', vtS.sid);
+                    if (!urlObj.searchParams.get('src')) urlObj.searchParams.set('src', vtS.sid);
+                    if (!urlObj.searchParams.get('tracker')) urlObj.searchParams.set('tracker', vtS.sid);
+                }
+                if (vtS.fbclid && !urlObj.searchParams.get('fbclid')) {
+                    urlObj.searchParams.set('fbclid', vtS.fbclid);
+                }
+                if (vtS.utm && typeof vtS.utm === 'object') {
+                    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(k => {
+                        if (vtS.utm[k] && !urlObj.searchParams.get(k)) {
+                            urlObj.searchParams.set(k, vtS.utm[k]);
+                        }
+                    });
+                }
+            } catch (eVt) {}
+
             if (email) {
                 urlObj.searchParams.set('email', email);
             }
             return urlObj.toString();
         } catch (e) {
             if (!email) return rawUrl;
-            const cleanBase = rawUrl.split('?')[0];
-            return `${cleanBase}?email=${encodeURIComponent(email)}`;
+            const sep = rawUrl.includes('?') ? '&' : '?';
+            return `${rawUrl}${sep}email=${encodeURIComponent(email)}`;
         }
     }
 
-    function trackInitiateCheckout(url, planTitle = 'Ordem Oculta') {
+    // Identifica os 3 checkouts principais de Assinatura Oficial para envio de InitiateCheckout no VeroTrack (page='front')
+    function resolveOfficialPlanMeta(url, fallbackTitle = '', fallbackPrice = null) {
+        const u = String(url || '');
+        if (u.includes('ZvKHa3Z')) {
+            return { isMainPlan: true, name: 'Plano Anual PRO - Mestre da Ordem', price: 197.90 };
+        }
+        if (u.includes('Q3mXfsV')) {
+            return { isMainPlan: true, name: 'Plano Trimestral - Membro Conselheiro', price: 97.90 };
+        }
+        if (u.includes('8X6hibI')) {
+            return { isMainPlan: true, name: 'Plano Mensal - Membro Guardiao', price: 37.90 };
+        }
+        return { isMainPlan: false, name: fallbackTitle || 'Complemento Ordem Oculta', price: fallbackPrice || 0 };
+    }
+
+    function trackInitiateCheckout(url, planTitle = 'Ordem Oculta', explicitPrice = null) {
+        const meta = resolveOfficialPlanMeta(url, planTitle, explicitPrice);
+        // Apenas os 3 Planos Oficiais de assinatura contam como InitiateCheckout principal no VeroTrack + Meta CAPI
+        if (!meta.isMainPlan) {
+            return;
+        }
+
         const memberEmail = (localStorage.getItem('ordem_vip_email') || '').trim().toLowerCase();
-        let sid = '';
+        let vtS = {};
         try {
-            const vtState = JSON.parse(localStorage.getItem('vt_state') || '{}');
-            sid = vtState.sid || '';
+            vtS = JSON.parse(localStorage.getItem('vt_state') || '{}') || {};
         } catch (e) {}
 
-        // Meta Pixel standard InitiateCheckout
-        if (typeof window.fbq === 'function') {
+        const sid = (window.VT && window.VT.sid) || vtS.sid || ('vt_' + Date.now().toString(36) + '0000');
+        const icEventId = 'ic_front_' + sid;
+        const dedupKey = 'vt_ic_front_' + sid;
+        const alreadyPixelSent = localStorage.getItem(dedupKey) === '1' || !!(vtS.icSent && vtS.icSent.front);
+
+        try {
+            vtS.icSent = vtS.icSent || {};
+            vtS.icSent.front = 1;
+            localStorage.setItem('vt_state', JSON.stringify(vtS));
+            localStorage.setItem(dedupKey, '1');
+        } catch (eLs) {}
+
+        // 1. Disparo Browser Meta Pixel (deduplicado com o mesmo eventID do CAPI)
+        if (!alreadyPixelSent && typeof window.fbq === 'function') {
             try {
-                const icId = 'ic_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
                 window.fbq('track', 'InitiateCheckout', {
-                    content_name: planTitle,
+                    content_name: meta.name,
                     currency: 'BRL',
-                    value: planTitle.includes('197') ? 197.90 : (planTitle.includes('97') ? 97.90 : 37.90)
-                }, { eventID: icId });
+                    value: meta.price
+                }, { eventID: icEventId });
             } catch (eFbq) {}
         }
 
-        // VeroTrack POST CAPI/Webhook
-        try {
-            const payload = {
-                event: 'InitiateCheckout',
-                email: memberEmail,
-                product: planTitle,
-                checkout_url: url,
-                page: 'app',
-                sid: sid || undefined,
-                timestamp: new Date().toISOString()
-            };
-            fetch('https://api.pontoideal.online/webhook/track', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-                keepalive: true
-            }).catch(() => {});
-        } catch (eVt) {}
+        // 2. Disparo Oficial VeroTrack (/track com page='front', email do membro e schema Zod validado)
+        const trackPayload = JSON.stringify({
+            sid: sid,
+            fbp: vtS.fbp || null,
+            fbc: vtS.fbc || null,
+            fbclid: vtS.fbclid || null,
+            utm: vtS.utm || {},
+            landing_url: vtS.landing || window.location.href,
+            events: [
+                {
+                    id: icEventId,
+                    name: 'InitiateCheckout',
+                    ts: Date.now(),
+                    url: 'https://pontoideal.online/Ordemoculta/',
+                    props: {
+                        page: 'front',
+                        target: url,
+                        label: meta.name,
+                        product: meta.name,
+                        price: meta.price,
+                        email: memberEmail || undefined
+                    }
+                }
+            ]
+        });
+
+        let beaconSent = false;
+        if (navigator.sendBeacon) {
+            try {
+                beaconSent = navigator.sendBeacon(
+                    'https://api.pontoideal.online/track',
+                    new Blob([trackPayload], { type: 'text/plain;charset=UTF-8' })
+                );
+            } catch (eB) {}
+        }
+        if (!beaconSent) {
+            try {
+                fetch('https://api.pontoideal.online/track', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+                    body: trackPayload,
+                    keepalive: true,
+                    mode: 'cors',
+                    credentials: 'omit'
+                }).catch(() => {});
+            } catch (eVt) {}
+        }
     }
 
     function refreshAllKiwifyCheckoutLinks() {
@@ -314,6 +399,278 @@ document.addEventListener('DOMContentLoaded', () => {
                 link.href = decorateKiwifyUrlWithEmail(cleanBase);
             }
         });
+    }
+
+    // =========================================================================
+    // MOTOR DE COTAS DO MODO TESTE (4 FERRAMENTAS + CRONÔMETRO DE 30 MIN NO 2º SCAN)
+    // =========================================================================
+    let demoCooldownIntervalId = null;
+
+    function formatMmSs(totalSeconds) {
+        const s = Math.max(0, Math.floor(totalSeconds));
+        const m = Math.floor(s / 60);
+        const rem = s % 60;
+        return String(m).padStart(2, '0') + ':' + String(rem).padStart(2, '0');
+    }
+
+    function getStoredDemoQuotas() {
+        try {
+            const raw = localStorage.getItem('ordem_demo_quotas');
+            return raw ? JSON.parse(raw) : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function getLiveScanCooldownSeconds(dq) {
+        if (!dq || dq.scan_used !== 1 || !dq.next_scan_unlock_at) return 0;
+        const nowSec = Math.floor(Date.now() / 1000);
+        return Math.max(0, dq.next_scan_unlock_at - nowSec);
+    }
+
+    function updateDemoQuotasState(dq) {
+        if (!dq || typeof dq !== 'object') return;
+        // Ancora next_scan_unlock_at no relógio local caso haja diferença de segundos cliente/servidor
+        if (dq.scan_used === 1 && typeof dq.scan_cooldown_seconds === 'number' && dq.scan_cooldown_seconds > 0) {
+            dq.next_scan_unlock_at = Math.floor(Date.now() / 1000) + dq.scan_cooldown_seconds;
+        }
+        localStorage.setItem('ordem_demo_quotas', JSON.stringify(dq));
+        if (typeof dq.total_remaining === 'number') {
+            syncGlobalCredits(dq.total_remaining);
+        }
+        syncDemoQuotasUI();
+    }
+
+    function openGlobalPaywallModal(opts = {}) {
+        const paywallModal = document.getElementById('paywallLockModal');
+        if (!paywallModal) return;
+
+        refreshAllKiwifyCheckoutLinks();
+        const isDemo = (typeof opts.isDemo === 'boolean') ? opts.isDemo : (localStorage.getItem('ordem_is_demo') === '1');
+        const cooldownSec = opts.cooldownSeconds || 0;
+
+        const iconEl = document.getElementById('lockHeaderIcon');
+        const badgeEl = document.getElementById('lockBadgeText');
+        const titleEl = document.getElementById('lockTitleText');
+        const descEl = document.getElementById('lockDescText');
+        const cooldownBox = document.getElementById('lockCooldownTimerBox');
+        const clockEl = document.getElementById('lockCooldownClock');
+        const demoPlansBox = document.getElementById('lockDemoPlansBox');
+        const subRechargeBox = document.getElementById('lockSubscriberRechargeBox');
+
+        if (cooldownSec > 0) {
+            if (iconEl) iconEl.className = 'fa-solid fa-hourglass-half';
+            if (badgeEl) badgeEl.textContent = 'AGUARDANDO A RESPOSTA DELA';
+            if (titleEl) titleEl.textContent = 'Seu 2º Scan Gratuito já está engatilhado!';
+            if (descEl) descEl.innerHTML = 'O protocolo libera o 2º Scan após <strong>30 minutos</strong> para você mandar a 1ª mensagem e voltar com o print da resposta dela.';
+            if (cooldownBox) cooldownBox.classList.remove('hidden');
+            if (clockEl) clockEl.textContent = formatMmSs(cooldownSec);
+            if (demoPlansBox) demoPlansBox.classList.remove('hidden');
+            if (subRechargeBox) subRechargeBox.classList.add('hidden');
+        } else if (isDemo) {
+            if (iconEl) iconEl.className = 'fa-solid fa-crown';
+            if (badgeEl) badgeEl.textContent = 'DEGUSTAÇÃO CONCLUÍDA NESTA FERRAMENTA';
+            if (titleEl) titleEl.textContent = opts.customTitle || 'Suba de Patente na Ordem Oculta.';
+            if (descEl) {
+                descEl.innerHTML = opts.customDesc
+                    ? escapeHtml(opts.customDesc)
+                    : 'Você já comprovou o poder do Mestre na prática. Escolha seu plano oficial abaixo para liberar <strong>Scans Ilimitados</strong> e acesso total às 4 ferramentas:';
+            }
+            if (cooldownBox) cooldownBox.classList.add('hidden');
+            if (demoPlansBox) demoPlansBox.classList.remove('hidden');
+            if (subRechargeBox) subRechargeBox.classList.add('hidden');
+        } else {
+            if (iconEl) iconEl.className = 'fa-solid fa-lock';
+            if (badgeEl) badgeEl.textContent = 'SEUS CRÉDITOS ACABARAM';
+            if (titleEl) titleEl.textContent = 'Ela está esperando a sua resposta.';
+            if (descEl) descEl.innerHTML = 'Cada minuto de demora esfria a conversa. Recarregue seus <strong>Créditos Táticos</strong> (eles nunca expiram na virada do mês) e continue exatamente de onde parou:';
+            if (cooldownBox) cooldownBox.classList.add('hidden');
+            if (demoPlansBox) demoPlansBox.classList.add('hidden');
+            if (subRechargeBox) subRechargeBox.classList.remove('hidden');
+        }
+
+        paywallModal.classList.remove('hidden');
+    }
+
+    function syncDemoQuotasUI() {
+        const isDemo = localStorage.getItem('ordem_is_demo') === '1';
+        const dq = getStoredDemoQuotas();
+
+        const hubTagOraculo = document.getElementById('hubTagOraculo');
+        const hubTagCoach = document.getElementById('hubTagCoach');
+        const hubTagDesf = document.getElementById('hubTagDesf');
+        const hubTagFz = document.getElementById('hubTagFz');
+        const oraculoStrip = document.getElementById('oraculoDemoStatusStrip');
+        const oraculoStripIcon = document.getElementById('oraculoDemoStripIcon');
+        const oraculoStripTitle = document.getElementById('oraculoDemoStripTitle');
+        const oraculoStripSub = document.getElementById('oraculoDemoStripSub');
+        const oraculoStripBtn = document.getElementById('oraculoDemoStripBtn');
+        const rechargeCard = document.getElementById('card-credit-recharge');
+
+        const profileDemoList = document.getElementById('profileDemoQuotasList');
+        const profilePaidBreakdown = document.getElementById('profilePaidBreakdown');
+        const profileTotalEl = document.getElementById('profileDrawerTotalCredits');
+        const profileMainLbl = document.getElementById('profileDrawerCreditsMainLbl');
+        const profileSubLbl = document.getElementById('profileDrawerCreditsSub');
+
+        if (!isDemo || !dq) {
+            if (demoCooldownIntervalId) {
+                clearInterval(demoCooldownIntervalId);
+                demoCooldownIntervalId = null;
+            }
+            if (hubTagOraculo) hubTagOraculo.innerHTML = '<i class="fa-solid fa-infinity"></i> ILIMITADO';
+            if (hubTagCoach) hubTagCoach.innerHTML = '<i class="fa-solid fa-crown"></i> MENTOR DE BOLSO';
+            if (hubTagDesf) hubTagDesf.innerHTML = '<i class="fa-solid fa-bolt"></i> ANTI-GHOSTING';
+            if (hubTagFz) hubTagFz.innerHTML = '<i class="fa-solid fa-door-open"></i> ANTI-FRIENDZONE';
+            if (oraculoStrip) oraculoStrip.classList.add('hidden');
+            if (rechargeCard) rechargeCard.classList.remove('hidden');
+            if (profileDemoList) profileDemoList.classList.add('hidden');
+            if (profilePaidBreakdown) profilePaidBreakdown.classList.remove('hidden');
+            if (profileMainLbl) profileMainLbl.textContent = 'Consultas Disponíveis';
+            return;
+        }
+
+        // Oculta pacote avulso de R$ 9,90 no Arsenal para contas Demo (foco 100% nos 3 Planos Oficiais)
+        if (rechargeCard) rechargeCard.classList.add('hidden');
+        if (profileDemoList) profileDemoList.classList.remove('hidden');
+        if (profilePaidBreakdown) profilePaidBreakdown.classList.add('hidden');
+        if (profileMainLbl) profileMainLbl.textContent = 'Testes Gratuitos Restantes';
+
+        const cooldownSec = getLiveScanCooldownSeconds(dq);
+        const mmss = formatMmSs(cooldownSec);
+
+        // 1. Tags nos 4 Cards da Home
+        if (hubTagOraculo) {
+            if (dq.scan_used === 0) {
+                hubTagOraculo.innerHTML = '<i class="fa-solid fa-bolt"></i> 2 SCANS GRÁTIS';
+            } else if (dq.scan_used === 1 && cooldownSec > 0) {
+                hubTagOraculo.innerHTML = `<i class="fa-regular fa-clock"></i> 2º SCAN EM ${mmss}`;
+            } else if (dq.scan_used === 1) {
+                hubTagOraculo.innerHTML = '<i class="fa-solid fa-bolt"></i> 2º SCAN LIBERADO';
+            } else {
+                hubTagOraculo.innerHTML = '<i class="fa-solid fa-lock"></i> TESTE CONCLUÍDO';
+            }
+        }
+        if (hubTagCoach) {
+            hubTagCoach.innerHTML = dq.coach_remaining > 0
+                ? '<i class="fa-solid fa-bolt"></i> 1 TESTE GRÁTIS'
+                : '<i class="fa-solid fa-lock"></i> TESTE CONCLUÍDO';
+        }
+        if (hubTagDesf) {
+            hubTagDesf.innerHTML = dq.desfibrilador_remaining > 0
+                ? '<i class="fa-solid fa-bolt"></i> 1 TESTE GRÁTIS'
+                : '<i class="fa-solid fa-lock"></i> TESTE CONCLUÍDO';
+        }
+        if (hubTagFz) {
+            hubTagFz.innerHTML = dq.friendzone_remaining > 0
+                ? '<i class="fa-solid fa-bolt"></i> 1 TESTE GRÁTIS'
+                : '<i class="fa-solid fa-lock"></i> TESTE CONCLUÍDO';
+        }
+
+        // 2. Faixa ao vivo dentro do Oráculo
+        if (oraculoStrip) {
+            oraculoStrip.classList.remove('hidden', 'cooldown-active', 'ready-unlocked');
+            if (dq.scan_used === 0) {
+                if (oraculoStripIcon) oraculoStripIcon.className = 'fa-solid fa-bolt';
+                if (oraculoStripTitle) oraculoStripTitle.textContent = 'Iniciação no Oráculo: 2 Scans Gratuitos';
+                if (oraculoStripSub) oraculoStripSub.textContent = '1º Scan imediato · O 2º libera em 30 min para você escanear a resposta dela';
+                if (oraculoStripBtn) oraculoStripBtn.classList.add('hidden');
+            } else if (dq.scan_used === 1 && cooldownSec > 0) {
+                oraculoStrip.classList.add('cooldown-active');
+                if (oraculoStripIcon) oraculoStripIcon.className = 'fa-regular fa-clock';
+                if (oraculoStripTitle) oraculoStripTitle.textContent = `⏳ 2º Scan Gratuito libera em ${mmss}`;
+                if (oraculoStripSub) oraculoStripSub.textContent = 'Mande a 1ª resposta para ela e volte quando o relógio zerar — ou libere ilimitado:';
+                if (oraculoStripBtn) {
+                    oraculoStripBtn.textContent = 'Liberar Agora';
+                    oraculoStripBtn.classList.remove('hidden');
+                }
+            } else if (dq.scan_used === 1) {
+                oraculoStrip.classList.add('ready-unlocked');
+                if (oraculoStripIcon) oraculoStripIcon.className = 'fa-solid fa-circle-check';
+                if (oraculoStripTitle) oraculoStripTitle.textContent = '🔥 Seu 2º Scan Gratuito está LIBERADO!';
+                if (oraculoStripSub) oraculoStripSub.textContent = 'Envie abaixo o print do que ela respondeu para o Mestre dar o xeque-mate';
+                if (oraculoStripBtn) oraculoStripBtn.classList.add('hidden');
+            } else {
+                if (oraculoStripIcon) oraculoStripIcon.className = 'fa-solid fa-lock';
+                if (oraculoStripTitle) oraculoStripTitle.textContent = '2/2 Scans de Iniciação Concluídos';
+                if (oraculoStripSub) oraculoStripSub.textContent = 'Suba de patente para desbloquear Scans de Prints Ilimitados';
+                if (oraculoStripBtn) {
+                    oraculoStripBtn.textContent = 'Ver Planos';
+                    oraculoStripBtn.classList.remove('hidden');
+                }
+            }
+        }
+
+        // 3. Atualiza relógio do modal caso esteja aberto
+        const lockClockEl = document.getElementById('lockCooldownClock');
+        const lockCooldownBox = document.getElementById('lockCooldownTimerBox');
+        if (lockClockEl && lockCooldownBox && !lockCooldownBox.classList.contains('hidden')) {
+            if (cooldownSec > 0) {
+                lockClockEl.textContent = mmss;
+            } else {
+                lockCooldownBox.classList.add('hidden');
+                const paywallModal = document.getElementById('paywallLockModal');
+                if (paywallModal) paywallModal.classList.add('hidden');
+                showToast('🔥 Seu 2º Scan Gratuito acabou de liberar!');
+            }
+        }
+
+        // 4. Atualiza Checklist no Drawer de Perfil + contadores internos de Coach e Friendzone
+        const dqScanEl = document.getElementById('dqStatusScan');
+        const dqCoachEl = document.getElementById('dqStatusCoach');
+        const dqDesfEl = document.getElementById('dqStatusDesf');
+        const dqFzEl = document.getElementById('dqStatusFz');
+
+        if (dqScanEl) {
+            dqScanEl.className = '';
+            if (dq.scan_used === 0) dqScanEl.textContent = '2/2 disponíveis';
+            else if (dq.scan_used === 1 && cooldownSec > 0) {
+                dqScanEl.className = 'quota-cooldown';
+                dqScanEl.textContent = `⏳ 2º em ${mmss}`;
+            } else if (dq.scan_used === 1) {
+                dqScanEl.textContent = '1/2 liberado agora';
+            } else {
+                dqScanEl.className = 'quota-used';
+                dqScanEl.textContent = 'Concluído (2/2)';
+            }
+        }
+        if (dqCoachEl) {
+            dqCoachEl.className = dq.coach_remaining > 0 ? '' : 'quota-used';
+            dqCoachEl.textContent = dq.coach_remaining > 0 ? '1/1 disponível' : 'Concluído (1/1)';
+        }
+        if (dqDesfEl) {
+            dqDesfEl.className = dq.desfibrilador_remaining > 0 ? '' : 'quota-used';
+            dqDesfEl.textContent = dq.desfibrilador_remaining > 0 ? '1/1 disponível' : 'Concluído (1/1)';
+        }
+        if (dqFzEl) {
+            dqFzEl.className = dq.friendzone_remaining > 0 ? '' : 'quota-used';
+            dqFzEl.textContent = dq.friendzone_remaining > 0 ? '1/1 disponível' : 'Concluído (1/1)';
+        }
+
+        if (profileTotalEl) profileTotalEl.textContent = String(dq.total_remaining ?? 0);
+        if (profileSubLbl) {
+            profileSubLbl.textContent = dq.total_remaining > 0
+                ? '1 teste em cada ferramenta + 2 Scans no Oráculo'
+                : 'Iniciação concluída · Suba para Membro Oficial';
+        }
+
+        // Atualiza contadores individuais dentro das telas de Coach e Rota de Fuga
+        document.querySelectorAll('#coachCreditsLeft, .coach-credits-count').forEach(el => {
+            el.textContent = String(dq.coach_remaining ?? 0);
+        });
+        document.querySelectorAll('#fzCreditsLeft, .fz-credits-count').forEach(el => {
+            el.textContent = String(dq.friendzone_remaining ?? 0);
+        });
+
+        // Liga ou desliga o ticker de 1 segundo
+        if (cooldownSec > 0 && !demoCooldownIntervalId) {
+            demoCooldownIntervalId = setInterval(() => {
+                syncDemoQuotasUI();
+            }, 1000);
+        } else if (cooldownSec <= 0 && demoCooldownIntervalId) {
+            clearInterval(demoCooldownIntervalId);
+            demoCooldownIntervalId = null;
+        }
     }
 
     function syncArsenalModulesUI(modulesOverride = null) {
@@ -343,6 +700,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function applyMemberEntitlements(member) {
         if (!member || typeof member !== 'object') return;
         const email = (member.email || '').toLowerCase().trim();
+        const prevEmail = (localStorage.getItem('ordem_vip_email') || '').toLowerCase().trim();
+
+        // Se trocou de conta neste navegador, limpa históricos antigos da conta anterior
+        if (email && prevEmail && email !== prevEmail) {
+            localStorage.removeItem('ordem_coach_history');
+            localStorage.removeItem('ordem_fz_history');
+            localStorage.removeItem('ordem_activity_history');
+            localStorage.removeItem('ordem_demo_quotas');
+        }
+
         if (email) {
             localStorage.setItem('ordem_vip_email', email);
         }
@@ -355,9 +722,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (member.plan) {
             localStorage.setItem('ordem_vip_plan', member.plan);
         }
-        if (typeof member.is_demo !== 'undefined') {
-            localStorage.setItem('ordem_is_demo', member.is_demo ? '1' : '0');
-        }
+        const plan = member.plan || (member.is_demo ? 'demo' : 'mensal');
+        const isDemo = !!(member.is_demo || plan === 'demo');
+        localStorage.setItem('ordem_is_demo', isDemo ? '1' : '0');
 
         if (Array.isArray(member.modules)) {
             const serverModules = Array.from(new Set(member.modules.filter(Boolean)));
@@ -365,35 +732,40 @@ document.addEventListener('DOMContentLoaded', () => {
             syncArsenalModulesUI(serverModules);
         }
 
-        // Separação de Saldos: creditos_plano (franquia mensal) + creditos_avulsos (eternos)
-        const hasSplitFields = (typeof member.creditos_plano !== 'undefined' || typeof member.creditos_avulsos !== 'undefined');
         let totalCr = 10;
         let planCr = 10;
         let extraCr = 0;
-        if (hasSplitFields) {
-            planCr = Math.max(0, parseInt(member.creditos_plano ?? 0, 10) || 0);
-            extraCr = Math.max(0, parseInt(member.creditos_avulsos ?? 0, 10) || 0);
-            totalCr = (typeof member.total_credits !== 'undefined')
-                ? Math.max(0, parseInt(member.total_credits, 10) || 0)
-                : (planCr + extraCr);
+
+        if (isDemo && member.demo_quotas) {
+            totalCr = Math.max(0, parseInt(member.demo_quotas.total_remaining ?? 0, 10) || 0);
+            planCr = totalCr;
+            extraCr = 0;
             localStorage.setItem('ordem_creditos_plano', planCr.toString());
-            localStorage.setItem('ordem_creditos_avulsos', extraCr.toString());
+            localStorage.setItem('ordem_creditos_avulsos', '0');
             syncGlobalCredits(totalCr);
+            updateDemoQuotasState(member.demo_quotas);
         } else {
-            const creditsAdded = parseInt(member.credits_added || '10', 10);
-            const syncMarkerKey = `ordem_member_credits_init_${email}_${creditsAdded}`;
-            if (!localStorage.getItem(syncMarkerKey)) {
+            localStorage.removeItem('ordem_demo_quotas');
+            const hasSplitFields = (typeof member.creditos_plano !== 'undefined' || typeof member.creditos_avulsos !== 'undefined');
+            if (hasSplitFields) {
+                planCr = Math.max(0, parseInt(member.creditos_plano ?? 0, 10) || 0);
+                extraCr = Math.max(0, parseInt(member.creditos_avulsos ?? 0, 10) || 0);
+                totalCr = (typeof member.total_credits !== 'undefined')
+                    ? Math.max(0, parseInt(member.total_credits, 10) || 0)
+                    : (planCr + extraCr);
+                localStorage.setItem('ordem_creditos_plano', planCr.toString());
+                localStorage.setItem('ordem_creditos_avulsos', extraCr.toString());
+                syncGlobalCredits(totalCr);
+            } else {
+                const creditsAdded = parseInt(member.credits_added || '10', 10);
                 syncGlobalCredits(creditsAdded > 0 ? creditsAdded : 10);
-                localStorage.setItem(syncMarkerKey, '1');
+                totalCr = creditsAdded;
             }
-            totalCr = creditsAdded;
+            syncDemoQuotasUI();
         }
 
         // Atualiza elementos de UI da Patente e Perfil
-        const rank = member.rank || (member.is_demo ? 'Iniciado da Ordem' : 'Membro Guardião');
-        const plan = member.plan || (member.is_demo ? 'demo' : 'mensal');
-        const isDemo = !!(member.is_demo || plan === 'demo');
-
+        const rank = member.rank || (isDemo ? 'Iniciado da Ordem' : 'Membro Guardião');
         const headerRankEl = document.getElementById('headerRankLabel');
         if (headerRankEl) {
             headerRankEl.textContent = isDemo ? 'Iniciado' : (plan === 'anual' ? 'Mestre' : (plan === 'trimestral' ? 'Conselheiro' : 'Guardião'));
@@ -412,7 +784,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (profileRankTitleEl) profileRankTitleEl.textContent = rank;
         if (profileBadgeEl) {
-            if (isDemo) profileBadgeEl.textContent = '[ ACESSO PROVISÓRIO · 1 CONSULTA ]';
+            if (isDemo) profileBadgeEl.textContent = '[ ACESSO PROVISÓRIO · 4 FERRAMENTAS ]';
             else if (plan === 'anual') profileBadgeEl.textContent = '[ CHAVE MESTRE VITALÍCIA · 40 CRÉDITOS/MÊS ]';
             else if (plan === 'trimestral') profileBadgeEl.textContent = '[ ALTO VALOR SOCIAL · 20 CRÉDITOS/MÊS ]';
             else profileBadgeEl.textContent = '[ MEMBRO OFICIAL ATIVO · 10 CRÉDITOS/MÊS ]';
@@ -420,7 +792,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (profileNameEl) profileNameEl.textContent = member.name || (isDemo ? 'Iniciado' : 'Membro da Ordem');
         if (profileEmailEl) profileEmailEl.textContent = email;
         if (profilePlanNameEl) {
-            if (isDemo) profilePlanNameEl.textContent = 'Degustação Gratuita (1 Consulta)';
+            if (isDemo) profilePlanNameEl.textContent = 'Iniciação Gratuita (4 Ferramentas)';
             else if (plan === 'anual') profilePlanNameEl.textContent = 'Plano Anual PRO (Mestre)';
             else if (plan === 'trimestral') profilePlanNameEl.textContent = 'Plano Trimestral (Conselheiro)';
             else profilePlanNameEl.textContent = 'Plano Mensal (Guardião)';
@@ -428,15 +800,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (profileTotalCreditsEl) profileTotalCreditsEl.textContent = totalCr.toString();
         if (profilePlanCreditsEl) profilePlanCreditsEl.textContent = planCr.toString();
         if (profileExtraCreditsEl) profileExtraCreditsEl.textContent = extraCr.toString();
-        if (profileCreditsSubEl) {
-            profileCreditsSubEl.textContent = isDemo
-                ? (totalCr > 0 ? '1 consulta de iniciação disponível' : 'Consulta de degustação concluída')
-                : 'Disponível para escanear prints ou consultar o Mestre';
+        if (!isDemo && profileCreditsSubEl) {
+            profileCreditsSubEl.textContent = 'Oráculo Ilimitado + Créditos para Mestre & Rota de Fuga';
         }
         if (profileUpgradeLabelEl) {
             profileUpgradeLabelEl.textContent = isDemo
                 ? 'SUBIR DE PATENTE · DESBLOQUEAR ACESSO'
                 : 'SUBIR DE PATENTE / VER RECARGAS';
+        }
+
+        // Vincula botão da faixa do Oráculo para abrir planos
+        const stripBtn = document.getElementById('oraculoDemoStripBtn');
+        if (stripBtn && !stripBtn.dataset.bound) {
+            stripBtn.dataset.bound = '1';
+            stripBtn.addEventListener('click', () => {
+                openGlobalPaywallModal({ isDemo: true, customTitle: 'Desbloqueie o Oráculo Ilimitado Agora!' });
+            });
         }
 
         refreshAllKiwifyCheckoutLinks();
@@ -628,26 +1007,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const slotDemo = document.getElementById('googleSignInBtnDemo');
                     if (slotDemo) {
+                        const demoW = Math.min(310, Math.max(220, (slotDemo.parentElement?.clientWidth || 300) - 8));
                         slotDemo.innerHTML = '';
                         window.google.accounts.id.renderButton(slotDemo, {
                             theme: 'filled_black',
                             size: 'large',
                             text: 'continue_with',
                             shape: 'pill',
-                            width: 300,
+                            width: demoW,
                             logo_alignment: 'left'
                         });
                     }
 
                     const slotLogin = document.getElementById('googleSignInBtnLogin');
                     if (slotLogin) {
+                        const loginW = Math.min(310, Math.max(220, (slotLogin.parentElement?.clientWidth || 300) - 8));
                         slotLogin.innerHTML = '';
                         window.google.accounts.id.renderButton(slotLogin, {
                             theme: 'filled_black',
                             size: 'large',
                             text: 'signin_with',
                             shape: 'pill',
-                            width: 300,
+                            width: loginW,
                             logo_alignment: 'left'
                         });
                     }
@@ -1129,216 +1510,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =========================================================================
-    // MOTOR UNIFICADO ORDEM OCULTA (Backend Local/VPS + Fallback Direto OpenRouter no GitHub Pages)
+    // MOTOR BLINDADO ORDEM OCULTA (100% Server-Side em api.php sem chaves no cliente)
     // =========================================================================
-    function resolveClientGatewayKey() {
-        const p = [
-            'NmM0ZThmMmE3MTdiMDRjYTM4MjFjOWFhMT',
-            'U1NmU4MDFlODYxMjdmYzA4NDc2ODE2ODQ0',
-            'NGI0ZjkyYmE1ZmYxZi0xdi1yby1rcw=='
-        ];
-        return atob(p.join('')).split('').reverse().join('');
-    }
-
-    function parseCleanJson(rawText) {
-        let cleaned = String(rawText || '')
-            .replace(/^```json\s*/i, '')
-            .replace(/^```\s*/i, '')
-            .replace(/\s*```$/i, '')
-            .trim();
-        const firstBrace = cleaned.indexOf('{');
-        const lastBrace = cleaned.lastIndexOf('}');
-        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-            cleaned = cleaned.slice(firstBrace, lastBrace + 1);
-        }
-        return JSON.parse(cleaned);
-    }
-
-    async function callDirectOpenRouter(apiType, payload) {
-        const key = resolveClientGatewayKey();
-        const models = apiType === 'scan'
-            ? ['openai/gpt-4o', 'google/gemini-2.5-flash', 'openai/gpt-4o-mini']
-            : ['google/gemini-2.5-flash', 'openai/gpt-4o', 'openai/gpt-4o-mini'];
-
-        let systemPrompt = '';
-        let userText = '';
-        let imageDataUrl = null;
-
-        if (apiType === 'scan') {
-            imageDataUrl = payload.image;
-            if (imageDataUrl && !imageDataUrl.startsWith('data:image/')) {
-                imageDataUrl = `data:image/jpeg;base64,${imageDataUrl}`;
-            }
-            const isChatSubmode = (payload.submode === 'chat');
-            if (isChatSubmode) {
-                // IA EXCLUSIVA DE CONVERSAS / DM / WHATSAPP
-                systemPrompt = `Você é "O Mestre da Sedução", especialista exclusivamente em LEITURA DE CONVERSAS DE DM E WHATSAPP da plataforma "Ordem Oculta — O Segredo das Respostas Imediatas".
-1. Se o texto da conversa estiver borrado ou ilegível, defina "imagem_legivel": false em "leitura_obrigatoria_do_print" e preencha "motivo_ilegivel" e "recomendacao".
-2. Caso contrário, leia palavra por palavra todos os balões de conversa (esquerda = ELA, direita = ELE) e gere 3 respostas diretas para responder à última mensagem dela!
-Responda EXCLUSIVAMENTE em JSON puro:
-{
-  "leitura_obrigatoria_do_print": {
-    "imagem_legivel": true,
-    "motivo_ilegivel": "",
-    "recomendacao": "",
-    "transcricao_literal": ["Ele: ...", "Ela: ..."],
-    "ultima_frase_exata_dela": "..."
-  },
-  "intel": {
-    "detected_platform": "instagram",
-    "detected_submode": "chat",
-    "detected_phase_key": "conducao",
-    "phase": "Fase II: A Condução & Tensão",
-    "diagnosis": "Diagnóstico tático da conversa (2 a 3 frases) sobre a resposta dela.",
-    "termometro": "Clima atual da conversa",
-    "gancho": "O ponto exato da mensagem dela respondido"
-  },
-  "options": [
-    { "badge": "A Provocação do Elemento", "text": "...", "advice": "💡 **Por que funciona:** ...\\n🎯 **O que ela vai sentir:** ...\\n⏭️ **Próximo passo:** ..." },
-    { "badge": "O Loop de Curiosidade", "text": "...", "advice": "💡 **Por que funciona:** ...\\n🎯 **O que ela vai sentir:** ...\\n⏭️ **Próximo passo:** ..." },
-    { "badge": "O Charme Descarado", "text": "...", "advice": "💡 **Por que funciona:** ...\\n🎯 **O que ela vai sentir:** ...\\n⏭️ **Próximo passo:** ..." }
-  ]
-}`;
-                userText = `Leia palavra por palavra os balões desta conversa e gere o JSON respondendo diretamente à última mensagem dela. (Fase: ${payload.phase || 'auto'}).`;
-            } else {
-                // IA EXCLUSIVA DE FOTOS / STORIES / PERFIL
-                systemPrompt = `Você é "O Mestre da Sedução", especialista exclusivamente em LEITURA DE FOTOS, STORIES E PERFIS da plataforma "Ordem Oculta — O Segredo das Respostas Imediatas".
-1. Se a imagem estiver borrada ou ilegível, defina "imagem_legivel": false em "leitura_obrigatoria_do_print".
-2. Observe o cenário real, o estilo do look e a postura dela (sem inventar micro-objetos em fotos de longe) e crie 3 primeiras abordagens magnéticas de alto valor (sem elogios genéricos de "linda").
-Responda EXCLUSIVAMENTE em JSON puro:
-{
-  "leitura_obrigatoria_do_print": {
-    "imagem_legivel": true,
-    "motivo_ilegivel": "",
-    "recomendacao": ""
-  },
-  "intel": {
-    "detected_platform": "instagram",
-    "detected_submode": "story",
-    "detected_phase_key": "invasao",
-    "phase": "Fase I: A Abordagem Magnética",
-    "diagnosis": "Diagnóstico comportamental (2 a 3 frases) sobre a foto postada.",
-    "termometro": "Clima da foto",
-    "gancho": "O elemento principal observado na foto"
-  },
-  "options": [
-    { "badge": "A Provocação do Elemento", "text": "...", "advice": "💡 **Por que funciona:** ...\\n🎯 **O que ela vai sentir:** ...\\n⏭️ **Próximo passo:** ..." },
-    { "badge": "O Loop de Curiosidade", "text": "...", "advice": "💡 **Por que funciona:** ...\\n🎯 **O que ela vai sentir:** ...\\n⏭️ **Próximo passo:** ..." },
-    { "badge": "O Charme Descarado", "text": "...", "advice": "💡 **Por que funciona:** ...\\n🎯 **O que ela vai sentir:** ...\\n⏭️ **Próximo passo:** ..." }
-  ]
-}`;
-                userText = `Analise esta foto/story e retorne o JSON com o diagnóstico e as 3 abordagens magnéticas. (Fase: ${payload.phase || 'auto'}).`;
-            }
-        } else if (apiType === 'coach') {
-            const history = (Array.isArray(payload.history) ? payload.history : []).slice(-8);
-            let historyPrompt = '';
-            if (history.length > 0) {
-                historyPrompt = `\nHISTÓRICO DAS RODADAS ANTERIORES:\n` + history.map((item, idx) =>
-                    `[RODADA ${idx + 1}]\n- Relato: "${item.situation}"\n- Leitura: "${item.diagnosis || ''}"\n- Mensagem: "${item.script || ''}"`
-                ).join('\n') + `\n\nATUALIZAÇÃO ATUAL:\n"${payload.situation}"\n`;
-            }
-            systemPrompt = `Você é "O Mestre da Sedução" (Professor de Bolso 24h) da plataforma "Ordem Oculta — O Segredo das Respostas Imediatas".
-Aplique as 3 Skills Mestres de Relacionamento (Moldura de Alto Valor, Loop de Curiosidade e Linguagem Limpa sem Bajulação) para orientar o aluno:
-Analise o relato do aluno e entregue:
-1. "diagnosis": Análise comportamental direta (2 a 3 frases) revelando a psicologia dela nessa situação e o que ela está realmente testando no homem.
-2. "script": Frase exata, curta (1 a 2 linhas), inteligente e magnética para copiar e enviar agora mesmo.
-3. "actionGuide": Orientação tática de postura mental, tempo ideal de espera antes de mandar e o próximo movimento.
-Responda EXCLUSIVAMENTE em JSON puro:
-{
-  "diagnosis": "Leitura direta de 2 a 3 frases sobre a psicologia dela nessa situação.",
-  "script": "A frase exata, curta, natural e confiante para copiar e enviar.",
-  "actionGuide": "Postura mental recomendada, tempo de espera e próximos passos."
-}`;
-            userText = historyPrompt || `RELATO DO ALUNO:\n"${payload.situation}"`;
-        } else if (apiType === 'desfibrilador') {
-            const timeWindow = payload.timeWindow || '3dias';
-            const topic = payload.topic || '';
-            systemPrompt = `Você é "O Mestre da Sedução" operando "O Desfibrilador" da plataforma "Ordem Oculta — O Segredo das Respostas Imediatas".
-Crie 3 mensagens irresistíveis, leves e autênticas em português brasileiro para reativar uma conversa parada há ${timeWindow}, aplicando as Skills de Curiosidade e Moldura de Alto Valor (sem demonstrar carência, sem cobrar resposta, com humor sagaz). Assunto anterior: "${topic || 'conversa parada sem assunto específico'}".
-Responda EXCLUSIVAMENTE em JSON puro:
-{
-  "options": [
-    { "badge": "Lembrança Espontânea", "rate": "95% de Resposta", "text": "...", "reason": "💡 Por que funciona e o que desperta nela." },
-    { "badge": "Gatilho de Curiosidade", "rate": "91% de Resposta", "text": "...", "reason": "💡 Por que funciona e o que desperta nela." },
-    { "badge": "Desqualificação com Humor", "rate": "88% de Resposta", "text": "...", "reason": "💡 Por que funciona e o que desperta nela." }
-  ]
-}`;
-            userText = `Gere as 3 mensagens para reativar conversa parada há ${timeWindow}. Contexto: "${topic || 'geral'}".`;
-        } else if (apiType === 'friendzone') {
-            const history = (Array.isArray(payload.history) ? payload.history : []).slice(-8);
-            let historyPrompt = '';
-            if (history.length > 0) {
-                historyPrompt = `\nHISTÓRICO:\n` + history.map((item, idx) =>
-                    `[RODADA ${idx + 1}]\n- Ela disse: "${item.herMessage || item.message}"\n- Resposta dele: "${item.script || item.tacticalReply}"`
-                ).join('\n') + `\n\nNOVA FRASE DELA:\n"${payload.message}"\n`;
-            }
-            systemPrompt = `Você é "O Mestre da Sedução" operando "A Rota de Fuga da Friendzone" da plataforma "Ordem Oculta — O Segredo das Respostas Imediatas".
-Crie uma resposta curta, espirituosa, confiante e com charme provocativo que quebre instantaneamente a moldura de "amigo bonzinho", restabelecendo tensão e valor masculino sem ser agressivo.
-Responda EXCLUSIVAMENTE em JSON puro:
-{
-  "script": "A resposta pronta, bem-humorada e confiante para copiar e enviar.",
-  "reason": "Explicação curta de por que essa resposta inverte a moldura da conversa."
-}`;
-            userText = historyPrompt || `FRASE DELA:\n"${payload.message}"`;
-        }
-
-        for (const model of models) {
-            try {
-                const userContent = imageDataUrl
-                    ? [{ type: 'image_url', image_url: { url: imageDataUrl, detail: 'high' } }, { type: 'text', text: userText }]
-                    : userText;
-
-                const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${key}`,
-                        'Content-Type': 'application/json',
-                        'HTTP-Referer': window.location.origin,
-                        'X-Title': 'Ordem Oculta - O Segredo das Respostas Imediatas'
-                    },
-                    body: JSON.stringify({
-                        model,
-                        messages: [
-                            { role: 'system', content: systemPrompt },
-                            { role: 'user', content: userContent }
-                        ],
-                        temperature: apiType === 'scan' ? 0.25 : 0.74,
-                        max_tokens: apiType === 'scan' ? 1600 : 1200,
-                        response_format: { type: 'json_object' }
-                    })
-                });
-                const resData = await res.json();
-                if (res.ok && resData.choices && resData.choices[0]?.message?.content) {
-                    const parsed = parseCleanJson(resData.choices[0].message.content);
-                    if (apiType === 'scan' && parsed.leitura_obrigatoria_do_print && parsed.leitura_obrigatoria_do_print.imagem_legivel === false) {
-                        const ocrInfo = parsed.leitura_obrigatoria_do_print;
-                        return {
-                            success: false,
-                            is_unreadable_image: true,
-                            reason: ocrInfo.motivo_ilegivel || 'Não foi possível ler com nitidez o texto ou os detalhes desta imagem.',
-                            recommendation: ocrInfo.recomendacao || 'Deixe a conversa ou foto bem visível e nítida na tela, segure a imagem e tire um novo print.'
-                        };
-                    }
-                    return {
-                        success: true,
-                        data: parsed
-                    };
-                }
-            } catch (err) {
-                console.warn(`Fallback OpenRouter model ${model}:`, err);
-            }
-        }
-        throw new Error('Falha na comunicação com o Mestre');
-    }
-
     async function callOrdemEndpoint(apiType, payload) {
         const authToken = localStorage.getItem('ordem_auth_token') || '';
         if (!authToken) {
-            lockAppWithAuthGate(false);
+            lockAppWithAuthGate('demo');
             return {
                 success: false,
                 auth_required: true,
-                error: 'Faça login com seu e-mail de assinante para usar o aplicativo.'
+                error: 'Entre na sua conta para utilizar as ferramentas da Ordem.'
             };
         }
 
@@ -1346,12 +1527,11 @@ Responda EXCLUSIVAMENTE em JSON puro:
         const isLocalNode = host === 'localhost' || host === '127.0.0.1' || window.location.protocol === 'file:';
         const isGithub = host.includes('github.io');
 
-        // 1. Rota Principal Blindada (Motor PHP na TurboCloud + Cloudflare ou Node Local)
         const serverEndpoints = isLocalNode
-            ? [`http://localhost:3000/api/${apiType}`, `api.php?action=${apiType}`]
+            ? [`api.php?action=${apiType}`, `http://localhost:3000/api/${apiType}`]
             : isGithub
                 ? [`https://pontoideal.online/app/api.php?action=${apiType}`]
-                : [`api.php?action=${apiType}`, `/api/${apiType}`];
+                : [`api.php?action=${apiType}`];
 
         const payloadWithAuth = Object.assign({}, payload, { auth_token: authToken });
 
@@ -1366,42 +1546,69 @@ Responda EXCLUSIVAMENTE em JSON puro:
                     body: JSON.stringify(payloadWithAuth)
                 });
                 const result = await res.json().catch(() => null);
+
+                // Sessão inválida ou assinatura revogada
                 if (res.status === 401 || res.status === 403 || (result && (result.auth_required || result.revoked))) {
                     localStorage.removeItem('ordem_auth_token');
-                    lockAppWithAuthGate(false);
+                    lockAppWithAuthGate('login');
                     return {
                         success: false,
                         auth_required: true,
-                        error: (result && result.error) ? result.error : 'Sua assinatura precisa estar ativa para usar o aplicativo.'
+                        error: (result && result.error) ? result.error : 'Sessão expirada. Entre novamente na sua conta.'
                     };
                 }
-                if (res.status === 402 || (result && result.no_credits)) {
-                    syncGlobalCredits(0);
-                    refreshAllKiwifyCheckoutLinks();
-                    const paywallModal = document.getElementById('paywallLockModal');
-                    if (paywallModal) {
-                        const isDemo = (result && result.is_demo) || localStorage.getItem('ordem_is_demo') === '1';
-                        const badgeEl = paywallModal.querySelector('.lock-badge');
-                        const titleEl = paywallModal.querySelector('.lock-title');
-                        const descEl = paywallModal.querySelector('.lock-desc');
-                        if (isDemo) {
-                            if (badgeEl) badgeEl.textContent = 'INICIAÇÃO CONCLUÍDA';
-                            if (titleEl) titleEl.textContent = 'Você concluiu sua consulta de teste.';
-                            if (descEl) descEl.innerHTML = 'Sua resposta tática foi gerada. Para manter seu <strong>acesso irrestrito</strong> ao Oráculo, ao Mestre da Sedução e a todas as ferramentas, escolha o seu plano oficial abaixo:';
-                        }
-                        paywallModal.classList.remove('hidden');
+
+                // Cooldown de 30 Minutos para o 2º Scan no Modo Demo
+                if (res.status === 429 || (result && result.scan_cooldown)) {
+                    if (result && result.demo_quotas) {
+                        updateDemoQuotasState(result.demo_quotas);
                     }
+                    const remSec = (result && typeof result.remaining_seconds === 'number')
+                        ? result.remaining_seconds
+                        : getLiveScanCooldownSeconds(getStoredDemoQuotas());
+                    openGlobalPaywallModal({
+                        isDemo: true,
+                        cooldownSeconds: remSec
+                    });
+                    return {
+                        success: false,
+                        scan_cooldown: true,
+                        remaining_seconds: remSec,
+                        error: (result && result.error) ? result.error : 'Seu 2º Scan Gratuito libera em instantes.'
+                    };
+                }
+
+                // Limite de teste da ferramenta atingido (Demo) ou fim de créditos (Assinante)
+                if (res.status === 402 || (result && result.no_credits)) {
+                    const isDemo = !!(result && result.is_demo) || localStorage.getItem('ordem_is_demo') === '1';
+                    if (isDemo && result && result.demo_quotas) {
+                        updateDemoQuotasState(result.demo_quotas);
+                    } else if (!isDemo) {
+                        syncGlobalCredits(0);
+                    }
+                    openGlobalPaywallModal({
+                        isDemo: isDemo,
+                        tool: result ? result.tool_locked : apiType,
+                        customDesc: result ? result.error : ''
+                    });
                     return {
                         success: false,
                         no_credits: true,
-                        error: (result && result.error) ? result.error : 'Seus Créditos acabaram.'
+                        is_demo: isDemo,
+                        error: (result && result.error) ? result.error : 'Limite atingido.'
                     };
                 }
+
+                // Imagem preta ou ilegível (não desconta scan!)
                 if (result && (result.is_black_image || result.is_unreadable_image)) {
                     return result;
                 }
+
+                // Sucesso
                 if (res.ok && result && result.success && result.data) {
-                    if (result.credits && typeof result.credits.total !== 'undefined') {
+                    if (result.demo_quotas) {
+                        updateDemoQuotasState(result.demo_quotas);
+                    } else if (result.credits && typeof result.credits.total !== 'undefined') {
                         localStorage.setItem('ordem_creditos_plano', (result.credits.creditos_plano ?? 0).toString());
                         localStorage.setItem('ordem_creditos_avulsos', (result.credits.creditos_avulsos ?? 0).toString());
                         syncGlobalCredits(result.credits.total);
@@ -1409,12 +1616,15 @@ Responda EXCLUSIVAMENTE em JSON puro:
                     return result;
                 }
             } catch (err) {
-                console.warn(`Redundância ativada após tentativa em ${endpoint}`);
+                console.warn(`Falha de rede em ${endpoint}:`, err);
             }
         }
 
-        // 2. Redundância Automática Anti-Queda (somente para sessão autenticada)
-        return await callDirectOpenRouter(apiType, payload);
+        return {
+            success: false,
+            network_error: true,
+            error: 'Falha momentânea de conexão com o servidor. Verifique sua internet e tente novamente.'
+        };
     }
 
     // Helper Global para Sincronização de Créditos
@@ -1424,21 +1634,16 @@ Responda EXCLUSIVAMENTE em JSON puro:
 
     function syncGlobalCredits(newCount) {
         localStorage.setItem('ordem_user_credits', newCount.toString());
-        document.querySelectorAll('#userCreditsCount, #coachCreditsLeft, #fzCreditsLeft, .fz-credits-count, .coach-credits-count, .credits-count-live').forEach(el => {
-            el.textContent = newCount;
-        });
-    }
-
-    // Suporte para renovação via URL (?reset=1 ou ?creditos=10)
-    try {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('reset') || urlParams.has('renovar') || urlParams.has('creditos')) {
-            const val = urlParams.get('creditos') || urlParams.get('reset') || '10';
-            const num = parseInt(val, 10);
-            syncGlobalCredits(isNaN(num) || num <= 0 ? 10 : num);
-            window.history.replaceState({}, document.title, window.location.pathname);
+        const isDemo = localStorage.getItem('ordem_is_demo') === '1';
+        if (isDemo) {
+            const topEl = document.getElementById('userCreditsCount');
+            if (topEl) topEl.textContent = newCount;
+        } else {
+            document.querySelectorAll('#userCreditsCount, #coachCreditsLeft, #fzCreditsLeft, .fz-credits-count, .coach-credits-count, .credits-count-live').forEach(el => {
+                el.textContent = newCount;
+            });
         }
-    } catch (e) {}
+    }
 
     // Helper para criar Card de Carregamento na Linha do Tempo
     function createThreadLoadingCard(container, message, isFz = false) {
@@ -1590,9 +1795,9 @@ Responda EXCLUSIVAMENTE em JSON puro:
         }
         restoreCoachHistory();
 
-        function showPaywallLock() {
+        function showPaywallLock(customDesc = '') {
             triggerHaptic(40);
-            if (paywallLockModal) paywallLockModal.classList.remove('hidden');
+            openGlobalPaywallModal({ customDesc });
         }
 
         function hidePaywallLock() {
@@ -1610,28 +1815,36 @@ Responda EXCLUSIVAMENTE em JSON puro:
             });
         }
 
-        // Botão de Renovação Rápida (Modo Teste)
-        const btnDevReset = document.getElementById('btnDevResetCredits');
-        if (btnDevReset) {
-            btnDevReset.addEventListener('click', () => {
-                syncGlobalCredits(10);
-                hidePaywallLock();
-                showToast('⚡ 10 Créditos renovados com sucesso!');
-            });
-        }
-
-        // Clique no contador de créditos do cabeçalho recarrega +10 no modo teste
+        // Clique no contador de créditos do cabeçalho abre o Drawer de Perfil do Membro
         const headerCreditsBadge = document.getElementById('headerCreditsBadge');
         if (headerCreditsBadge) {
             headerCreditsBadge.style.cursor = 'pointer';
-            headerCreditsBadge.title = 'Clique para recarregar +10 créditos no modo teste';
+            headerCreditsBadge.title = 'Ver meu saldo e patente na Ordem';
             headerCreditsBadge.addEventListener('click', () => {
-                const current = getGlobalCredits();
-                const nextCredits = current <= 0 ? 10 : current + 10;
-                syncGlobalCredits(nextCredits);
-                hidePaywallLock();
-                showToast(`⚡ Créditos recarregados! Saldo atual: ${nextCredits}`);
+                const drawerModal = document.getElementById('profileDrawerModal');
+                if (drawerModal) drawerModal.classList.remove('hidden');
             });
+        }
+
+        function canRunCoachClientCheck() {
+            const isDemo = localStorage.getItem('ordem_is_demo') === '1';
+            if (isDemo) {
+                const dq = getStoredDemoQuotas();
+                if (dq && typeof dq.coach_remaining === 'number' && dq.coach_remaining <= 0) {
+                    openGlobalPaywallModal({
+                        isDemo: true,
+                        tool: 'coach',
+                        customDesc: 'Você concluiu sua consulta gratuita ao Mestre da Sedução. Escolha seu plano oficial abaixo para continuar este caso sem interrupções.'
+                    });
+                    return false;
+                }
+                return true;
+            }
+            if (getGlobalCredits() <= 0) {
+                openGlobalPaywallModal({ isDemo: false });
+                return false;
+            }
+            return true;
         }
 
         // Primeiro envio do Coach (Etapa 1)
@@ -1644,9 +1857,7 @@ Responda EXCLUSIVAMENTE em JSON puro:
                     return;
                 }
 
-                let credits = getGlobalCredits();
-                if (credits <= 0) {
-                    showPaywallLock();
+                if (!canRunCoachClientCheck()) {
                     return;
                 }
 
@@ -1654,12 +1865,10 @@ Responda EXCLUSIVAMENTE em JSON puro:
                 btnAskCoach.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Consultando o Mestre...</span>';
                 triggerHaptic(30);
 
-                // Alterna visão: esconde entrada inicial e mostra a timeline de respostas
                 if (initialInputContainer) initialInputContainer.classList.add('hidden');
                 if (responseContainer) responseContainer.classList.remove('hidden');
                 if (coachThreadFeed) coachThreadFeed.innerHTML = '';
 
-                // Mostra balão do usuário e card de carregamento na linha do tempo
                 const loadingCard = createThreadLoadingCard(coachThreadFeed, 'O Mestre está lendo a mente dela e traçando o contra-ataque...');
 
                 try {
@@ -1668,10 +1877,9 @@ Responda EXCLUSIVAMENTE em JSON puro:
                     loadingCard.remove();
 
                     if (result.success && result.data) {
+                        let credits = getGlobalCredits();
                         if (result.credits && typeof result.credits.total !== 'undefined') {
                             credits = result.credits.total;
-                        } else {
-                            credits = Math.max(0, credits - 1);
                         }
                         syncGlobalCredits(credits);
 
@@ -1685,33 +1893,26 @@ Responda EXCLUSIVAMENTE em JSON puro:
                         const cardEl = appendCoachTurn(coachThreadFeed, situation, result.data, 1);
                         cardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         if (window.saveActivityHistory) {
-                            window.saveActivityHistory('O COACH DE EMERGÊNCIA', situation, result.data.script || result.data.diagnosis, 'view-coach');
+                            window.saveActivityHistory('O MESTRE DA SEDUÇÃO', situation, result.data.script || result.data.diagnosis, 'view-coach');
                         }
-                        showToast(`Parecer pronto! Restam ${credits} créditos.`);
-                    } else if (result.no_credits) {
-                        showPaywallLock();
+                        showToast('⚡ Parecer do Mestre entregue!');
                     } else {
-                        showToast('Erro ao consultar o Mestre. Tente novamente.');
+                        // Se não havia histórico anterior (ex: no_credits ou falha de rede), restaura o formulário
+                        if (coachHistory.length === 0) {
+                            if (responseContainer) responseContainer.classList.add('hidden');
+                            if (initialInputContainer) initialInputContainer.classList.remove('hidden');
+                        }
+                        if (!result.no_credits && !result.auth_required) {
+                            showToast(result.error || 'Erro ao consultar o Mestre. Tente novamente.');
+                        }
                     }
                 } catch (e) {
                     loadingCard.remove();
-                    credits--;
-                    syncGlobalCredits(credits);
-                    const fallbackData = {
-                        diagnosis: "Ela está testando o seu nível de apego e segurança. Quanto mais rápido você cobrar resposta, mais baixo fica o seu valor.",
-                        script: '"Pelo visto o dia aí tá corrido. Me avisa quando desocupar pra gente continuar o papo."',
-                        actionGuide: "Aguarde ela responder espontaneamente sem mandar nenhuma mensagem adicional."
-                    };
-                    coachHistory = [{
-                        userText: situation,
-                        botData: fallbackData,
-                        round: 1
-                    }];
-                    localStorage.setItem('ordem_coach_history', JSON.stringify(coachHistory));
-
-                    const cardEl = appendCoachTurn(coachThreadFeed, situation, fallbackData, 1);
-                    cardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    showToast(`Parecer gerado. Restam ${credits} créditos.`);
+                    if (coachHistory.length === 0) {
+                        if (responseContainer) responseContainer.classList.add('hidden');
+                        if (initialInputContainer) initialInputContainer.classList.remove('hidden');
+                    }
+                    showToast('Falha de conexão. Verifique sua internet e tente novamente.');
                 } finally {
                     btnAskCoach.disabled = false;
                     btnAskCoach.innerHTML = '<span>Pedir Conselho</span><i class="fa-solid fa-paper-plane"></i>';
@@ -1729,9 +1930,7 @@ Responda EXCLUSIVAMENTE em JSON puro:
                     return;
                 }
 
-                let credits = getGlobalCredits();
-                if (credits <= 0) {
-                    showPaywallLock();
+                if (!canRunCoachClientCheck()) {
                     return;
                 }
 
@@ -1741,11 +1940,9 @@ Responda EXCLUSIVAMENTE em JSON puro:
 
                 if (coachFollowupInput) coachFollowupInput.value = '';
 
-                // Mostra o card de carregamento logo abaixo na timeline
                 const roundNumber = coachHistory.length + 1;
                 const loadingCard = createThreadLoadingCard(coachThreadFeed, `O Mestre está formulando o próximo passo da Etapa ${roundNumber}...`);
 
-                // Formata histórico para o backend (Limite de Contexto: máximo últimas 8 mensagens)
                 const historyPayload = coachHistory.slice(-8).map(item => ({
                     situation: item.userText,
                     diagnosis: item.botData ? item.botData.diagnosis : '',
@@ -1761,10 +1958,9 @@ Responda EXCLUSIVAMENTE em JSON puro:
                     loadingCard.remove();
 
                     if (result.success && result.data) {
+                        let credits = getGlobalCredits();
                         if (result.credits && typeof result.credits.total !== 'undefined') {
                             credits = result.credits.total;
-                        } else {
-                            credits = Math.max(0, credits - 1);
                         }
                         syncGlobalCredits(credits);
 
@@ -1775,34 +1971,19 @@ Responda EXCLUSIVAMENTE em JSON puro:
                         });
                         localStorage.setItem('ordem_coach_history', JSON.stringify(coachHistory));
 
-                        // Anexa a nova pergunta e a nova resposta PARA BAIXO
                         const newCard = appendCoachTurn(coachThreadFeed, followupText, result.data, roundNumber);
                         newCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        showToast(`Próximo passo liberado! Restam ${credits} créditos.`);
-                    } else if (result.no_credits) {
-                        showPaywallLock();
+                        showToast('⚡ Próximo passo liberado!');
                     } else {
-                        showToast('Erro ao continuar. Tente novamente.');
+                        if (coachFollowupInput) coachFollowupInput.value = followupText;
+                        if (!result.no_credits && !result.auth_required) {
+                            showToast(result.error || 'Erro ao continuar. Tente novamente.');
+                        }
                     }
                 } catch (e) {
                     loadingCard.remove();
-                    credits--;
-                    syncGlobalCredits(credits);
-                    const fallbackData = {
-                        diagnosis: "Ela continuou medindo sua reação. A chave agora é desapego total com postura relaxada.",
-                        script: '"De boa, sem estresse. Segue seu ritmo aí."',
-                        actionGuide: "Não mande áudios e demore o dobro do tempo dela para visualizar."
-                    };
-                    coachHistory.push({
-                        userText: followupText,
-                        botData: fallbackData,
-                        round: roundNumber
-                    });
-                    localStorage.setItem('ordem_coach_history', JSON.stringify(coachHistory));
-
-                    const newCard = appendCoachTurn(coachThreadFeed, followupText, fallbackData, roundNumber);
-                    newCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    showToast(`Conselho gerado. Restam ${credits} créditos.`);
+                    if (coachFollowupInput) coachFollowupInput.value = followupText;
+                    showToast('Falha de conexão. Tente novamente.');
                 } finally {
                     btnCoachFollowup.disabled = false;
                     btnCoachFollowup.innerHTML = '<span>Pedir Próximo Passo</span><i class="fa-solid fa-arrow-right"></i>';
@@ -1848,31 +2029,19 @@ Responda EXCLUSIVAMENTE em JSON puro:
             });
         });
 
-        const shockPresets = {
-            '24h': {
-                opt1: '"Você não vai acreditar em quem eu acabei de ver e que me fez lembrar exatamente de você."',
-                opt2: '"Achei seu conselho ótimo, acabei fechando exatamente aquele lugar. Deu super certo."',
-                opt3: '"Tava revendo as conversas aqui e percebi que você bateu o recorde estadual de vácuo dramático. Parabéns pelo troféu."'
-            },
-            '3dias': {
-                opt1: '"Descobri uma coisa muito estranha sobre você hoje. Quando puder me responde que te conto."',
-                opt2: '"Acabei de pedir aquela mesma sobremesa que você comentou e me arrependi amargamente. Você me deve uma indicação boa agora."',
-                opt3: '"Sumir por 3 dias já é quase abandono de incapaz. Tô pensando se te perdoo ou se deixo no vácuo de volta."'
-            },
-            '1semana': {
-                opt1: '"Tava passando perto daquele café e lembrei de uma pergunta que você me fez há uma semana. Sobreviveu à semana corrida?"',
-                opt2: '"Quase mandei uma mensagem achando que era pra você, mas o susto foi tão grande que resolvi vir conferir se você ainda existe."',
-                opt3: '"Achei que você tinha sido abduzida. Se ainda estiver na Terra, me responde antes que eu chame o resgate."'
-            },
-            '1mes': {
-                opt1: '"Você acredita em sincronicidade? Acabei de ver um negócio que você me falou há 1 mês e dei risada sozinho na rua."',
-                opt2: '"Passando pra avisar que sua ausência foi notada, avaliada e reprovada com louvor. Mas dependendo da sua desculpa, tem recurso."',
-                opt3: '"O Instagram me lembrou da nossa conversa hoje. Como tá a vida de pessoa misteriosa e ocupada?"'
-            }
-        };
-
         if (btnShock) {
             btnShock.addEventListener('click', async () => {
+                const isDemo = localStorage.getItem('ordem_is_demo') === '1';
+                const dq = getStoredDemoQuotas();
+                if (isDemo && dq && typeof dq.desfibrilador_remaining === 'number' && dq.desfibrilador_remaining <= 0) {
+                    openGlobalPaywallModal({
+                        isDemo: true,
+                        tool: 'desfibrilador',
+                        customDesc: 'Você concluiu seu teste gratuito no Desfibrilador. Escolha seu plano oficial abaixo para gerar gatilhos anti-vácuo ilimitados.'
+                    });
+                    return;
+                }
+
                 triggerHaptic(40);
                 btnShock.disabled = true;
                 btnShock.innerHTML = '<i class="fa-solid fa-bolt fa-fade"></i><span>FORMULANDO CHOQUE TÁTICO...</span>';
@@ -1905,29 +2074,19 @@ Responda EXCLUSIVAMENTE em JSON puro:
                         if (window.saveActivityHistory && opts[0]) {
                             window.saveActivityHistory('O DESFIBRILADOR', `Vácuo de ${selectedTime}${topic ? ' · ' + topic : ''}`, opts[0].text, 'view-desfibrilador');
                         }
-                    } else {
-                        throw new Error('Falha na resposta da IA');
+                        if (resultsContainer) {
+                            resultsContainer.classList.remove('hidden');
+                            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                        showToast('⚡ Gatilhos de ressuscitação gerados!');
+                    } else if (!result.no_credits && !result.auth_required) {
+                        showToast(result.error || 'Não foi possível gerar agora. Tente novamente.');
                     }
                 } catch (err) {
-                    // Fallback humanizado inteligente
-                    const preset = shockPresets[selectedTime] || shockPresets['24h'];
-                    if (topic) {
-                        text1.textContent = `Lembrei agora da nossa conversa sobre "${topic}"... na hora me veio um negócio na cabeça que eu tive que vir te falar kkkk`;
-                        text2.textContent = `Aconteceu um negócio surreal hoje ligado àquilo de "${topic}" que você comentou. Depois dessa nem você acredita.`;
-                        text3.textContent = preset.opt3;
-                    } else {
-                        text1.textContent = preset.opt1;
-                        text2.textContent = preset.opt2;
-                        text3.textContent = preset.opt3;
-                    }
+                    showToast('Falha de conexão. Tente novamente.');
                 } finally {
-                    if (resultsContainer) {
-                        resultsContainer.classList.remove('hidden');
-                        resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
                     btnShock.disabled = false;
-                    btnShock.innerHTML = '<i class="fa-solid fa-bolt"></i><span>APLICAR NOVO CHOQUE</span>';
-                    showToast('Gatilhos de ressuscitação gerados!');
+                    btnShock.innerHTML = '<i class="fa-solid fa-bolt"></i><span>APLICAR CHOQUE TÁTICO</span>';
                 }
             });
         }
@@ -2011,7 +2170,6 @@ Responda EXCLUSIVAMENTE em JSON puro:
 
         let fzHistory = [];
 
-        // Restaura histórico persistido da Friendzone no localStorage
         function restoreFzHistory() {
             try {
                 const saved = localStorage.getItem('ordem_fz_history');
@@ -2035,6 +2193,27 @@ Responda EXCLUSIVAMENTE em JSON puro:
         }
         restoreFzHistory();
 
+        function canRunFzClientCheck() {
+            const isDemo = localStorage.getItem('ordem_is_demo') === '1';
+            if (isDemo) {
+                const dq = getStoredDemoQuotas();
+                if (dq && typeof dq.friendzone_remaining === 'number' && dq.friendzone_remaining <= 0) {
+                    openGlobalPaywallModal({
+                        isDemo: true,
+                        tool: 'friendzone',
+                        customDesc: 'Você concluiu seu teste gratuito na Rota de Fuga. Escolha seu plano oficial abaixo para continuar desarmando os testes dela.'
+                    });
+                    return false;
+                }
+                return true;
+            }
+            if (getGlobalCredits() <= 0) {
+                openGlobalPaywallModal({ isDemo: false });
+                return false;
+            }
+            return true;
+        }
+
         // Primeiro desarme (Rodada 1)
         if (btnInvert) {
             btnInvert.addEventListener('click', async () => {
@@ -2045,10 +2224,7 @@ Responda EXCLUSIVAMENTE em JSON puro:
                     return;
                 }
 
-                let credits = getGlobalCredits();
-                if (credits <= 0) {
-                    const paywallModal = document.getElementById('paywallLockModal');
-                    if (paywallModal) paywallModal.classList.remove('hidden');
+                if (!canRunFzClientCheck()) {
                     return;
                 }
 
@@ -2056,7 +2232,6 @@ Responda EXCLUSIVAMENTE em JSON puro:
                 btnInvert.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Desarmando Friendzone...</span>';
                 triggerHaptic(30);
 
-                // Alterna visão: oculta formulário inicial e exibe a timeline de respostas
                 if (initialInputContainer) initialInputContainer.classList.add('hidden');
                 if (responseBox) responseBox.classList.remove('hidden');
                 if (threadFeed) threadFeed.innerHTML = '';
@@ -2069,10 +2244,9 @@ Responda EXCLUSIVAMENTE em JSON puro:
                     loadingCard.remove();
 
                     if (result.success && result.data) {
+                        let credits = getGlobalCredits();
                         if (result.credits && typeof result.credits.total !== 'undefined') {
                             credits = result.credits.total;
-                        } else {
-                            credits = Math.max(0, credits - 1);
                         }
                         syncGlobalCredits(credits);
 
@@ -2089,33 +2263,23 @@ Responda EXCLUSIVAMENTE em JSON puro:
                         if (window.saveActivityHistory) {
                             window.saveActivityHistory('A ROTA DE FUGA', message, result.data.script, 'view-friendzone');
                         }
-                        showToast(`Friendzone desarmada! Restam ${credits} créditos.`);
-                    } else if (result.no_credits) {
-                        const paywallModal = document.getElementById('paywallLockModal');
-                        if (paywallModal) paywallModal.classList.remove('hidden');
+                        showToast('⚡ Friendzone desarmada!');
                     } else {
-                        showToast('Erro ao processar. Tente novamente.');
+                        if (fzHistory.length === 0) {
+                            if (responseBox) responseBox.classList.add('hidden');
+                            if (initialInputContainer) initialInputContainer.classList.remove('hidden');
+                        }
+                        if (!result.no_credits && !result.auth_required) {
+                            showToast(result.error || 'Erro ao processar. Tente novamente.');
+                        }
                     }
                 } catch (e) {
                     loadingCard.remove();
-                    credits--;
-                    syncGlobalCredits(credits);
-
-                    const fallbackData = {
-                        script: '"Que bom que a gente concorda nisso. Fico aliviado, porque a última coisa que eu preciso agora é de mais uma complicação romântica na minha vida. Toca aqui, \'irmãzinha\'. ✋"',
-                        reason: 'Concorda com o rótulo de forma sarcástica, rebaixa o status dela como mulher e inverte o papel: agora você que não quer nada sério com ela.'
-                    };
-                    fzHistory = [{
-                        herMessage: message,
-                        script: fallbackData.script,
-                        reason: fallbackData.reason,
-                        round: 1
-                    }];
-                    localStorage.setItem('ordem_fz_history', JSON.stringify(fzHistory));
-
-                    const cardEl = appendFzTurn(threadFeed, message, fallbackData, 1);
-                    cardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    showToast(`Resposta gerada. Restam ${credits} créditos.`);
+                    if (fzHistory.length === 0) {
+                        if (responseBox) responseBox.classList.add('hidden');
+                        if (initialInputContainer) initialInputContainer.classList.remove('hidden');
+                    }
+                    showToast('Falha de conexão. Tente novamente.');
                 } finally {
                     btnInvert.disabled = false;
                     btnInvert.innerHTML = '<span>Inverter o Jogo</span><i class="fa-solid fa-rotate"></i>';
@@ -2133,10 +2297,7 @@ Responda EXCLUSIVAMENTE em JSON puro:
                     return;
                 }
 
-                let credits = getGlobalCredits();
-                if (credits <= 0) {
-                    const paywallModal = document.getElementById('paywallLockModal');
-                    if (paywallModal) paywallModal.classList.remove('hidden');
+                if (!canRunFzClientCheck()) {
                     return;
                 }
 
@@ -2146,7 +2307,6 @@ Responda EXCLUSIVAMENTE em JSON puro:
 
                 if (followupInput) followupInput.value = '';
 
-                // Mostra card de carregamento na linha do tempo
                 const roundNumber = fzHistory.length + 1;
                 const loadingCard = createThreadLoadingCard(threadFeed, `Formulando tréplica implacável para a Rodada ${roundNumber}...`, true);
 
@@ -2159,10 +2319,9 @@ Responda EXCLUSIVAMENTE em JSON puro:
                     loadingCard.remove();
 
                     if (result.success && result.data) {
+                        let credits = getGlobalCredits();
                         if (result.credits && typeof result.credits.total !== 'undefined') {
                             credits = result.credits.total;
-                        } else {
-                            credits = Math.max(0, credits - 1);
                         }
                         syncGlobalCredits(credits);
 
@@ -2174,36 +2333,19 @@ Responda EXCLUSIVAMENTE em JSON puro:
                         });
                         localStorage.setItem('ordem_fz_history', JSON.stringify(fzHistory));
 
-                        // Anexa a nova pergunta e a nova tréplica PARA BAIXO
                         const newCard = appendFzTurn(threadFeed, followupText, result.data, roundNumber);
                         newCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        showToast(`Tréplica liberada! Restam ${credits} créditos.`);
-                    } else if (result.no_credits) {
-                        const paywallModal = document.getElementById('paywallLockModal');
-                        if (paywallModal) paywallModal.classList.remove('hidden');
+                        showToast('⚡ Tréplica liberada!');
                     } else {
-                        showToast('Erro ao continuar. Tente novamente.');
+                        if (followupInput) followupInput.value = followupText;
+                        if (!result.no_credits && !result.auth_required) {
+                            showToast(result.error || 'Erro ao continuar. Tente novamente.');
+                        }
                     }
                 } catch (e) {
                     loadingCard.remove();
-                    credits--;
-                    syncGlobalCredits(credits);
-
-                    const fallbackData = {
-                        script: '"Ainda bem, meu padrão de exigência já é alto demais pra ter que lidar com seu drama kkk. Mas sua honestidade te rendeu 1 ponto."',
-                        reason: 'Desqualifica a tentativa de rejeição dela, rindo da situação e mostrando que o seu sarrafo é mais alto do que o dela.'
-                    };
-                    fzHistory.push({
-                        herMessage: followupText,
-                        script: fallbackData.script,
-                        reason: fallbackData.reason,
-                        round: roundNumber
-                    });
-                    localStorage.setItem('ordem_fz_history', JSON.stringify(fzHistory));
-
-                    const newCard = appendFzTurn(threadFeed, followupText, fallbackData, roundNumber);
-                    newCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    showToast(`Tréplica gerada. Restam ${credits} créditos.`);
+                    if (followupInput) followupInput.value = followupText;
+                    showToast('Falha de conexão. Tente novamente.');
                 } finally {
                     btnFollowup.disabled = false;
                     btnFollowup.innerHTML = '<span>Desarmar Nova Resposta</span><i class="fa-solid fa-arrow-right"></i>';
@@ -2554,6 +2696,30 @@ Responda EXCLUSIVAMENTE em JSON puro:
 
     // Execução da Sequência de Escaneamento
     async function runScanSequence() {
+        // Pré-checagem instantânea de cota/cooldown no modo Demo antes de enviar a imagem
+        const isDemo = localStorage.getItem('ordem_is_demo') === '1';
+        if (isDemo) {
+            const dq = getStoredDemoQuotas();
+            if (dq) {
+                if (dq.scan_used >= (dq.scan_limit || 2)) {
+                    openGlobalPaywallModal({
+                        isDemo: true,
+                        tool: 'scan',
+                        customDesc: 'Você concluiu seus 2 Scans gratuitos no Oráculo. Escolha seu plano oficial abaixo para liberar Scans de Prints ILIMITADOS agora mesmo.'
+                    });
+                    return;
+                }
+                const remCooldown = getLiveScanCooldownSeconds(dq);
+                if (dq.scan_used === 1 && remCooldown > 0) {
+                    openGlobalPaywallModal({
+                        isDemo: true,
+                        cooldownSeconds: remCooldown
+                    });
+                    return;
+                }
+            }
+        }
+
         state.isScanning = true;
         triggerHaptic(40);
 
@@ -2565,6 +2731,7 @@ Responda EXCLUSIVAMENTE em JSON puro:
 
         let scanOk = false;
         let isAlertShown = false;
+        let isPaywallOrCooldown = false;
         try {
             const result = await callOrdemEndpoint('scan', {
                 image: state.selectedBase64,
@@ -2572,7 +2739,11 @@ Responda EXCLUSIVAMENTE em JSON puro:
                 submode: state.selectedSubmode
             });
 
-            if (result && result.is_black_image) {
+            if (result && (result.scan_cooldown || result.no_credits || result.auth_required)) {
+                isPaywallOrCooldown = true;
+            } else if (result && result.network_error) {
+                showToast(result.error || 'Falha de conexão. Verifique sua internet e tente novamente.');
+            } else if (result && result.is_black_image) {
                 isAlertShown = true;
                 showScanAlertCard('black');
                 showToast('⚠️ Imagem preta detectada! Veja a recomendação abaixo.');
@@ -2585,9 +2756,12 @@ Responda EXCLUSIVAMENTE em JSON puro:
                 renderRealAIResponse(result.data);
                 scanOk = true;
                 state.scanCount = (state.scanCount || 0) + 1;
-                showToast('Decodificação do Mestre concluída!');
+                if (isDemo && result.demo_quotas && result.demo_quotas.scan_used === 1) {
+                    showToast('⚡ 1º Scan concluído! Seu 2º Scan libera em 30 min para a resposta dela.', 5000);
+                } else {
+                    showToast('Decodificação do Mestre concluída!');
+                }
             } else {
-                // Caso não tenha conseguido ler com segurança, mostra o card de recomendação em vez de chutar
                 isAlertShown = true;
                 showScanAlertCard('unreadable', 'Não conseguimos enxergar os detalhes ou o texto deste print com clareza suficiente.', 'Segure a imagem na tela e tire um novo print mais nítido e bem visível.');
                 showToast('⚠️ Não foi possível ler o print com nitidez. Veja a recomendação.', 6000);
@@ -2605,12 +2779,13 @@ Responda EXCLUSIVAMENTE em JSON puro:
                 elements.btnLabel.textContent = `DECODIFICAR NOVAMENTE`;
                 elements.resultsContainer.classList.remove('hidden');
                 elements.resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else if (isPaywallOrCooldown) {
+                elements.btnLabel.textContent = `DECODIFICAR ${phaseDefinitions[state.selectedPhase].badge}`;
             } else if (isAlertShown) {
                 elements.btnLabel.textContent = `ENVIAR NOVO PRINT MAIS VISÍVEL`;
                 elements.resultsContainer.classList.add('hidden');
             } else {
                 elements.btnLabel.textContent = `TENTAR DECODIFICAR DE NOVO`;
-                elements.resultsContainer.classList.add('hidden');
             }
             triggerHaptic(50);
         }
@@ -2728,13 +2903,22 @@ Responda EXCLUSIVAMENTE em JSON puro:
                 const checkoutUrl = card.dataset.checkout;
                 const price = card.dataset.price;
 
-                if (ctaBtn) {
-                    ctaBtn.href = checkoutUrl;
+                if (ctaBtn && checkoutUrl) {
+                    const cleanBase = checkoutUrl.split('?')[0];
+                    ctaBtn.setAttribute('data-base-href', cleanBase);
+                    ctaBtn.href = decorateKiwifyUrlWithEmail(cleanBase);
+
                     if (planType === 'anual') {
+                        ctaBtn.setAttribute('data-plan-name', 'Plano Anual PRO - Mestre da Ordem');
+                        ctaBtn.setAttribute('data-plan-price', '197.90');
                         ctaBtn.innerHTML = `<span>Assinar Anual PRO · R$ ${price}</span><i class="fa-solid fa-arrow-right"></i>`;
                     } else if (planType === 'trimestral') {
+                        ctaBtn.setAttribute('data-plan-name', 'Plano Trimestral - Membro Conselheiro');
+                        ctaBtn.setAttribute('data-plan-price', '97.90');
                         ctaBtn.innerHTML = `<span>Assinar Trimestral · R$ ${price}</span><i class="fa-solid fa-arrow-right"></i>`;
                     } else {
+                        ctaBtn.setAttribute('data-plan-name', 'Plano Mensal - Membro Guardiao');
+                        ctaBtn.setAttribute('data-plan-price', '37.90');
                         ctaBtn.innerHTML = `<span>Assinar Mensal Base · R$ ${price}</span><i class="fa-solid fa-arrow-right"></i>`;
                     }
                 }
@@ -4309,13 +4493,13 @@ Responda EXCLUSIVAMENTE em JSON puro:
         }, 2000);
     }
 
-    function showToast(message) {
+    function showToast(message, durationMs = 2800) {
         elements.toastMsg.textContent = message;
         elements.toast.classList.remove('hidden');
         clearTimeout(elements.toastTimeout);
         elements.toastTimeout = setTimeout(() => {
             elements.toast.classList.add('hidden');
-        }, 2500);
+        }, durationMs);
     }
 
     // Inicializa

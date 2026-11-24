@@ -1199,16 +1199,31 @@
     <div class="sticky-bar" id="stickyMobileBar">
         <div class="sticky-inner">
             <div class="sticky-price">
-                1 Consulta Gratuita
-                <strong>Teste no Seu Print Agora</strong>
+                Teste Grátis no App
+                <strong>Experimente no Seu Print</strong>
             </div>
-            <a href="https://pontoideal.online/app/?demo=1" id="stickyOfferCtaBtn" class="sticky-btn" style="box-shadow: 0 4px 18px rgba(245, 158, 11, 0.45); animation: stickyPulse 2.4s infinite ease-in-out;">
-                TESTAR NO MEU CASO <i class="fa-solid fa-bolt"></i>
+            <a href="https://pontoideal.online/app/?demo=1" id="stickyOfferCtaBtn" class="sticky-btn" style="box-shadow: 0 4px 18px rgba(245, 158, 11, 0.45);">
+                TESTAR GRÁTIS AGORA <i class="fa-solid fa-bolt"></i>
             </a>
         </div>
     </div>
 
     <script>
+    // Propaga UTMs e fbclid da Página de Vendas direto para o link da Demonstração no App
+    (function() {
+        try {
+            var demoBtn = document.getElementById('stickyOfferCtaBtn');
+            if (demoBtn && window.location.search) {
+                var srcParams = new URLSearchParams(window.location.search);
+                var dstUrl = new URL(demoBtn.href);
+                srcParams.forEach(function(val, key) {
+                    if (val && key !== 'demo') dstUrl.searchParams.set(key, val);
+                });
+                demoBtn.href = dstUrl.toString();
+            }
+        } catch (e) {}
+    })();
+
     function scrollToOfferBox(e) {
         var offerEl = document.getElementById('oferta');
         if (offerEl) {
