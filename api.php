@@ -187,6 +187,7 @@ function consumeMemberCredit(string $email): array {
     saveMembersDb($members);
 
     return [
+        'ok' => true,
         'creditos_plano' => $planCr,
         'creditos_avulsos' => $extraCr,
         'total' => $planCr + $extraCr
@@ -902,7 +903,20 @@ if ($action === 'auth-register-demo') {
 }
 
 if ($action === 'scan') {
-    requireActiveMemberSession($body);
+    $member = requireActiveMemberSession($body);
+    $isDemo = (($member['status'] ?? '') === 'demo' || ($member['plan'] ?? '') === 'demo');
+    if ($isDemo && getMemberTotalCredits($member) <= 0) {
+        http_response_code(402);
+        echo json_encode([
+            'success' => false,
+            'no_credits' => true,
+            'is_demo' => true,
+            'credits' => ['creditos_plano' => 0, 'creditos_avulsos' => 0, 'total' => 0],
+            'error' => 'Você concluiu sua consulta de Iniciação na Ordem Oculta. Suba para Membro Guardião ou Mestre da Ordem para manter seu acesso irrestrito.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
     $image = $body['image'] ?? '';
     $phase = $body['phase'] ?? 'auto';
     $submode = $body['submode'] ?? 'story';
@@ -969,6 +983,13 @@ if ($action === 'scan') {
 
     if (!$result['success']) {
         http_response_code(500);
+    } else {
+        if ($isDemo) {
+            $creditRes = consumeMemberCredit($member['email']);
+            if (!empty($creditRes['ok'])) {
+                $result['credits'] = $creditRes;
+            }
+        }
     }
     echo json_encode($result, JSON_UNESCAPED_UNICODE);
     exit;
@@ -977,12 +998,16 @@ if ($action === 'scan') {
 if ($action === 'coach') {
     $member = requireActiveMemberSession($body);
     $totalAvailable = getMemberPlanCredits($member) + getMemberExtraCredits($member);
+    $isDemo = (($member['status'] ?? '') === 'demo' || ($member['plan'] ?? '') === 'demo');
     if ($totalAvailable <= 0) {
         http_response_code(402);
         echo json_encode([
             'success' => false,
             'no_credits' => true,
-            'error' => 'Seus Créditos Táticos acabaram. Faça uma recarga avulsa para continuar.'
+            'is_demo' => $isDemo,
+            'error' => $isDemo
+                ? 'Você concluiu sua consulta de Iniciação na Ordem Oculta. Suba para Membro Guardião ou Mestre da Ordem para manter seu acesso irrestrito.'
+                : 'Seus Créditos Táticos acabaram. Faça uma recarga avulsa para continuar.'
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
