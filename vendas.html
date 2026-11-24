@@ -50,10 +50,10 @@
       setCookie('_fbp', S.fbp);
       if (S.fbc) setCookie('_fbc', S.fbc);
       setCookie('vt_sid', S.sid);
-      window.__vtPvId = 'pv_front_' + S.sid;
+      window.__vtPvId = 'pv_front_v2_' + S.sid;
       S.pvSent = S.pvSent || {};
-      var alreadyPv = !!S.pvSent['front'];
-      S.pvSent['front'] = 1;
+      var alreadyPv = !!S.pvSent['front_v2'];
+      S.pvSent['front_v2'] = 1;
       try { localStorage.setItem('vt_state', JSON.stringify(S)); } catch (e) {}
       fbq('init', '1819887748981541', { external_id: S.sid });
       if (!alreadyPv) {
@@ -64,8 +64,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ordem Oculta — O Aplicativo Secreto das Respostas Imediatas</title>
-    <meta name="description" content="Envie o print do Story ou da conversa e receba em 5 segundos as 3 respostas exatas para despertar interesse, pegar o WhatsApp e marcar o encontro.">
-    <meta name="theme-color" content="#08080a">
+    <meta name="description" content="Suba o print do Story ou da conversa e tenha em 5 segundos 3 respostas calibradas para despertar curiosidade, pegar o WhatsApp e marcar o encontro.">
+    <meta name="theme-color" content="#070709">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -76,58 +76,66 @@
         :root {
             --bg-dark: #070709;
             --bg-card: #111116;
-            --bg-elevated: #17171f;
+            --bg-elevated: #171720;
             --gold: #f59e0b;
             --gold-light: #fde68a;
+            --gold-dark: #b45309;
             --crimson: #dc2626;
-            --crimson-dark: #7f1d1d;
+            --accent-red: #ef4444;
+            --accent-cyan: #06b6d4;
             --emerald: #10b981;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
+            --text-dim: #64748b;
             --border-subtle: rgba(255, 255, 255, 0.08);
             --border-gold: rgba(245, 158, 11, 0.35);
+            --brand-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 45%, #dc2626 100%);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             background-color: var(--bg-dark);
             background-image:
                 radial-gradient(circle at 50% 0%, rgba(153, 27, 27, 0.22), transparent 55%),
-                radial-gradient(circle at 50% 45%, rgba(245, 158, 11, 0.07), transparent 60%);
+                radial-gradient(circle at 50% 45%, rgba(245, 158, 11, 0.08), transparent 60%);
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
-            padding-bottom: 90px;
+            padding-bottom: 95px;
+            overflow-x: hidden;
         }
         .container {
-            max-width: 680px;
+            max-width: 720px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 18px;
         }
+
         /* Top Ribbon */
         .top-bar {
             background: linear-gradient(90deg, #450a0a, #7f1d1d, #450a0a);
             border-bottom: 1px solid rgba(245, 158, 11, 0.3);
             text-align: center;
             padding: 9px 14px;
-            font-size: 12px;
-            font-weight: 700;
+            font-size: 11.5px;
+            font-weight: 800;
             letter-spacing: 0.6px;
             color: #fef2f2;
             text-transform: uppercase;
         }
         .top-bar span { color: var(--gold-light); }
 
-        /* Hero / Carta Real */
+        /* =========================================================
+           BLOCO 1: DOBRA INICIAL UNIFICADA
+           ========================================================= */
         .hero {
-            padding: 36px 0 28px;
+            padding: 34px 0 22px;
             text-align: center;
         }
         .wax-seal-wrapper {
             position: relative;
-            width: 112px;
-            height: 112px;
-            margin: 0 auto 18px;
+            width: 104px;
+            height: 104px;
+            margin: 0 auto 16px;
             border-radius: 50%;
             padding: 3px;
             background: linear-gradient(135deg, #fbbf24, #991b1b, #fbbf24);
@@ -149,7 +157,7 @@
             color: var(--gold-light);
             font-size: 11px;
             font-weight: 800;
-            letter-spacing: 1.2px;
+            letter-spacing: 1.1px;
             padding: 6px 14px;
             border-radius: 99px;
             text-transform: uppercase;
@@ -157,7 +165,7 @@
         }
         h1.hero-headline {
             font-family: 'Outfit', sans-serif;
-            font-size: clamp(27px, 6.2vw, 40px);
+            font-size: clamp(27px, 6vw, 42px);
             font-weight: 900;
             line-height: 1.18;
             letter-spacing: -0.5px;
@@ -173,113 +181,173 @@
         .hero-sub {
             font-size: 16px;
             color: #cbd5e1;
-            max-width: 600px;
-            margin: 0 auto 24px;
+            max-width: 620px;
+            margin: 0 auto 20px;
             font-weight: 400;
             text-wrap: pretty;
         }
         .hero-sub strong { color: #ffffff; }
 
-        /* Live Scanner Demo Mockup (Apresentando o Produto sem Esconder Nada) */
-        .app-live-showcase {
-            background: linear-gradient(180deg, rgba(23, 23, 31, 0.95), rgba(14, 14, 19, 0.98));
-            border: 1px solid var(--border-gold);
-            border-radius: 20px;
-            padding: 20px;
-            margin: 24px 0;
-            text-align: left;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
-        }
-        .showcase-header {
+        /* Fluxo Visual Limpo (3 Passos) */
+        .quick-workflow-bar {
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            padding-bottom: 14px;
-            margin-bottom: 16px;
-            border-bottom: 1px solid var(--border-subtle);
+            background: rgba(17, 17, 22, 0.88);
+            border: 1px solid var(--border-gold);
+            border-radius: 16px;
+            padding: 14px 18px;
+            margin: 22px 0 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            gap: 8px;
         }
-        .showcase-title {
+        .quick-step {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-family: 'Outfit', sans-serif;
-            font-weight: 800;
-            font-size: 13px;
-            letter-spacing: 0.8px;
+            gap: 10px;
+            text-align: left;
+            flex: 1;
+        }
+        .quick-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid var(--border-gold);
             color: var(--gold-light);
-            text-transform: uppercase;
-            min-width: 0;
-        }
-        .live-pill {
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.4);
-            color: #34d399;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 4px 11px;
-            border-radius: 99px;
-            white-space: nowrap !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
             flex-shrink: 0;
-            display: inline-block;
         }
-        .step-flow {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 14px;
+        .quick-step.highlight .quick-icon {
+            background: rgba(220, 38, 38, 0.2);
+            border-color: rgba(220, 38, 38, 0.5);
+            color: #f87171;
         }
-        .flow-box {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-subtle);
-            border-radius: 14px;
-            padding: 14px 16px;
+        .quick-info strong {
+            display: block;
+            font-family: 'Outfit', sans-serif;
+            font-size: 13.5px;
+            color: #fff;
+            line-height: 1.2;
         }
-        .flow-step-tag {
-            font-size: 11px;
-            font-weight: 800;
-            color: var(--gold);
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            margin-bottom: 4px;
+        .quick-info span {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            line-height: 1.3;
             display: block;
         }
-        .flow-box h4 {
-            font-size: 15px;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 6px;
+        .quick-arrow {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 12px;
+            flex-shrink: 0;
+            padding: 0 4px;
         }
-        .flow-box p {
-            font-size: 13.5px;
-            color: var(--text-muted);
+
+        /* Menu Flutuante de Provas Sociais (Carrossel Infinito) */
+        .floating-proofs-wrapper {
+            margin: 18px -18px 24px -18px;
+            overflow: hidden;
+            position: relative;
+            padding: 6px 0;
+            mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
         }
-        .sample-reply-card {
-            background: rgba(245, 158, 11, 0.07);
-            border-left: 3px solid var(--gold);
-            border-radius: 10px;
-            padding: 12px 14px;
-            margin-top: 10px;
-        }
-        .sample-reply-card .badge {
-            font-size: 10px;
+        .floating-proofs-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            font-size: 11px;
             font-weight: 800;
             color: var(--gold-light);
             text-transform: uppercase;
-            letter-spacing: 0.6px;
+            letter-spacing: 0.9px;
+            margin-bottom: 11px;
         }
-        .sample-reply-card .quote {
-            font-size: 14px;
-            font-weight: 600;
-            color: #ffffff;
-            margin: 5px 0;
-            font-style: italic;
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--emerald);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px var(--emerald);
+            animation: pulseDot 1.5s infinite;
         }
-        .sample-reply-card .why {
-            font-size: 12px;
-            color: #cbd5e1;
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+        .floating-proofs-track {
+            display: flex;
+            gap: 12px;
+            width: max-content;
+            animation: marqueeProofs 32s linear infinite;
+        }
+        .floating-proofs-track:hover,
+        .floating-proofs-track:active {
+            animation-play-state: paused;
+        }
+        @keyframes marqueeProofs {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .floating-proof-card {
+            flex-shrink: 0;
+            width: 248px;
+            background: rgba(18, 18, 25, 0.96);
+            border: 1px solid rgba(245, 158, 11, 0.32);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65);
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .floating-proof-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--gold);
+        }
+        .floating-proof-media {
+            width: 100%;
+            height: 235px;
+            background: #000000;
+            overflow: hidden;
+            position: relative;
+        }
+        .floating-proof-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 43%;
+            display: block;
+        }
+        .floating-proof-caption {
+            padding: 9px 11px;
+            background: #111118;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            flex: 1;
+        }
+        .floating-proof-badge {
+            font-size: 9.5px;
+            font-weight: 800;
+            color: var(--gold-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .floating-proof-quote {
+            font-size: 11px;
+            color: #e2e8f0;
+            line-height: 1.35;
         }
 
-        /* CTA Button */
+        /* Botão CTA Principal */
         .btn-cta-gold {
             display: flex;
             align-items: center;
@@ -296,6 +364,8 @@
             padding: 18px 24px;
             border-radius: 14px;
             text-decoration: none;
+            text-align: center;
+            line-height: 1.25;
             box-shadow: 0 10px 30px rgba(245, 158, 11, 0.35);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             border: 1px solid #fde68a;
@@ -315,41 +385,10 @@
         }
         .micro-trust i { color: var(--gold); margin-right: 4px; }
 
-        /* Carta de Vendas / Copy Editorial */
-        .sales-letter-box {
-            background: rgba(17, 17, 22, 0.85);
-            border: 1px solid var(--border-subtle);
-            border-radius: 20px;
-            padding: 28px 22px;
-            margin: 32px 0;
-        }
-        .letter-salutation {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 22px;
-            font-style: italic;
-            color: var(--gold-light);
-            margin-bottom: 14px;
-        }
-        .sales-letter-box p {
-            font-size: 15.5px;
-            color: #e2e8f0;
-            margin-bottom: 16px;
-        }
-        .sales-letter-box strong { color: #ffffff; }
-        .highlight-quote {
-            border-left: 3px solid var(--crimson);
-            background: rgba(220, 38, 38, 0.08);
-            padding: 14px 16px;
-            border-radius: 0 12px 12px 0;
-            margin: 20px 0;
-            font-size: 15px;
-            color: #f8fafc;
-        }
-
-        /* As 4 Ferramentas Reais do Aplicativo */
+        /* Headings de Seção */
         .section-heading {
             text-align: center;
-            margin: 40px 0 24px;
+            margin: 38px 0 20px;
         }
         .section-heading .tag {
             font-size: 11px;
@@ -358,7 +397,7 @@
             letter-spacing: 1.4px;
             text-transform: uppercase;
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         .section-heading h2 {
             font-family: 'Outfit', sans-serif;
@@ -366,148 +405,976 @@
             font-weight: 900;
             line-height: 1.22;
             text-wrap: balance;
-            max-width: 680px;
-            margin: 0 auto;
         }
+
+        /* =========================================================
+           BLOCO 2: CELULAR 9:16 COM SCANNER EXATO DO APP + RESPOSTAS
+           ========================================================= */
+        .scanner-demo-section {
+            background: linear-gradient(180deg, rgba(17, 17, 24, 0.96), rgba(9, 9, 13, 0.98));
+            border: 1px solid var(--border-gold);
+            border-radius: 24px;
+            padding: 30px 18px;
+            margin: 32px 0;
+            text-align: center;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.75);
+        }
+        .phone-mockup-916 {
+            width: 100%;
+            max-width: 318px;
+            aspect-ratio: 9 / 16;
+            margin: 22px auto 26px;
+            background: #08080a;
+            border: 4px solid #262632;
+            border-radius: 36px;
+            padding: 10px 10px 14px;
+            box-shadow: 0 24px 65px rgba(0, 0, 0, 0.92), 0 0 38px rgba(239, 68, 68, 0.16);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .phone-notch {
+            width: 88px;
+            height: 16px;
+            background: #000;
+            border-radius: 0 0 12px 12px;
+            margin: -10px auto 8px;
+            position: relative;
+            z-index: 15;
+            flex-shrink: 0;
+        }
+        .phone-screen {
+            flex: 1;
+            border-radius: 24px;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 0%, rgba(239, 68, 68, 0.08) 0%, rgba(245, 158, 11, 0.04) 30%, rgba(8, 8, 10, 1) 70%);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            min-height: 0;
+        }
+
+        /* Header Idêntico ao App Real */
+        .app-phone-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 9px 11px;
+            background: rgba(8, 8, 10, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
+        }
+        .app-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+        .app-brand-crest {
+            width: 28px;
+            height: 28px;
+            border-radius: 9px;
+            background: var(--brand-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 13px;
+            flex-shrink: 0;
+            box-shadow: 0 3px 12px rgba(239, 68, 68, 0.35);
+        }
+        .app-brand-tag {
+            font-size: 8.5px;
+            font-weight: 800;
+            letter-spacing: 1.2px;
+            color: var(--gold);
+            display: block;
+            line-height: 1;
+        }
+        .app-brand-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 10.5px;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+        .app-header-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            padding: 3px 8px;
+            border-radius: 99px;
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--emerald);
+            white-space: nowrap;
+        }
+
+        /* Área Interna do Scanner dentro do Celular */
+        .app-phone-body {
+            flex: 1;
+            padding: 10px 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 0;
+        }
+        .app-subbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 9.5px;
+            font-weight: 800;
+            color: var(--text-muted);
+            letter-spacing: 0.7px;
+            text-transform: uppercase;
+        }
+        .app-submode-pills {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .app-submode-pill {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 6px 6px;
+            border-radius: 9px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+        .app-submode-pill.active {
+            background: rgba(245, 158, 11, 0.14);
+            border-color: rgba(245, 158, 11, 0.45);
+            color: var(--gold-light);
+        }
+
+        /* Caixa de Upload & Scanner Idêntica ao App (.upload-card + .preview-wrapper.scanning) */
+        .app-upload-zone {
+            flex: 1;
+            position: relative;
+            background: var(--bg-card);
+            border: 1.5px dashed rgba(245, 158, 11, 0.38);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 0;
+        }
+        /* Estado A: Placeholder exato do App (aparece no início do ciclo) */
+        .app-upload-placeholder {
+            position: absolute;
+            inset: 0;
+            padding: 16px 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            z-index: 2;
+            animation: cyclePlaceholder 8s infinite;
+        }
+        .upload-crest-pulse {
+            width: 52px;
+            height: 52px;
+            margin: 0 auto 10px;
+            border-radius: 50%;
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .upload-icon-radar { font-size: 20px; color: var(--gold); }
+        .upload-icon-center { font-size: 11px; color: var(--accent-red); position: absolute; }
+        .app-upload-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+            line-height: 1.25;
+        }
+        .app-upload-sub {
+            font-size: 10.5px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            line-height: 1.35;
+        }
+        .app-upload-badge {
+            display: inline-block;
+            font-size: 9px;
+            color: var(--emerald);
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.22);
+            padding: 3px 8px;
+            border-radius: 99px;
+            font-weight: 600;
+        }
+        .tap-finger-pulse {
+            margin-top: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--gold-light);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            opacity: 0.9;
+        }
+
+        /* Estado B: Preview + Laser do App (entra após o toque) */
+        .app-preview-scanning {
+            position: absolute;
+            inset: 0;
+            background: #000;
+            z-index: 4;
+            animation: cyclePreview 8s infinite;
+        }
+        .app-preview-scanning img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+            display: block;
+        }
+        .app-scanning-grid {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, rgba(239, 68, 68, 0.045) 0px, rgba(239, 68, 68, 0.045) 1px, transparent 1px, transparent 8px);
+            pointer-events: none;
+            z-index: 6;
+        }
+        .app-scanning-laser {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent 0%, var(--accent-red) 50%, transparent 100%);
+            box-shadow: 0 0 18px 4px var(--accent-red);
+            z-index: 10;
+            animation: laserScan 1.6s infinite ease-in-out;
+        }
+        @keyframes laserScan {
+            0% { top: 2%; opacity: 0.85; }
+            50% { top: 96%; opacity: 1; }
+            100% { top: 2%; opacity: 0.85; }
+        }
+        @keyframes cyclePlaceholder {
+            0%, 18% { opacity: 1; }
+            24%, 95% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        @keyframes cyclePreview {
+            0%, 18% { opacity: 0; transform: scale(0.97); }
+            24%, 95% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.97); }
+        }
+        .app-scan-pill {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(8, 8, 12, 0.88);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(239, 68, 68, 0.45);
+            color: #fca5a5;
+            font-size: 9.5px;
+            font-weight: 800;
+            padding: 4px 11px;
+            border-radius: 99px;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            z-index: 12;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Botão Principal do App dentro do Celular */
+        .app-btn-primary-glow {
+            width: 100%;
+            padding: 11px 12px;
+            border-radius: 12px;
+            background: var(--brand-gradient);
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            font-size: 11.5px;
+            font-weight: 800;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35);
+            flex-shrink: 0;
+        }
+
+        /* =========================================================
+           RESPOSTAS COLADAS NA PÁGINA (LAYOUT EXATO DO APLICATIVO)
+           ========================================================= */
+        .app-results-showcase {
+            margin-top: 8px;
+            text-align: left;
+        }
+        .intel-diagnosis-box {
+            background: linear-gradient(180deg, rgba(23, 23, 32, 0.95) 0%, rgba(17, 17, 24, 0.95) 100%);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            border-left: 3px solid var(--gold);
+            border-radius: 10px;
+            padding: 13px 15px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+        }
+        .diagnosis-header {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 6px;
+        }
+        .diagnosis-radar-icon {
+            font-size: 13px;
+            color: var(--gold);
+            animation: radarBlink 2s infinite ease-in-out;
+        }
+        @keyframes radarBlink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.9); }
+        }
+        .diagnosis-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: var(--gold);
+            text-transform: uppercase;
+        }
+        .diagnosis-desc {
+            font-size: 13px;
+            line-height: 1.5;
+            color: #e2e8f0;
+        }
+
+        .responses-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .response-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 15px;
+            position: relative;
+        }
+        .response-card.highlight-glow {
+            border-color: rgba(239, 68, 68, 0.42);
+            background: linear-gradient(180deg, rgba(23, 23, 32, 0.96) 0%, rgba(17, 17, 22, 0.96) 100%);
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.14);
+        }
+        .response-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .response-badge {
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            padding: 3px 9px;
+            border-radius: 99px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .badge-gold { background: rgba(245, 158, 11, 0.12); color: var(--gold); border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-cyan { background: rgba(6, 182, 212, 0.12); color: var(--accent-cyan); border: 1px solid rgba(6, 182, 212, 0.3); }
+        .badge-emerald { background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .response-type { font-size: 10.5px; color: var(--text-muted); }
+
+        .response-text {
+            font-size: 14.5px;
+            line-height: 1.5;
+            color: #ffffff;
+            margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.38);
+            padding: 12px 13px;
+            border-radius: 8px;
+            border-left: 3px solid var(--gold);
+            font-weight: 500;
+        }
+        .response-card[data-tone="humor"] .response-text { border-left-color: var(--accent-cyan); }
+        .response-card[data-tone="avanco"] .response-text { border-left-color: var(--accent-red); }
+
+        .response-intel-box {
+            background: rgba(14, 14, 20, 0.95);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            border-left: 3.5px solid var(--gold);
+            border-radius: 8px;
+            padding: 11px 13px;
+            margin-bottom: 12px;
+        }
+        .response-card[data-tone="humor"] .response-intel-box { border-color: rgba(6, 182, 212, 0.35); border-left-color: var(--accent-cyan); }
+        .response-card[data-tone="avanco"] .response-intel-box { border-color: rgba(239, 68, 68, 0.4); border-left-color: var(--accent-red); }
+
+        .intel-box-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+        .response-card[data-tone="humor"] .intel-box-title { color: var(--accent-cyan); }
+        .response-card[data-tone="avanco"] .intel-box-title { color: #f87171; }
+        .intel-box-desc { font-size: 12.5px; color: #e2e8f0; line-height: 1.5; }
+        .intel-box-desc strong { color: var(--gold); }
+
+        .response-footer { display: flex; align-items: center; justify-content: flex-end; }
+        .btn-copy {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #ffffff;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .btn-copy:hover, .btn-copy.copied {
+            background: rgba(245, 158, 11, 0.18);
+            border-color: var(--gold);
+            color: var(--gold-light);
+        }
+
+        /* =========================================================
+           BLOCO 3: QUEBRA DE CETICISMO (ANTI-ROBÔ / ANTI-CHATGPT)
+           ========================================================= */
+        .anti-bot-section {
+            background: rgba(17, 17, 23, 0.92);
+            border: 1px solid var(--border-subtle);
+            border-radius: 22px;
+            padding: 28px 20px;
+            margin: 34px 0;
+            text-align: center;
+        }
+        .anti-bot-lead {
+            font-size: 14.5px;
+            color: #cbd5e1;
+            max-width: 580px;
+            margin: 8px auto 22px;
+            line-height: 1.55;
+        }
+        .vs-bot-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            text-align: left;
+            margin-bottom: 18px;
+        }
+        .vs-card {
+            border-radius: 16px;
+            padding: 16px;
+        }
+        .vs-card.robot {
+            background: rgba(220, 38, 38, 0.06);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+        }
+        .vs-card.human {
+            background: rgba(16, 185, 129, 0.06);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .vs-label {
+            font-size: 10.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .vs-card.robot .vs-label { color: #f87171; }
+        .vs-card.human .vs-label { color: #34d399; }
+        .vs-quote {
+            background: rgba(0, 0, 0, 0.42);
+            padding: 11px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #f1f5f9;
+            font-style: italic;
+            margin-bottom: 9px;
+            line-height: 1.4;
+        }
+        .vs-result {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+        .vs-result strong { color: #fff; }
+        .anti-bot-footer {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px dashed rgba(245, 158, 11, 0.32);
+            border-radius: 12px;
+            padding: 13px 15px;
+            font-size: 13px;
+            color: #e2e8f0;
+            line-height: 1.5;
+            text-align: left;
+        }
+        .anti-bot-footer strong { color: var(--gold-light); }
+
+        /* =========================================================
+           BLOCO 4: AS 4 ARMAS (ESTÉTICA IDÊNTICA AOS CARDS DO APP)
+           ========================================================= */
         .tools-grid {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 18px;
         }
-        .tool-showcase-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 18px;
-            overflow: hidden;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+        .pm-tool-card {
             display: flex;
             flex-direction: column;
+            border-radius: 22px;
+            background: linear-gradient(180deg, #14141c 0%, #0d0d12 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+            box-shadow: 0 16px 38px rgba(0, 0, 0, 0.55);
+            transition: border-color 0.25s ease, transform 0.25s ease;
         }
-        .tool-img-banner {
-            height: 175px;
-            background-size: cover;
-            background-position: center;
+        .pm-tool-card:hover {
+            border-color: var(--border-gold);
+            transform: translateY(-2px);
+        }
+        .pm-tool-cover {
             position: relative;
+            height: 165px;
+            background:
+                linear-gradient(180deg, rgba(8, 8, 10, 0.05) 30%, rgba(14, 14, 20, 0.98) 100%),
+                var(--cover) center/cover no-repeat,
+                linear-gradient(135deg, #1a1408, #0b0b0f);
         }
-        .tool-img-banner::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, rgba(7,7,9,0.1) 0%, rgba(17,17,22,0.96) 100%);
-        }
-        .tool-badge-floating {
+        .pm-tool-tag {
             position: absolute;
             top: 12px;
             left: 12px;
-            z-index: 2;
-            background: rgba(9, 9, 11, 0.85);
-            border: 1px solid var(--border-gold);
-            color: var(--gold-light);
-            font-size: 10px;
+            font-size: 9.5px;
             font-weight: 800;
-            padding: 4px 10px;
-            border-radius: 99px;
-            letter-spacing: 0.8px;
+            letter-spacing: 1px;
+            padding: 5px 11px;
+            border-radius: 999px;
+            backdrop-filter: blur(8px);
+            background: rgba(8, 8, 10, 0.68);
+            border: 1px solid rgba(255, 255, 255, 0.16);
             text-transform: uppercase;
-            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
-        .tool-body {
-            padding: 18px 20px 22px;
-            flex: 1;
+        .pm-tool-tag.tag-red { border-color: rgba(239, 68, 68, 0.6); color: #fca5a5; }
+        .pm-tool-tag.tag-gold { border-color: rgba(245, 158, 11, 0.6); color: #fde68a; }
+        .pm-tool-tag.tag-emerald { border-color: rgba(16, 185, 129, 0.6); color: #a7f3d0; }
+        .pm-tool-number {
+            position: absolute;
+            right: 14px;
+            bottom: 4px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 42px;
+            font-weight: 900;
+            line-height: 1;
+            color: rgba(255, 255, 255, 0.12);
+            letter-spacing: -1px;
+        }
+        .pm-tool-body {
+            padding: 6px 20px 20px;
             display: flex;
             flex-direction: column;
+            flex: 1;
+            text-align: left;
         }
-        .tool-body h3 {
+        .pm-tool-kicker {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.2px;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            display: block;
+        }
+        .pm-tool-body h3 {
             font-family: 'Outfit', sans-serif;
-            font-size: 20px;
+            font-size: 19px;
             font-weight: 800;
             color: #fff;
             margin-bottom: 8px;
             line-height: 1.25;
-            text-wrap: balance;
         }
-        .tool-body p {
-            font-size: 14.5px;
-            color: var(--text-muted);
+        .pm-tool-desc {
+            font-size: 13.8px;
+            color: #cbd5e1;
             margin-bottom: 14px;
             line-height: 1.55;
-            text-wrap: pretty;
         }
-        .tool-bullets {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+        .pm-tool-desc strong { color: #fff; }
+        .pm-when {
             margin-top: auto;
-        }
-        .tool-bullets li {
-            font-size: 13.5px;
-            color: #e2e8f0;
             display: flex;
             align-items: flex-start;
             gap: 9px;
+            padding: 11px 12px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px dashed rgba(245, 158, 11, 0.25);
+            font-size: 12.5px;
+            color: #e2e8f0;
             line-height: 1.45;
-            text-align: left;
         }
-        .tool-bullets li i {
-            color: var(--gold);
-            font-size: 12px;
-            margin-top: 4px;
-            flex-shrink: 0;
-        }
+        .pm-when i { color: var(--gold); margin-top: 3px; flex-shrink: 0; }
+        .pm-when strong { color: var(--gold-light); }
 
-        /* As 4 Fases Integradas */
-        .phases-box {
-            background: linear-gradient(180deg, rgba(127, 29, 29, 0.16), rgba(17, 17, 22, 0.95));
-            border: 1px solid rgba(220, 38, 38, 0.3);
-            border-radius: 18px;
-            padding: 24px 20px;
-            margin: 34px 0;
+        /* =========================================================
+           BLOCO 5: TIRA-DÚVIDAS RÁPIDO (ZERO MONOTONIA)
+           ========================================================= */
+        .objections-box {
+            background: rgba(17, 17, 22, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 22px 18px;
+            margin: 30px 0;
         }
-        .phase-item {
+        .objections-quick-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 14px;
+        }
+        .obj-quick-card {
+            background: rgba(255, 255, 255, 0.025);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 14px;
+            padding: 13px 14px;
+            text-align: left;
             display: flex;
             align-items: flex-start;
-            gap: 14px;
-            padding: 14px 0;
-            border-bottom: 1px solid var(--border-subtle);
-            text-align: left;
+            gap: 11px;
         }
-        .phase-item:last-child { border-bottom: none; padding-bottom: 0; }
-        .phase-num {
-            width: 34px;
-            height: 34px;
-            border-radius: 10px;
-            background: rgba(245, 158, 11, 0.15);
-            border: 1px solid var(--border-gold);
+        .obj-quick-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.28);
             color: var(--gold-light);
-            font-family: 'Outfit', sans-serif;
-            font-weight: 900;
-            font-size: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 13px;
             flex-shrink: 0;
-            margin-top: 2px;
+            margin-top: 1px;
         }
-        .phase-item h4 { font-size: 15.5px; font-weight: 800; color: #fff; margin-bottom: 4px; line-height: 1.3; }
-        .phase-item p { font-size: 13.5px; color: var(--text-muted); line-height: 1.5; text-wrap: pretty; }
+        .obj-quick-body h4 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 3px;
+            line-height: 1.25;
+        }
+        .obj-quick-body p {
+            font-size: 12.5px;
+            color: #cbd5e1;
+            line-height: 1.4;
+            margin: 0;
+        }
+        .obj-quick-body p strong {
+            color: var(--gold-light);
+        }
 
-        /* Offer Box */
+        /* =========================================================
+           BLOCO 6: A INICIAÇÃO NA ORDEM OCULTA (GRUPO, LÍDER, VILÃO)
+           ========================================================= */
+        .initiation-section {
+            background: radial-gradient(circle at 50% 0%, rgba(220, 38, 38, 0.09) 0%, rgba(13, 13, 18, 0.96) 70%, #08080c 100%);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 24px;
+            padding: 34px 22px;
+            margin: 38px 0 22px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.72);
+            text-align: center;
+        }
+        .initiation-section::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 280px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.2) 0%, transparent 70%);
+            filter: blur(40px);
+            pointer-events: none;
+        }
+        .initiation-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(245, 158, 11, 0.14);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: var(--gold-light);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.2px;
+            padding: 6px 14px;
+            border-radius: 99px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+        .initiation-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(23px, 5.2vw, 32px);
+            font-weight: 900;
+            line-height: 1.22;
+            color: #ffffff;
+            margin-bottom: 14px;
+            letter-spacing: -0.5px;
+        }
+        .initiation-title span.gold {
+            background: linear-gradient(135deg, #fde68a 0%, #f59e0b 55%, #d97706 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .initiation-lead {
+            font-size: 15px;
+            color: #cbd5e1;
+            line-height: 1.62;
+            max-width: 620px;
+            margin: 0 auto 24px;
+            text-wrap: pretty;
+        }
+        .initiation-lead strong { color: #fff; }
+
+        /* Comparativo O Vilão (Homem Comum) vs O Grupo (Membro da Ordem) */
+        .initiation-split-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 26px 0;
+            text-align: left;
+        }
+        .split-card {
+            border-radius: 16px;
+            padding: 20px 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+        .split-card.enemy {
+            background: rgba(220, 38, 38, 0.05);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+        }
+        .split-card.order {
+            background: rgba(245, 158, 11, 0.07);
+            border: 1px solid var(--border-gold);
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.12);
+        }
+        .split-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .split-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+        .split-card.enemy .split-icon {
+            background: rgba(220, 38, 38, 0.18);
+            color: #f87171;
+            border: 1px solid rgba(220, 38, 38, 0.35);
+        }
+        .split-card.order .split-icon {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--gold-light);
+            border: 1px solid var(--border-gold);
+        }
+        .split-title strong {
+            display: block;
+            font-family: 'Outfit', sans-serif;
+            font-size: 14.5px;
+            font-weight: 800;
+            line-height: 1.2;
+            color: #fff;
+        }
+        .split-title span {
+            font-size: 10.5px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            font-weight: 700;
+        }
+        .split-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 12.8px;
+            line-height: 1.45;
+            color: #cbd5e1;
+        }
+        .split-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .split-card.enemy .split-list li i { color: #ef4444; font-size: 12px; margin-top: 3px; flex-shrink: 0; }
+        .split-card.order .split-list li i { color: #10b981; font-size: 12px; margin-top: 3px; flex-shrink: 0; }
+        .split-verdict {
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.35;
+        }
+        .split-card.enemy .split-verdict {
+            background: rgba(220, 38, 38, 0.12);
+            color: #fca5a5;
+            border: 1px dashed rgba(220, 38, 38, 0.35);
+        }
+        .split-card.order .split-verdict {
+            background: rgba(245, 158, 11, 0.14);
+            color: #fde68a;
+            border: 1px dashed rgba(245, 158, 11, 0.4);
+        }
+
+        /* O Líder: O Mestre da Sedução */
+        .mentor-profile-box {
+            background: rgba(255, 255, 255, 0.025);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 16px;
+            padding: 18px;
+            margin: 22px 0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            text-align: left;
+        }
+        .mentor-avatar {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.3), #0d0d12);
+            border: 2px solid var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--gold-light);
+            flex-shrink: 0;
+            box-shadow: 0 0 16px rgba(245, 158, 11, 0.3);
+        }
+        .mentor-text h4 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .mentor-text p {
+            font-size: 13px;
+            color: #cbd5e1;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        /* O Pacto de Honra */
+        .pact-box {
+            background: rgba(13, 13, 18, 0.92);
+            border: 1px solid rgba(245, 158, 11, 0.32);
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin: 18px 0 4px;
+            text-align: left;
+        }
+        .pact-header {
+            font-family: 'Outfit', sans-serif;
+            font-size: 12.5px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--gold-light);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 7px;
+        }
+        .pact-text {
+            font-size: 13px;
+            color: #cbd5e1;
+            line-height: 1.5;
+            margin: 0;
+        }
+        .pact-text strong { color: #ffffff; }
+
+        /* =========================================================
+           BLOCO 7: OFERTA E SELETOR DE PLANOS
+           ========================================================= */
         .offer-card {
             background: linear-gradient(180deg, #16161e 0%, #0d0d12 100%);
             border: 2px solid var(--gold);
             border-radius: 22px;
-            padding: 30px 22px;
-            margin: 36px 0;
+            padding: 28px 20px;
+            margin: 34px 0;
             text-align: center;
             box-shadow: 0 0 50px rgba(245, 158, 11, 0.18);
         }
         .offer-stack {
             text-align: left;
-            margin: 22px 0;
+            margin: 20px 0;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 9px;
         }
         .stack-row {
             display: flex;
@@ -516,57 +1383,35 @@
             gap: 14px;
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.05);
-            padding: 12px 16px;
+            padding: 11px 14px;
             border-radius: 12px;
-            font-size: 13.5px;
+            font-size: 13px;
         }
         .stack-row strong {
             color: #fff;
             display: flex;
             align-items: center;
-            gap: 10px;
-            line-height: 1.35;
+            gap: 9px;
             text-align: left;
-        }
-        .stack-row strong i {
-            flex-shrink: 0;
-            font-size: 14px;
         }
         .stack-row .val {
             color: var(--gold-light);
             font-weight: 800;
-            font-size: 12.5px;
+            font-size: 11px;
             white-space: nowrap;
             flex-shrink: 0;
             background: rgba(245, 158, 11, 0.12);
             border: 1px solid rgba(245, 158, 11, 0.25);
-            padding: 3px 10px;
+            padding: 3px 9px;
             border-radius: 99px;
         }
-        .price-anchor {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-top: 10px;
-        }
-        .price-anchor del { color: #ef4444; }
-        .price-big {
-            font-family: 'Outfit', sans-serif;
-            font-size: 54px;
-            font-weight: 900;
-            color: #fff;
-            line-height: 1;
-            margin: 8px 0 6px;
-        }
-        .price-big small { font-size: 22px; color: var(--gold-light); }
-        .price-note { font-size: 13px; color: #cbd5e1; margin-bottom: 22px; }
 
-        /* Plan Selector Cards (Alinhamento Cirúrgico) */
         .tsl-plan-opt {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) 136px;
+            grid-template-columns: minmax(0, 1fr) 130px;
             align-items: center;
-            gap: 16px;
-            padding: 16px 20px;
+            gap: 14px;
+            padding: 14px 16px;
             border-radius: 14px;
             border: 1px solid var(--border-subtle);
             background: rgba(255, 255, 255, 0.03);
@@ -578,43 +1423,40 @@
             border: 2px solid var(--gold);
             background: rgba(245, 158, 11, 0.10);
         }
-        .tsl-plan-left {
-            min-width: 0;
-            text-align: left;
-        }
+        .tsl-plan-left { min-width: 0; text-align: left; }
         .tsl-plan-title-row {
             display: flex;
             align-items: center;
-            gap: 8px;
-            flex-wrap: nowrap;
+            gap: 7px;
+            flex-wrap: wrap;
+            row-gap: 5px;
             margin-bottom: 4px;
         }
         .tsl-plan-name {
             color: #ffffff;
-            font-size: 15.5px;
+            font-size: 15px;
             font-weight: 800;
             white-space: nowrap;
         }
         .tsl-plan-badge {
-            font-size: 10px;
+            font-size: 9.5px;
             font-weight: 800;
-            padding: 3px 9px;
+            padding: 3px 8px;
             border-radius: 99px;
             white-space: nowrap;
-            letter-spacing: 0.4px;
             line-height: 1.2;
             flex-shrink: 0;
         }
         .tsl-plan-desc {
-            font-size: 13px;
+            font-size: 12.5px;
             color: var(--text-muted);
             line-height: 1.35;
         }
         .tsl-plan-right {
             text-align: right;
-            width: 136px;
+            width: 130px;
             white-space: nowrap;
-            padding-left: 14px;
+            padding-left: 12px;
             border-left: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             flex-direction: column;
@@ -624,21 +1466,20 @@
         .tsl-plan-price {
             display: inline-block;
             color: #ffffff;
-            font-size: 19px;
+            font-size: 18.5px;
             font-weight: 900;
             font-family: 'Outfit', sans-serif;
             white-space: nowrap !important;
-             word-break: keep-all;
             line-height: 1.15;
         }
         .tsl-plan-period {
             font-size: 11px;
             color: var(--text-muted);
             white-space: nowrap !important;
-            margin-top: 3px;
+            margin-top: 2px;
         }
 
-        /* Guarantee */
+        /* Garantia */
         .guarantee-box {
             display: flex;
             gap: 16px;
@@ -646,12 +1487,12 @@
             background: rgba(255,255,255,0.03);
             border: 1px solid var(--border-subtle);
             border-radius: 16px;
-            padding: 20px;
-            margin: 28px 0;
+            padding: 18px;
+            margin: 26px 0;
         }
         .guarantee-badge {
-            width: 60px;
-            height: 60px;
+            width: 58px;
+            height: 58px;
             border-radius: 50%;
             background: rgba(245, 158, 11, 0.14);
             border: 2px solid var(--gold);
@@ -665,20 +1506,20 @@
             color: var(--gold-light);
             line-height: 1;
         }
-        .guarantee-badge span { font-size: 22px; }
-        .guarantee-badge small { font-size: 9px; }
+        .guarantee-badge span { font-size: 20px; }
+        .guarantee-badge small { font-size: 8.5px; }
 
-        /* Sticky Mobile CTA (Smart Scroll-Triggered Bar Without Price Spoiler) */
+        /* Sticky Mobile CTA */
         .sticky-bar {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(9, 9, 12, 0.95);
+            background: rgba(9, 9, 12, 0.96);
             backdrop-filter: blur(14px);
             border-top: 1px solid var(--border-gold);
             padding: 12px 16px;
-            z-index: 99;
+            z-index: 97;
             transform: translateY(110%);
             opacity: 0;
             pointer-events: none;
@@ -697,176 +1538,83 @@
             justify-content: space-between;
             gap: 12px;
         }
-        .sticky-price {
-            font-size: 11.5px;
-            color: var(--text-muted);
-            line-height: 1.25;
-        }
-        .sticky-price strong {
-            display: block;
-            font-size: 13.5px;
-            color: #fff;
-            letter-spacing: 0.2px;
-        }
+        .sticky-price { font-size: 11px; color: var(--text-muted); line-height: 1.25; }
+        .sticky-price strong { display: block; font-size: 13px; color: #fff; }
         .sticky-btn {
             background: linear-gradient(135deg, #f59e0b, #d97706);
             color: #09090b;
             font-family: 'Outfit', sans-serif;
             font-weight: 900;
-            font-size: 14px;
-            padding: 12px 20px;
+            font-size: 13.5px;
+            padding: 11px 18px;
             border-radius: 10px;
             text-decoration: none;
             text-transform: uppercase;
             white-space: nowrap;
         }
 
-        /* AJUSTES FINOS PARA TELAS MOBILE (CELULARES) */
-        @media (max-width: 600px) {
-            .container {
-                padding: 0 14px;
-            }
-            .app-live-showcase {
-                padding: 16px 14px;
-            }
-            .showcase-title {
-                font-size: 11.5px;
-                letter-spacing: 0.4px;
-            }
-            .live-pill {
-                font-size: 10.5px;
-                padding: 3px 9px;
-            }
-            .offer-card {
-                padding: 24px 14px;
-            }
-            .tsl-plan-opt {
-                grid-template-columns: minmax(0, 1fr) 106px;
-                gap: 10px;
-                padding: 13px 12px;
-            }
-            .tsl-plan-title-row {
-                gap: 6px;
-            }
-            .tsl-plan-name {
-                font-size: 14px;
-            }
-            .tsl-plan-badge {
-                font-size: 9px;
-                padding: 2px 7px;
-            }
-            .tsl-plan-desc {
-                font-size: 11.5px;
-            }
-            .tsl-plan-right {
-                width: 106px;
-                padding-left: 8px;
-            }
-            .tsl-plan-price {
-                font-size: 17px;
-            }
-            .tsl-plan-period {
-                font-size: 10px;
-            }
-            .btn-cta-gold {
-                font-size: 15px;
-                padding: 16px 14px;
-            }
+        /* Botão WhatsApp Discreto */
+        #waFloatBtn {
+            position: fixed;
+            bottom: 74px;
+            right: 12px;
+            z-index: 98;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(37, 211, 102, 0.16);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border: 1px solid rgba(37, 211, 102, 0.3);
+            color: #25D366;
+            opacity: 0.6;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            text-decoration: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.35);
         }
 
-        /* RESPONSIVIDADE DESKTOP (PC / TELAS GRANDES) */
-        @media (min-width: 860px) {
-            body {
-                padding-bottom: 50px;
-            }
-            .container {
-                max-width: 1060px;
-                padding: 0 32px;
-            }
-            .hero {
-                padding: 52px 0 36px;
-            }
-            h1.hero-headline {
-                font-size: 46px;
-                max-width: 880px;
-                margin: 0 auto 18px;
-            }
-            .hero-sub {
-                font-size: 18px;
-                max-width: 740px;
-                margin: 0 auto 32px;
-            }
-            .app-live-showcase {
-                padding: 28px 30px;
-                margin: 32px 0;
-            }
-            .step-flow {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 18px;
-                align-items: stretch;
-            }
-            .flow-box {
-                display: flex;
+        /* =========================================================
+           RESPONSIVIDADE MOBILE E DESKTOP
+           ========================================================= */
+        @media (max-width: 600px) {
+            .hero { padding: 20px 0 18px; }
+            .wax-seal-wrapper { width: 82px; height: 82px; margin-bottom: 12px; }
+            .quick-workflow-bar {
                 flex-direction: column;
-                justify-content: flex-start;
-                padding: 20px 22px;
+                align-items: stretch;
+                gap: 9px;
+                padding: 11px 13px;
+                margin: 14px 0 18px;
             }
-            .flow-box:nth-child(3) {
-                grid-column: 1 / -1;
+            .quick-arrow { display: none; }
+            .vs-bot-grid,
+            .objections-quick-grid,
+            .initiation-split-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
             }
-            .hero .btn-cta-gold {
-                max-width: 520px;
-                margin: 0 auto;
-                font-size: 18px;
-                padding: 20px 32px;
+            .mentor-profile-box {
+                flex-direction: column;
+                text-align: center;
+                gap: 12px;
             }
-            .sales-letter-box {
-                max-width: 820px;
-                margin: 44px auto;
-                padding: 38px 42px;
+            .mentor-text h4 { justify-content: center; }
+            .tsl-plan-opt {
+                grid-template-columns: minmax(0, 1fr) 104px;
+                gap: 8px;
+                padding: 12px 10px;
             }
-            .sales-letter-box p {
-                font-size: 16.5px;
-                line-height: 1.75;
-            }
-            .tools-grid {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 24px;
-            }
-            .tool-img-banner {
-                height: 235px;
-                background-position: center 25%;
-            }
-            .tool-body {
-                padding: 22px 24px 26px;
-            }
-            .phases-box {
-                padding: 36px 38px;
-                margin: 48px 0;
-            }
-            .phases-grid {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 20px 32px;
-            }
-            .phase-item {
-                border-bottom: none;
-                background: rgba(255, 255, 255, 0.025);
-                border: 1px solid var(--border-subtle);
-                border-radius: 14px;
-                padding: 18px 20px;
-            }
-            .offer-card {
-                max-width: 740px;
-                margin: 48px auto;
-                padding: 40px 42px;
-            }
-            .guarantee-box {
-                max-width: 740px;
-                margin: 32px auto;
-                padding: 26px 30px;
-            }
+            .tsl-plan-right { width: 104px; padding-left: 8px; }
+            .tsl-plan-price { font-size: 16.5px; }
+        }
+
+        @media (min-width: 860px) {
+            .container { max-width: 960px; padding: 0 24px; }
+            .tools-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+            .pm-tool-cover { height: 195px; }
             .sticky-bar {
                 display: block;
                 max-width: 520px;
@@ -886,14 +1634,17 @@
 <body>
 
     <div class="top-bar">
-        <i class="fa-solid fa-crown"></i> CONVOCAÇÃO OFICIAL · <span>APLICATIVO ORDEM OCULTA LIBERADO</span>
+        <i class="fa-solid fa-crown"></i> CONVOCAÇÃO LIBERADA · <span>APLICATIVO ORDEM OCULTA DISPONÍVEL NO SEU CELULAR</span>
     </div>
 
     <div class="container">
-        <!-- HERO COM LACRE DE CERA / SINETE REAL -->
+
+        <!-- =========================================================
+             BLOCO 1: DOBRA INICIAL UNIFICADA
+             ========================================================= -->
         <header class="hero">
             <div class="wax-seal-wrapper">
-                <img src="/app/assets/hero-emblem.jpg" alt="Lacre de Cera Real Ordem Oculta">
+                <img src="/app/assets/hero-emblem.jpg" alt="Lacre de Cera Ordem Oculta">
             </div>
 
             <div class="eyebrow-badge">
@@ -901,53 +1652,152 @@
             </div>
 
             <h1 class="hero-headline">
-                Suba o Print do Story ou da Conversa e Receba em <span class="gold" style="white-space:nowrap;">5&#160;Segundos</span> a Resposta Exata Que Faz Ela Querer Te Ver
+                Suba o Print do Story ou DM e Tenha em <span class="gold" style="white-space:nowrap;">5&#160;Segundos</span> a Resposta Que Faz Ela Querer Te Ver
             </h1>
 
             <p class="hero-sub">
-                Chega de travar olhando para a tela sem saber o que responder. O <strong>Aplicativo Ordem Oculta</strong> analisa a foto ou mensagem dela em tempo real e entrega <strong>3 respostas prontas para copiar e colar</strong> — calibradas para despertar curiosidade, pegar o WhatsApp e marcar o encontro.
+                Chega de travar olhando para a tela. O <strong>Aplicativo Ordem Oculta</strong> lê a foto ou conversa na hora e entrega <strong>3 respostas magnéticas prontas para copiar</strong>.
             </p>
 
-            <!-- DEMONSTRAÇÃO VISUAL DIRETA DO PRODUTO -->
-            <div class="app-live-showcase">
-                <div class="showcase-header">
-                    <div class="showcase-title">
-                        <i class="fa-solid fa-eye"></i> COMO O APLICATIVO FUNCIONA NA PRÁTICA
-                    </div>
-                    <span class="live-pill">●&#160;5&#160;Segundos</span>
+            <!-- MENU FLUTUANTE DE PROVAS SOCIAIS (LOGO ABAIXO DA HEADLINE/SUBHEADLINE) -->
+            <div class="floating-proofs-wrapper">
+                <div class="floating-proofs-header">
+                    <span class="live-dot"></span>
+                    <span>Conversas Reais Destravadas no Direct do Instagram</span>
                 </div>
-
-                <div class="step-flow">
-                    <div class="flow-box">
-                        <span class="flow-step-tag">PASSO 1 · VOCÊ TIRA O PRINT</span>
-                        <h4>Ela postou um Story provocante ou mandou uma mensagem seca no WhatsApp</h4>
-                        <p>Você abre o aplicativo Ordem Oculta no seu celular (sem precisar instalar nada da loja) e envia a captura de tela ou cola o texto dela.</p>
-                    </div>
-
-                    <div class="flow-box">
-                        <span class="flow-step-tag">PASSO 2 · LEITURA OCULTA DE CENÁRIO</span>
-                        <h4>O Oráculo escaneia cada detalhe invisível para os outros homens</h4>
-                        <p>Ele identifica a plataforma (Instagram ou WhatsApp), lê a linguagem corporal, a bebida na mesa, o fundo da foto ou o teste psicológico por trás da frase dela.</p>
-                    </div>
-
-                    <div class="flow-box">
-                        <span class="flow-step-tag">PASSO 3 · COPIE E ENVIE COM 1 TOQUE</span>
-                        <h4>A criatividade que você queria ter na ponta da língua, pronta em segundos:</h4>
-                        <div class="sample-reply-card">
-                            <div class="badge"><i class="fa-solid fa-camera"></i> EXEMPLO 1 · ELA POSTOU FOTO PRODUZIDA NO ESPELHO ANTES DE SAIR:</div>
-                            <div class="quote">"Esse olhar no espelho é de quem se arrumou inteira só para chegar no lugar, achar todo mundo sem graça em 20 minutos e querer fugir para comer alguma coisa melhor. Acertei ou passei perto?"</div>
-                            <div class="why" style="margin-top:6px;">🔥 <strong>A reação dela na hora:</strong> <em>"Hahaha socorro, como você adivinhou?! Pior que já tô quase querendo fugir mesmo"</em> (Enquanto 40 caras mandaram "Linda 😍" e foram ignorados, você já abriu a porta do encontro).</div>
+                <div class="floating-proofs-track">
+                    <!-- 7 CARDS ORIGINAIS -->
+                    <div class="floating-proof-card">
+                        <div class="floating-proof-media"><img src="/Ordemoculta/assets/proof-divida.jpg" alt="Print Oráculo Dívida" style="object-position:center 43%;" loading="lazy"></div>
+                        <div class="floating-proof-caption">
+                            <span class="floating-proof-badge">🔥 Provocação Situacional</span>
+                            <span class="floating-proof-quote"><strong>"tem que quitar umas dívidas..."</strong> ➔ Ela respondeu rindo na hora.</span>
                         </div>
-                        <div class="sample-reply-card" style="margin-top:10px; border-left-color:var(--emerald); background:rgba(16,185,129,0.06);">
-                            <div class="badge" style="color:#6ee7b7;"><i class="fa-brands fa-whatsapp"></i> EXEMPLO 2 · ELA SUMIU O DIA TODO E MANDOU "OI, CORRERIA AQUI":</div>
-                            <div class="quote">"Relaxa, eu já ia abrir um boletim de ocorrência por sequestro, mas como você apareceu a tempo, vou converter sua multa em um drink comigo essa semana. Quinta você tem alvará de soltura?"</div>
-                            <div class="why" style="margin-top:6px;">💡 <strong>O efeito psicológico:</strong> Zero cobrança, humor inteligente e convite embutido sem parecer carente.</div>
+                    </div>
+                    <div class="floating-proof-card">
+                        <div class="floating-proof-media"><img src="/Ordemoculta/assets/proof-bobbie.jpg" alt="Print Oráculo Bobbie Goods" style="object-position:center 42%;" loading="lazy"></div>
+                        <div class="floating-proof-caption">
+                            <span class="floating-proof-badge">⚡ Tensão com Humor</span>
+                            <span class="floating-proof-quote"><strong>"não é BOBBIE mas tá bem GOODS"</strong> ➔ "Vem me colorir então".</span>
+                        </div>
+                    </div>
+                    <div class="floating-proof-card">
+                        <div class="floating-proof-media"><img src="/Ordemoculta/assets/proof-devezemquando.jpg" alt="Print Oráculo De vez em quando" style="object-position:center 48%;" loading="lazy"></div>
+                        <div class="floating-proof-caption">
+                            <span class="floating-proof-badge">🪝 Loop de Curiosidade</span>
+                            <span class="floating-proof-quote"><strong>"coisa que só aparece de vez em quando..."</strong> ➔ "lá vem kkk oq?".</span>
+                        </div>
+                    </div>
+                    <div class="floating-proof-card">
+                        <div class="floating-proof-media"><img src="/Ordemoculta/assets/proof-labirinto.jpg" alt="Print Oráculo Labirinto" style="object-position:center 40%;" loading="lazy"></div>
+                        <div class="floating-proof-caption">
+                            <span class="floating-proof-badge">🌀 Gancho Enigmático</span>
+                            <span class="floating-proof-quote"><strong>"Seu story parece um labirinto sabia?"</strong> ➔ Respondeu "Oxii" digitando...</span>
+                        </div>
+                    </div>
+                    <div class="floating-proof-card">
+                        <div class="floating-proof-media"><img src="/Ordemoculta/assets/proof-cartao.jpg" alt="Print Oráculo Cartão Black" style="object-position:center 38%;" loading="lazy"></div>
+                        <div class="floating-proof-caption">
+                            <span class="floating-proof-badge">👑 Elogio Sem Gafanhoto</span>
+                            <span class="floating-proof-quote"><strong>"beleza igual a cartão black sem limites"</strong> ➔ Coração e risada.</span>
+                        </div>
+                    </div>
+                    <div class="floating-proof-card">
+                        <div class="floating-proof-media"><img src="/Ordemoculta/assets/proof-explicado.jpg" alt="Print Oráculo Agora tá explicado" style="object-position:center 48%;" loading="lazy"></div>
+                        <div class="floating-proof-caption">
+                            <span class="floating-proof-badge">🎯 Gancho de 3 Palavras</span>
+                            <span class="floating-proof-quote"><strong>"agora ta explicado..."</strong> ➔ Gerou "OQ??" em menos de 1 min.</span>
+                        </div>
+                    </div>
+                    <div class="floating-proof-card">
+                        <div class="floating-proof-media"><img src="/Ordemoculta/assets/proof-quarta.jpg" alt="Print Oráculo Quarta na terça" style="object-position:center 44%;" loading="lazy"></div>
+                        <div class="floating-proof-caption">
+                            <span class="floating-proof-badge">🧠 Quebra de Expectativa</span>
+                            <span class="floating-proof-quote"><strong>"boa quarta feira" (na terça)</strong> ➔ "Ué mas hoje é terça, kkkk".</span>
+                        </div>
+                    </div>
+
+                    <!-- DUPLICATA PARA LOOP INFINITO CONTÍNUO -->
+                    <div class="floating-proof-card">
+                        <div class="floating-proof-media"><img src="/Ordemoculta/assets/proof-divida.jpg" alt="Print Oráculo Dívida" style="object-position:center 43%;" loading="lazy"></div>
+                        <div class="floating-proof-caption">
+                            <span class="floating-proof-badge">🔥 Provocação Situacional</span>
+                            <span class="floating-proof-quote"><strong>"tem que quitar umas dívidas..."</strong> ➔ Ela respondeu rindo na hora.</span>
+                        </div>
+                    </div>
+                    <div class="floating-proof-card">
+                        <div class="floating-proof-media"><img src="/Ordemoculta/assets/proof-bobbie.jpg" alt="Print Oráculo Bobbie Goods" style="object-position:center 42%;" loading="lazy"></div>
+                        <div class="floating-proof-caption">
+                            <span class="floating-proof-badge">⚡ Tensão com Humor</span>
+                            <span class="floating-proof-quote"><strong>"não é BOBBIE mas tá bem GOODS"</strong> ➔ "Vem me colorir então".</span>
+                        </div>
+                    </div>
+                    <div class="floating-proof-card">
+                        <div class="floating-proof-media"><img src="/Ordemoculta/assets/proof-devezemquando.jpg" alt="Print Oráculo De vez em quando" style="object-position:center 48%;" loading="lazy"></div>
+                        <div class="floating-proof-caption">
+                            <span class="floating-proof-badge">🪝 Loop de Curiosidade</span>
+                            <span class="floating-proof-quote"><strong>"coisa que só aparece de vez em quando..."</strong> ➔ "lá vem kkk oq?".</span>
+                        </div>
+                    </div>
+                    <div class="floating-proof-card">
+                        <div class="floating-proof-media"><img src="/Ordemoculta/assets/proof-labirinto.jpg" alt="Print Oráculo Labirinto" style="object-position:center 40%;" loading="lazy"></div>
+                        <div class="floating-proof-caption">
+                            <span class="floating-proof-badge">🌀 Gancho Enigmático</span>
+                            <span class="floating-proof-quote"><strong>"Seu story parece um labirinto sabia?"</strong> ➔ Respondeu "Oxii" digitando...</span>
+                        </div>
+                    </div>
+                    <div class="floating-proof-card">
+                        <div class="floating-proof-media"><img src="/Ordemoculta/assets/proof-cartao.jpg" alt="Print Oráculo Cartão Black" style="object-position:center 38%;" loading="lazy"></div>
+                        <div class="floating-proof-caption">
+                            <span class="floating-proof-badge">👑 Elogio Sem Gafanhoto</span>
+                            <span class="floating-proof-quote"><strong>"beleza igual a cartão black sem limites"</strong> ➔ Coração e risada.</span>
+                        </div>
+                    </div>
+                    <div class="floating-proof-card">
+                        <div class="floating-proof-media"><img src="/Ordemoculta/assets/proof-explicado.jpg" alt="Print Oráculo Agora tá explicado" style="object-position:center 48%;" loading="lazy"></div>
+                        <div class="floating-proof-caption">
+                            <span class="floating-proof-badge">🎯 Gancho de 3 Palavras</span>
+                            <span class="floating-proof-quote"><strong>"agora ta explicado..."</strong> ➔ Gerou "OQ??" em menos de 1 min.</span>
+                        </div>
+                    </div>
+                    <div class="floating-proof-card">
+                        <div class="floating-proof-media"><img src="/Ordemoculta/assets/proof-quarta.jpg" alt="Print Oráculo Quarta na terça" style="object-position:center 44%;" loading="lazy"></div>
+                        <div class="floating-proof-caption">
+                            <span class="floating-proof-badge">🧠 Quebra de Expectativa</span>
+                            <span class="floating-proof-quote"><strong>"boa quarta feira" (na terça)</strong> ➔ "Ué mas hoje é terça, kkkk".</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <a href="#oferta" class="btn-cta-gold">
+            <!-- FLUXO LIMPO DE 3 PASSOS (ENTRE O CARROSSEL E O BOTÃO) -->
+            <div class="quick-workflow-bar">
+                <div class="quick-step">
+                    <div class="quick-icon"><i class="fa-solid fa-camera"></i></div>
+                    <div class="quick-info">
+                        <strong>1. Suba o Print</strong>
+                        <span>Story ou conversa no WhatsApp</span>
+                    </div>
+                </div>
+                <div class="quick-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                <div class="quick-step">
+                    <div class="quick-icon"><i class="fa-solid fa-brain"></i></div>
+                    <div class="quick-info">
+                        <strong>2. Leitura em 5s</strong>
+                        <span>O Oráculo escaneia o cenário oculto</span>
+                    </div>
+                </div>
+                <div class="quick-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                <div class="quick-step highlight">
+                    <div class="quick-icon"><i class="fa-solid fa-fire"></i></div>
+                    <div class="quick-info">
+                        <strong>3. Copie e Envie</strong>
+                        <span>3 respostas calibradas para marcar o encontro</span>
+                    </div>
+                </div>
+            </div>
+
+            <a href="#oferta" class="btn-cta-gold" onclick="scrollToOfferBox(event)">
                 <span>QUERO ACESSAR O APLICATIVO AGORA</span>
                 <i class="fa-solid fa-arrow-right"></i>
             </a>
@@ -958,141 +1808,432 @@
             </div>
         </header>
 
-        <!-- CARTA DE VENDAS DIRETA (POR QUE O APLICATIVO EXISTE) -->
-        <section class="sales-letter-box">
-            <div class="letter-salutation">Caro futuro membro da Ordem,</div>
-            <p>
-                Seja honesto consigo mesmo: quantas vezes você já viu o Story de uma mulher extremamente atraente, abriu a caixa de mensagem... e fechou sem mandar nada porque tudo o que vinha na cabeça parecia comum demais?
-            </p>
-            <p>
-                Ou pior: você começou a conversar, o papo estava indo bem, e de repente <strong>ela visualizou e sumiu</strong> — ou mandou uma resposta curta que matou o assunto.
-            </p>
-            <div class="highlight-quote">
-                <strong>A verdade brutal:</strong> Uma mulher bonita tem 30 homens mandando <em>"Oi, tudo bem?"</em> e emojis de foguinho todos os dias. Quando você responde no improviso, você compete no mesmo balde que eles.
+        <!-- =========================================================
+             BLOCO 2: A MÁQUINA EM AÇÃO (CELULAR 9:16 + RESPOSTAS DO APP)
+             ========================================================= -->
+        <section class="scanner-demo-section">
+            <div class="eyebrow-badge" style="margin-bottom:10px;">
+                <i class="fa-solid fa-crosshairs"></i> VEJA COMO FUNCIONA NA TELA DO SEU CELULAR
             </div>
-            <p>
-                E você não tem tempo nem paciência para assistir 40 horas de aulas teóricas quando o seu celular está vibrando <strong>agora</strong> esperando uma resposta.
+            <h2 style="font-family:'Outfit',sans-serif; font-size:clamp(22px, 5.2vw, 30px); font-weight:900; line-height:1.25; margin-bottom:8px;">
+                Você Cola o Print do Story ou da DM e o Scanner Lê em 5 Segundos
+            </h2>
+            <p style="font-size:14.5px; color:var(--text-muted); max-width:560px; margin:0 auto;">
+                Serve tanto para puxar assunto em <strong>Stories</strong> quanto para responder mensagens na <strong>DM do Instagram ou WhatsApp</strong> — veja a tela real do aplicativo em ação:
             </p>
-            <p>
-                Foi por isso que nós criamos o <strong>Aplicativo Ordem Oculta</strong>: em vez de teoria, colocamos dentro do aplicativo uma <strong>mente treinada na área de sedução — o cérebro de um super expert que conhece todas as artes da conquista e da psicologia feminina</strong>, pronto para ler a foto ou a conversa por você e te dar a frase exata em segundos.
-            </p>
+
+            <!-- SMARTPHONE 9:16 COM O LAYOUT EXATO DO APLICATIVO -->
+            <div class="phone-mockup-916">
+                <div class="phone-notch"></div>
+                <div class="phone-screen">
+                    <!-- Header Idêntico ao App -->
+                    <div class="app-phone-header">
+                        <div class="app-brand">
+                            <div class="app-brand-crest">
+                                <i class="fa-solid fa-chess-king"></i>
+                            </div>
+                            <div>
+                                <span class="app-brand-tag">ORDEM OCULTA</span>
+                                <div class="app-brand-title">O SEGREDO DAS RESPOSTAS</div>
+                            </div>
+                        </div>
+                        <div class="app-header-status">
+                            <span class="live-dot" style="width:5px;height:5px;"></span>
+                            <span>Online</span>
+                        </div>
+                    </div>
+
+                    <!-- Corpo do Oráculo -->
+                    <div class="app-phone-body">
+                        <div class="app-subbar">
+                            <span><i class="fa-solid fa-crosshairs" style="color:var(--gold);"></i> O Oráculo · Scanner</span>
+                            <span style="font-size:8.5px; color:var(--emerald);">● Lê Foto &amp; Conversa</span>
+                        </div>
+
+                        <!-- Pílulas Idênticas ao App Mostrando Story e DM -->
+                        <div class="app-submode-pills">
+                            <div class="app-submode-pill active"><i class="fa-solid fa-camera"></i> Foto / Story</div>
+                            <div class="app-submode-pill"><i class="fa-solid fa-comments"></i> Print de DM / Chat</div>
+                        </div>
+
+                        <!-- Dropzone & Preview Scanning Idêntico ao App -->
+                        <div class="app-upload-zone">
+                            <!-- Estado A: Placeholder do App -->
+                            <div class="app-upload-placeholder">
+                                <div class="upload-crest-pulse">
+                                    <i class="fa-solid fa-expand upload-icon-radar"></i>
+                                    <i class="fa-solid fa-crosshairs upload-icon-center"></i>
+                                </div>
+                                <div class="app-upload-title">Toque para carregar o print da fase</div>
+                                <div class="app-upload-sub">Story, foto do perfil ou print de conversa (DM / WhatsApp).</div>
+                                <span class="app-upload-badge"><i class="fa-solid fa-shield-halved"></i> Sigilo total · descartado na hora</span>
+                                <div class="tap-finger-pulse"><i class="fa-solid fa-hand-pointer"></i> Colando print do Story...</div>
+                            </div>
+
+                            <!-- Estado B: Imagem da Mulher + Laser Vermelho do App -->
+                            <div class="app-preview-scanning">
+                                <img src="/Ordemoculta/assets/demo-story-mulher.jpg?v=2" alt="Story Sendo Escaneado no Oráculo">
+                                <div class="app-scanning-grid"></div>
+                                <div class="app-scanning-laser"></div>
+                                <div class="app-scan-pill">
+                                    <i class="fa-solid fa-radar"></i>
+                                    <span>DECODIFICANDO DETALHES...</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botão Principal do App -->
+                        <div class="app-btn-primary-glow">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>DECODIFICANDO PRINT...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESPOSTAS COLADAS NA PÁGINA NO FORMATO EXATO DO APLICATIVO -->
+            <div class="app-results-showcase">
+                <!-- Diagnóstico Tático do Oráculo -->
+                <div class="intel-diagnosis-box">
+                    <div class="diagnosis-header">
+                        <i class="fa-solid fa-satellite-dish diagnosis-radar-icon"></i>
+                        <span class="diagnosis-title">DIAGNÓSTICO TÁTICO DO ORÁCULO</span>
+                    </div>
+                    <p class="diagnosis-desc">
+                        Story noturno no barzinho com caipirinha na mesa. Qualquer elogio comum ("linda", foguinho) coloca você junto com os 30 ignorados da noite. As 3 opções abaixo usam os detalhes visuais da foto para fazer ela responder rindo:
+                    </p>
+                </div>
+
+                <!-- As 3 Caixas de Resposta Idênticas ao App -->
+                <div class="responses-stack">
+                    <!-- Opção 1 -->
+                    <div class="response-card" data-tone="enigmatico">
+                        <div class="response-header">
+                            <span class="response-badge badge-gold">
+                                <i class="fa-solid fa-mask"></i> Opção 1 · Enigmática &amp; Tensão
+                            </span>
+                            <span class="response-type">Resposta Involuntária</span>
+                        </div>
+                        <p class="response-text" id="demoOpt1">"Essa caipirinha aí tá com cara de que já é a 2ª da noite... acerto ou passo perto?"</p>
+                        <div class="response-intel-box">
+                            <div class="intel-box-title"><i class="fa-solid fa-brain"></i> PARECER DO EXPERT:</div>
+                            <p class="intel-box-desc"><strong>Quando usar:</strong> Observa um detalhe do copo na mesa em vez da beleza física dela. Gera humor imediato e faz ela se justificar rindo sem você parecer emocionado.</p>
+                        </div>
+                        <div class="response-footer">
+                            <button type="button" class="btn-copy" onclick="copyDemoReply('demoOpt1', this)">
+                                <i class="fa-regular fa-copy"></i> <span>Copiar Resposta</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Opção 2 -->
+                    <div class="response-card" data-tone="humor">
+                        <div class="response-header">
+                            <span class="response-badge badge-cyan">
+                                <i class="fa-solid fa-shuffle"></i> Opção 2 · Quebra de Padrão
+                            </span>
+                            <span class="response-type">Desarma Defesas</span>
+                        </div>
+                        <p class="response-text" id="demoOpt2">"A cara de quem disse 'vou só dar uma passadinha rápida' às 20h e já tá fechando o bar 😂"</p>
+                        <div class="response-intel-box">
+                            <div class="intel-box-title"><i class="fa-solid fa-brain"></i> PARECER DO EXPERT:</div>
+                            <p class="intel-box-desc"><strong>Quando usar:</strong> Faz uma leitura divertida da situação no barzinho. Tira ela do modo defensivo e abre a porta para uma conversa leve e cheia de risada.</p>
+                        </div>
+                        <div class="response-footer">
+                            <button type="button" class="btn-copy" onclick="copyDemoReply('demoOpt2', this)">
+                                <i class="fa-regular fa-copy"></i> <span>Copiar Resposta</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Opção 3 -->
+                    <div class="response-card highlight-glow" data-tone="avanco">
+                        <div class="response-header">
+                            <span class="response-badge badge-emerald">
+                                <i class="fa-solid fa-arrow-trend-up"></i> Opção 3 · Avanço Direto
+                            </span>
+                            <span class="response-type">Direcionada</span>
+                        </div>
+                        <p class="response-text" id="demoOpt3">"Clima bom aí no bar, mas aposto que a companhia da mesa não tá no mesmo nível da caipirinha"</p>
+                        <div class="response-intel-box">
+                            <div class="intel-box-title"><i class="fa-solid fa-brain"></i> PARECER DO EXPERT:</div>
+                            <p class="intel-box-desc"><strong>Quando usar:</strong> Provocação calibrada de alto valor. Valoriza o rolê, planta curiosidade sobre quem está com ela e já coloca você no jogo.</p>
+                        </div>
+                        <div class="response-footer">
+                            <button type="button" class="btn-copy" onclick="copyDemoReply('demoOpt3', this)">
+                                <i class="fa-regular fa-copy"></i> <span>Copiar Resposta</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
 
-        <!-- VITRINE DAS 4 FERRAMENTAS REAIS DO APLICATIVO -->
+        <!-- =========================================================
+             BLOCO 3: QUEBRA DE CETICISMO (ANTI-ROBÔ / ANTI-CHATGPT)
+             ========================================================= -->
+        <section class="anti-bot-section">
+            <span class="tag" style="font-size:11px;font-weight:800;color:var(--gold);letter-spacing:1.4px;text-transform:uppercase;display:block;margin-bottom:6px;">SEM CHEIRO DE ROBÔ</span>
+            <h2 style="font-family:'Outfit',sans-serif; font-size:clamp(22px, 5vw, 30px); font-weight:900; line-height:1.22;">
+                "Mas Será Que Isso Não Fica Com Cara de ChatGPT Genérico?"
+            </h2>
+            <p class="anti-bot-lead">
+                Essa é a primeira dúvida de qualquer homem inteligente. E a resposta está na diferença absurda entre um robô genérico e o nosso treinamento real no Direct brasileiro:
+            </p>
+
+            <div class="vs-bot-grid">
+                <div class="vs-card robot">
+                    <div class="vs-label"><i class="fa-solid fa-robot"></i> O Que Uma IA Comum Fala</div>
+                    <div class="vs-quote">"Olá! Que fotografia belíssima neste terraço noturno! Esse drink parece muito refrescante. Como está sua noite?"</div>
+                    <div class="vs-result"><strong>Resultado:</strong> Vergonha alheia imediata. Soa formal, travado e sem malícia nenhuma. Vai direto para o cemitério dos ignorados.</div>
+                </div>
+
+                <div class="vs-card human">
+                    <div class="vs-label"><i class="fa-solid fa-chess-king"></i> O Que o Oráculo Entrega</div>
+                    <div class="vs-quote">"Essa caipirinha aí tá com cara de que já é a 2ª da noite... acerto ou passo perto?"</div>
+                    <div class="vs-result"><strong>Resultado:</strong> Ritmo humano natural de Instagram brasileiro, provocação leve, minúsculas corretas e 0% cara de texto pronto.</div>
+                </div>
+            </div>
+
+            <div class="anti-bot-footer">
+                <i class="fa-solid fa-shield-halved" style="color:var(--gold); margin-right:6px;"></i>
+                <strong>Por que é imperceptível:</strong> O cérebro por trás da Ordem Oculta não foi treinado para escrever e-mails de trabalho. Ele foi calibrado exclusivamente em milhares de conversas reais de conquista no Brasil, respeitando gírias sutis, timing e ironia natural.
+            </div>
+        </section>
+
+        <!-- =========================================================
+             BLOCO 4: AS 4 ARMAS (ESTÉTICA DO APP + DORES CRÍTICAS)
+             ========================================================= -->
         <div class="section-heading">
-            <span class="tag">POR DENTRO DA PLATAFORMA</span>
-            <h2>As 4 Armas Que Você Recebe Assim Que Entra no Aplicativo</h2>
+            <span class="tag">POR DENTRO DO SEU BOLSO</span>
+            <h2>As 4 Armas Que Você Recebe Assim Que Entra</h2>
+            <p style="font-size:14px; color:var(--text-muted); max-width:560px; margin:6px auto 0;">Não importa se você quer puxar assunto do zero, se travou antes de um encontro ou se ela sumiu há 4 dias: existe uma arma exata para cada cenário.</p>
         </div>
 
         <div class="tools-grid">
-            <!-- Ferramenta 1 -->
-            <article class="tool-showcase-card">
-                <div class="tool-img-banner" style="background-image: url('/app/assets/card-oraculo.jpg');">
-                    <span class="tool-badge-floating"><i class="fa-solid fa-camera"></i> FERRAMENTA 01 · LEITURA DO MESTRE</span>
+            <!-- Ferramenta 01 -->
+            <article class="pm-tool-card">
+                <div class="pm-tool-cover" style="--cover: url('/app/assets/card-oraculo.jpg');">
+                    <span class="pm-tool-tag tag-red"><i class="fa-solid fa-infinity"></i> ILIMITADO</span>
+                    <span class="pm-tool-number">01</span>
                 </div>
-                <div class="tool-body">
-                    <h3>1. O Oráculo (Scanner de Prints & Stories)</h3>
-                    <p>Suba o print de qualquer Story, foto do feed ou conversa no Instagram/WhatsApp. O Oráculo examina os elementos visuais e entrega 3 respostas magnéticas prontas para copiar.</p>
-                    <ul class="tool-bullets">
-                        <li><i class="fa-solid fa-check"></i> Detecta sozinho se é Story para puxar assunto ou conversa em andamento</li>
-                        <li><i class="fa-solid fa-check"></i> Gera 3 estilos: Provocação do Elemento, Loop de Curiosidade e Charme Descarado</li>
-                        <li><i class="fa-solid fa-check"></i> Explica o gatilho psicológico e o próximo passo após ela responder</li>
-                    </ul>
-                </div>
-            </article>
-
-            <!-- Ferramenta 2 -->
-            <article class="tool-showcase-card">
-                <div class="tool-img-banner" style="background-image: url('/app/assets/card-coach.jpg');">
-                    <span class="tool-badge-floating"><i class="fa-solid fa-user-tie"></i> FERRAMENTA 02 · MENTORIA EM TEMPO REAL</span>
-                </div>
-                <div class="tool-body">
-                    <h3>2. O Mestre da Sedução (Mentor de Bolso 24h)</h3>
-                    <p>Não tem print e quer descrever a situação? Conte com suas palavras o que aconteceu ("ela desmarcou em cima da hora", "está respondendo frio") e receba a leitura clínica + a mensagem exata.</p>
-                    <ul class="tool-bullets">
-                        <li><i class="fa-solid fa-check"></i> Mantém a memória da conversa rodada após rodada conforme ela responde</li>
-                        <li><i class="fa-solid fa-check"></i> Orienta o tempo exato de espera antes de enviar a mensagem</li>
-                    </ul>
+                <div class="pm-tool-body">
+                    <span class="pm-tool-kicker">O ORÁCULO · LEITURA DE PRINTS</span>
+                    <h3>Mande o print. Receba a resposta que ela não consegue ignorar.</h3>
+                    <p class="pm-tool-desc">
+                        O Oráculo disseca o Story, a foto ou a conversa, encontra o ponto cego que os outros homens ignoraram e entrega <strong>3 respostas calibradas em 5 segundos</strong> prontas para copiar e colar.
+                    </p>
+                    <div class="pm-when">
+                        <i class="fa-solid fa-location-crosshairs"></i>
+                        <span><strong>Use quando:</strong> você vê um Story dela e não quer mandar um "oi linda" igual aos outros 30 caras na caixa de entrada.</span>
+                    </div>
                 </div>
             </article>
 
-            <!-- Ferramenta 3 -->
-            <article class="tool-showcase-card">
-                <div class="tool-img-banner" style="background-image: url('/app/assets/card-desfibrilador.jpg');">
-                    <span class="tool-badge-floating"><i class="fa-solid fa-bolt"></i> FERRAMENTA 03 · ANTI-VÁCUO</span>
+            <!-- Ferramenta 02 -->
+            <article class="pm-tool-card">
+                <div class="pm-tool-cover" style="--cover: url('/app/assets/card-coach.jpg');">
+                    <span class="pm-tool-tag tag-gold"><i class="fa-solid fa-crown"></i> MENTOR DE BOLSO</span>
+                    <span class="pm-tool-number">02</span>
                 </div>
-                <div class="tool-body">
-                    <h3>3. O Desfibrilador de Conversas</h3>
-                    <p>Ela parou de responder há 24 horas, 3 dias ou mais de 1 semana? Informe o tempo e o último assunto para gerar 3 mensagens leves que reabrem o papo sem cobrar atenção e sem parecer carente.</p>
-                    <ul class="tool-bullets">
-                        <li><i class="fa-solid fa-check"></i> Calibrado por tempo de sumiço (24h, 3 dias, 7 dias ou mais de 1 mês)</li>
-                        <li><i class="fa-solid fa-check"></i> Reativa o interesse dela sem usar o clássico "e aí, sumida?"</li>
-                    </ul>
+                <div class="pm-tool-body">
+                    <span class="pm-tool-kicker">O MESTRE DA SEDUÇÃO · CONSULTORIA TÁTICA 24H</span>
+                    <h3>Não tem print? Descreva a situação ou tire dúvidas antes do encontro.</h3>
+                    <p class="pm-tool-desc">
+                        Você mandou as mensagens do scan, o papo esquentou e agora não sabe conduzir? Ou vai para um <strong>encontro cara a cara</strong> hoje? Descreva com suas palavras e o Mestre traça a estratégia exata, dizendo inclusive quanto tempo esperar antes de responder.
+                    </p>
+                    <div class="pm-when">
+                        <i class="fa-solid fa-location-crosshairs"></i>
+                        <span><strong>Use quando:</strong> não há print para subir, ela respondeu seco, fez joguinho ou você precisa saber como agir no encontro pessoalmente.</span>
+                    </div>
                 </div>
             </article>
 
-            <!-- Ferramenta 4 -->
-            <article class="tool-showcase-card">
-                <div class="tool-img-banner" style="background-image: url('/app/assets/card-friendzone.jpg');">
-                    <span class="tool-badge-floating"><i class="fa-solid fa-fire"></i> FERRAMENTA 04 · INVERSÃO DE JOGO</span>
+            <!-- Ferramenta 03 -->
+            <article class="pm-tool-card">
+                <div class="pm-tool-cover" style="--cover: url('/app/assets/card-desfibrilador.jpg');">
+                    <span class="pm-tool-tag tag-gold"><i class="fa-solid fa-bolt"></i> ANTI-GHOSTING</span>
+                    <span class="pm-tool-number">03</span>
                 </div>
-                <div class="tool-body">
-                    <h3>4. A Rota de Fuga (Quebra de Friendzone & Testes)</h3>
-                    <p>Ela te chamou de "amigo", "fofo" ou fez um teste para ver se você fica inseguro? Cole a frase dela e receba uma réplica elegante e bem-humorada que vira a mesa na mesma hora.</p>
-                    <ul class="tool-bullets">
-                        <li><i class="fa-solid fa-check"></i> Quebra imediata do papel de "ombro amigo" ou confidente</li>
-                        <li><i class="fa-solid fa-check"></i> Devolve a tensão e o respeito masculino para a conversa em 1 frase</li>
-                    </ul>
+                <div class="pm-tool-body">
+                    <span class="pm-tool-kicker">O DESFIBRILADOR · RESGATE DE VÁCUO</span>
+                    <h3>Está há 3 dias no vácuo com aquela mulher que você queria muito?</h3>
+                    <p class="pm-tool-desc">
+                        A conversa não morreu — ela só precisa de um choque cirúrgico. Esqueça o patético <em>"e aí sumida?"</em> que grita carência. O Desfibrilador cria mensagens leves calibradas pelo <strong>tempo exato de sumiço</strong> dela para reabrir o diálogo sem humilhação.
+                    </p>
+                    <div class="pm-when">
+                        <i class="fa-solid fa-location-crosshairs"></i>
+                        <span><strong>Use quando:</strong> ela visualizou e parou de responder há 24h, 3 dias, 1 semana ou até meses e você quer recuperar essa conversa ainda hoje.</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Ferramenta 04 -->
+            <article class="pm-tool-card">
+                <div class="pm-tool-cover" style="--cover: url('/app/assets/card-friendzone.jpg');">
+                    <span class="pm-tool-tag tag-emerald"><i class="fa-solid fa-door-open"></i> QUEBRA DE AMIZADE</span>
+                    <span class="pm-tool-number">04</span>
+                </div>
+                <div class="pm-tool-body">
+                    <span class="pm-tool-kicker">A ROTA DE FUGA · ANTI-FRIENDZONE</span>
+                    <h3>Ela te trata como "amiguinho fofo", mas você quer beijar a boca dela?</h3>
+                    <p class="pm-tool-desc">
+                        Ser o confidente de uma mulher que você deseja é uma tortura silenciosa. Cole o que ela disse ou explique a situação e gere uma réplica afiada que <strong>destrói o rótulo de amigo na hora</strong> e devolve tensão sexual para a dinâmica.
+                    </p>
+                    <div class="pm-when">
+                        <i class="fa-solid fa-location-crosshairs"></i>
+                        <span><strong>Use quando:</strong> você gosta daquela amiga ou contatinho, mas ela te chamou de "amigo", "irmão" ou te colocou na gaveta dos inofensivos.</span>
+                    </div>
                 </div>
             </article>
         </div>
 
-        <!-- AS 4 FASES INTEGRADAS NO ORÁCULO -->
-        <section class="phases-box">
-            <div class="section-heading" style="margin-top: 0;">
-                <span class="tag">RADAR TÁTICO INTEGRADO AO ORÁCULO</span>
-                <h2>Calibrado Para as 4 Fases da Conquista (Com Auto-Diagnóstico)</h2>
+        <a href="#oferta" class="btn-cta-gold" onclick="scrollToOfferBox(event)" style="margin: 26px 0 4px;">
+            <span>QUERO TER ESSAS 4 ARMAS NO MEU CELULAR</span>
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+
+        <!-- =========================================================
+             BLOCO 5: TIRA-DÚVIDAS RÁPIDO (RESPOSTAS DIRETAS E LEVES)
+             ========================================================= -->
+        <section class="objections-box">
+            <div class="section-heading" style="margin:0;">
+                <span class="tag">SEM ENROLAÇÃO · RESPOSTAS DIRETAS</span>
+                <h2 style="font-size:clamp(20px, 4.6vw, 26px);">Dúvidas Rápidas Antes de Entrar</h2>
             </div>
 
-            <div class="phases-grid">
-                <div class="phase-item">
-                    <div class="phase-num">I</div>
-                    <div>
-                        <h4>Fase I: A Abordagem Magnética</h4>
-                        <p>Como quebrar o gelo nos Stories e DMs usando detalhes do cenário que fazem ela responder rindo em minutos.</p>
+            <div class="objections-quick-grid">
+                <div class="obj-quick-card">
+                    <div class="obj-quick-icon"><i class="fa-solid fa-mobile-screen"></i></div>
+                    <div class="obj-quick-body">
+                        <h4>Preciso baixar na loja?</h4>
+                        <p><strong>Não.</strong> Abre direto no navegador e vira ícone na tela em 1 toque, sem pesar o celular.</p>
                     </div>
                 </div>
-                <div class="phase-item">
-                    <div class="phase-num">II</div>
-                    <div>
-                        <h4>Fase II: A Condução & Tensão</h4>
-                        <p>Como manter o ritmo da conversa, gerar curiosidade e evitar que o papo vire uma entrevista monótona.</p>
+
+                <div class="obj-quick-card">
+                    <div class="obj-quick-icon"><i class="fa-solid fa-user-secret"></i></div>
+                    <div class="obj-quick-body">
+                        <h4>Ela vai saber que usei?</h4>
+                        <p><strong>Zero chance.</strong> O print é descartado na hora e o texto sai 100% natural e humano.</p>
                     </div>
                 </div>
-                <div class="phase-item">
-                    <div class="phase-num">III</div>
-                    <div>
-                        <h4>Fase III: A Transição pro WhatsApp</h4>
-                        <p>A ponte natural para tirar ela da DM do Instagram e levar para o WhatsApp sem parecer que está pedindo um favor.</p>
+
+                <div class="obj-quick-card">
+                    <div class="obj-quick-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div class="obj-quick-body">
+                        <h4>Aparece na fatura do cartão?</h4>
+                        <p><strong>Sigilo total.</strong> Cobrança discreta via Kiwify — nunca aparece <em>Ordem Oculta</em>.</p>
                     </div>
                 </div>
-                <div class="phase-item">
-                    <div class="phase-num">IV</div>
-                    <div>
-                        <h4>Fase IV: O Convite a Dois</h4>
-                        <p>Como propor o encontro presencial (dia, local e horário) eliminando a clássica desculpa do "vou ver na minha agenda".</p>
+
+                <div class="obj-quick-card">
+                    <div class="obj-quick-icon"><i class="fa-solid fa-rotate-left"></i></div>
+                    <div class="obj-quick-body">
+                        <h4>E se não funcionar pra mim?</h4>
+                        <p><strong>7 dias sem risco.</strong> Não destravou? 1 clique devolve 100% do seu dinheiro.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- OFERTA DIRETA -->
+        <!-- =========================================================
+             BLOCO 6: A INICIAÇÃO (O GRUPO, O LÍDER E O VILÃO)
+             ========================================================= -->
+        <section class="initiation-section">
+            <div class="initiation-eyebrow">
+                <i class="fa-solid fa-crown"></i> A CONVOCAÇÃO DOS HOMENS INCOMUNS
+            </div>
+            
+            <h2 class="initiation-title">
+                Você Não Está Apenas Comprando Um Aplicativo.<br>
+                <span class="gold">Você Está Entrando Para a Ordem Oculta.</span>
+            </h2>
+
+            <p class="initiation-lead">
+                A <strong>Ordem Oculta</strong> é um grupo seleto de homens que tomaram uma decisão irreversível: <strong>nunca mais aceitar migalhas de atenção e nunca mais se humilhar no Direct de uma mulher</strong>. Ao cruzar este portal, você deixa para trás o Homem Comum e passa a operar no jogo com as cartas marcadas a seu favor.
+            </p>
+
+            <!-- O COMPARATIVO BRUTAL (O VILÃO VS. O GRUPO) -->
+            <div class="initiation-split-grid">
+                <!-- O Vilão: O Homem Comum -->
+                <div class="split-card enemy">
+                    <div>
+                        <div class="split-header">
+                            <div class="split-icon"><i class="fa-solid fa-users-slash"></i></div>
+                            <div class="split-title">
+                                <strong>O Homem Comum</strong>
+                                <span>A Boiada dos 99% (O Vilão do Jogo)</span>
+                            </div>
+                        </div>
+                        <ul class="split-list">
+                            <li><i class="fa-solid fa-xmark"></i> <span>Manda foguinho, emoji de coração e o manjado <em>"linda demais"</em> em todo Story.</span></li>
+                            <li><i class="fa-solid fa-xmark"></i> <span>Engorda o ego de mulheres comuns de graça, transformando-as em "deusas intocáveis" que ignoram todo mundo.</span></li>
+                            <li><i class="fa-solid fa-xmark"></i> <span>Fica 4 dias no vácuo, entra em pânico e manda o humilhante <em>"oi sumida, me esqueceu?"</em>.</span></li>
+                            <li><i class="fa-solid fa-xmark"></i> <span>Vira o "amiguinho confidente", escuta os desabafos dela e assiste ela sair com outro homem.</span></li>
+                        </ul>
+                    </div>
+                    <div class="split-verdict">
+                        ⚠️ <strong>Destino da Manada:</strong> Esquecido na fila invisível das notificações dela, servindo apenas de fã gratuito.
+                    </div>
+                </div>
+
+                <!-- O Grupo: O Membro da Ordem -->
+                <div class="split-card order">
+                    <div>
+                        <div class="split-header">
+                            <div class="split-icon"><i class="fa-solid fa-crown"></i></div>
+                            <div class="split-title">
+                                <strong>O Membro da Ordem</strong>
+                                <span>O Círculo Fechado dos 1%</span>
+                            </div>
+                        </div>
+                        <ul class="split-list">
+                            <li><i class="fa-solid fa-check"></i> <span>Sobe o print e em 5 segundos decodifica as entrelinhas da foto ou da conversa dela.</span></li>
+                            <li><i class="fa-solid fa-check"></i> <span>Quebra o padrão da caixa de entrada com humor imprevisível e tensão magnética.</span></li>
+                            <li><i class="fa-solid fa-check"></i> <span>Tem o <strong>Mestre da Sedução</strong> como líder no bolso 24h indicando cada resposta, timing e escalada para o encontro.</span></li>
+                            <li><i class="fa-solid fa-check"></i> <span>Inverte a mesa: nunca rasteja. Agora é ela quem fica ansiosa checando o celular esperando a resposta dele.</span></li>
+                        </ul>
+                    </div>
+                    <div class="split-verdict">
+                        👑 <strong>Destino do Membro:</strong> Prioridade imediata nas notificações dela, respeito e encontros reais.
+                    </div>
+                </div>
+            </div>
+
+            <!-- O Líder: O Mestre da Sedução -->
+            <div class="mentor-profile-box">
+                <div class="mentor-avatar">
+                    <i class="fa-solid fa-user-secret"></i>
+                </div>
+                <div class="mentor-text">
+                    <h4><i class="fa-solid fa-chess-knight" style="color:var(--gold-light);"></i> O Líder: O Mestre da Sedução nos Bastidores</h4>
+                    <p>
+                        Ele não é um coach vaidoso de internet que ostenta carros alugados no Instagram. O Mestre é a mente calculista por trás da Ordem que decodificou a psicologia da atração em mais de 10.000 conversas reais. Enquanto o homem comum digita no escuro com as mãos suadas, você terá um mentor invisível sussurrando o movimento exato no seu bolso a cada mensagem.
+                    </p>
+                </div>
+            </div>
+
+            <!-- O Pacto de Honra -->
+            <div class="pact-box">
+                <div class="pact-header">
+                    <i class="fa-solid fa-handshake-angle"></i> O Pacto de Honra dos Membros da Ordem
+                </div>
+                <p class="pact-text">
+                    Ao quebrar o selo e entrar no grupo hoje, você assume um compromisso com a irmandade: <strong>você não compartilha as respostas do Oráculo e não revela esta arma para quem continua na boiada.</strong> O que funciona nas sombras, permanece nas sombras.
+                </p>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             BLOCO 7: OFERTA E ESCOLHA DO GRAU DE ACESSO
+             ========================================================= -->
         <section class="offer-card" id="oferta">
             <div class="eyebrow-badge" style="margin-bottom: 10px;">
-                <i class="fa-solid fa-key"></i> ACESSO IMEDIATO À PLATAFORMA
+                <i class="fa-solid fa-key"></i> QUEBRE O SELO · ACESSO IMEDIATO
             </div>
             <h2 style="font-family:'Outfit',sans-serif; font-size:26px; font-weight:900; text-wrap:balance;">
-                Ative Seu Acesso ao Aplicativo Ordem Oculta Hoje
+                Escolha Seu Grau de Acesso na Ordem Oculta
             </h2>
 
             <div class="offer-stack">
@@ -1118,19 +2259,29 @@
                 </div>
             </div>
 
-            <div style="text-align:left; margin: 22px 0 18px;">
+            <!-- ANCORAGEM LIMPA (SEM POLUIR AS LINHAS ACIMA) -->
+            <div style="background:rgba(245,158,11,0.08); border:1px dashed rgba(245,158,11,0.38); border-radius:14px; padding:13px 16px; text-align:left; font-size:13px; color:#e2e8f0; line-height:1.5; margin: 16px 0 20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; padding-bottom:8px; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.08);">
+                    <span style="color:var(--text-muted); font-size:12px;">Acesso separado às 4 ferramentas: <del style="color:#f87171;">R$&nbsp;258/mês</del></span>
+                    <span style="color:var(--gold-light); font-weight:800; font-size:12.5px;">Hoje a partir de R$&nbsp;32,63/mês</span>
+                </div>
+                <i class="fa-solid fa-coins" style="color:var(--gold); margin-right:5px;"></i>
+                <strong>Pense rápido:</strong> Um único rolê no fim de semana (Uber + entrada + 2 drinks) já passa de <strong style="color:#fff;">R$&nbsp;150 em uma noite</strong>. Aqui você garante o arsenal completo pelos próximos <strong style="color:var(--gold-light);">3 meses inteiros</strong> por menos de <strong style="color:var(--gold-light);">R$&nbsp;1,09/dia</strong>.
+            </div>
+
+            <div style="text-align:left; margin: 18px 0 18px;">
                 <div style="font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.8px; color:var(--gold-light); margin-bottom:12px; text-align:center;">
-                    <i class="fa-solid fa-sliders"></i> Escolha Seu Plano de Acesso:
+                    <i class="fa-solid fa-sliders"></i> Selecione Seu Plano Abaixo:
                 </div>
 
-                <!-- Opção 1: Mensal (Pré-selecionado para conversão rápida) -->
-                <div class="tsl-plan-opt active" data-url="https://pay.kiwify.com.br/8X6hibI" data-price="37,90" data-label="LIBERAR ACESSO MENSAL · R$&#160;37,90" onclick="selectTslPlan(this)">
+                <!-- Opção 1: Mensal -->
+                <div class="tsl-plan-opt" data-url="https://pay.kiwify.com.br/8X6hibI" data-price="37,90" data-label="LIBERAR ACESSO MENSAL · R$&#160;37,90" onclick="selectTslPlan(this)">
                     <div class="tsl-plan-left">
                         <div class="tsl-plan-title-row">
                             <span class="tsl-plan-name">Plano Mensal</span>
-                            <span class="tsl-plan-badge" style="background:rgba(16,185,129,0.2); color:#6ee7b7;">10 CRÉDITOS/MÊS</span>
+                            <span class="tsl-plan-badge" style="background:rgba(16,185,129,0.2); color:#6ee7b7;">10 CONSULTAS TÁTICAS/MÊS</span>
                         </div>
-                        <div class="tsl-plan-desc">Oráculo Ilimitado + Acesso Imediato às 4 Ferramentas</div>
+                        <div class="tsl-plan-desc">Oráculo (Scanner de Prints) Ilimitado + 10 Consultas Táticas/mês para usar no Mestre da Sedução, Anti-Vácuo e Rota de Fuga.</div>
                     </div>
                     <div class="tsl-plan-right">
                         <strong class="tsl-plan-price">R$&#160;37,90</strong>
@@ -1138,14 +2289,15 @@
                     </div>
                 </div>
 
-                <!-- Opção 2: Trimestral -->
-                <div class="tsl-plan-opt" data-url="https://pay.kiwify.com.br/Q3mXfsV" data-price="97,90" data-label="LIBERAR ACESSO TRIMESTRAL · R$&#160;97,90" onclick="selectTslPlan(this)">
+                <!-- Opção 2: Trimestral (Mais Escolhido) -->
+                <div class="tsl-plan-opt active" data-url="https://pay.kiwify.com.br/Q3mXfsV" data-price="97,90" data-label="LIBERAR ACESSO TRIMESTRAL · R$&#160;97,90" onclick="selectTslPlan(this)">
                     <div class="tsl-plan-left">
                         <div class="tsl-plan-title-row">
                             <span class="tsl-plan-name">Plano Trimestral</span>
-                            <span class="tsl-plan-badge" style="background:rgba(245,158,11,0.18); color:var(--gold-light);">20 CRÉDITOS/MÊS</span>
+                            <span class="tsl-plan-badge" style="background:linear-gradient(135deg,#f59e0b,#d97706); color:#09090b; font-weight:900;">MAIS ESCOLHIDO</span>
+                            <span class="tsl-plan-badge" style="background:rgba(245,158,11,0.18); color:var(--gold-light);">20 CONSULTAS TÁTICAS/MÊS</span>
                         </div>
-                        <div class="tsl-plan-desc">Oráculo Ilimitado + Dobro de Créditos (3 Meses)</div>
+                        <div class="tsl-plan-desc">Oráculo Ilimitado + o dobro de Consultas Táticas (20/mês) para mentoria no Mestre, Anti-Vácuo e Rota de Fuga por 3 meses.</div>
                     </div>
                     <div class="tsl-plan-right">
                         <strong class="tsl-plan-price">R$&#160;97,90</strong>
@@ -1158,20 +2310,24 @@
                     <div class="tsl-plan-left">
                         <div class="tsl-plan-title-row">
                             <span class="tsl-plan-name">Plano Anual</span>
-                            <span class="tsl-plan-badge" style="background:linear-gradient(135deg,#f59e0b,#dc2626); color:#fff;">40 CRÉDITOS/MÊS</span>
+                            <span class="tsl-plan-badge" style="background:linear-gradient(135deg,#f59e0b,#dc2626); color:#fff;">40 CONSULTAS TÁTICAS/MÊS</span>
                         </div>
-                        <div class="tsl-plan-desc">1 Ano Completo · Mais Vantajoso (R$&#160;16,49/mês)</div>
+                        <div class="tsl-plan-desc">1 ano completo com Oráculo Ilimitado + 40 Consultas Táticas/mês nas ferramentas avançadas de resgate e mentoria.</div>
                     </div>
                     <div class="tsl-plan-right">
                         <strong class="tsl-plan-price" style="color:var(--gold-light);">R$&#160;197,90</strong>
                         <div class="tsl-plan-period">por ano</div>
                     </div>
                 </div>
+
+                <p style="font-size:12px; color:var(--text-muted); line-height:1.5; margin-top:10px; text-align:center; padding:0 6px;">
+                    <em>Nota: O Oráculo de Prints e Stories é 100% livre e ilimitado em todos os planos. As Consultas Táticas (1 crédito por resposta) são utilizadas apenas nas ferramentas avançadas: O Mestre da Sedução, Desfibrilador Anti-Vácuo e Rota de Fuga.</em>
+                </p>
             </div>
 
-            <a href="https://pay.kiwify.com.br/8X6hibI" id="mainOfferCtaBtn" class="btn-cta-gold">
+            <a href="https://pay.kiwify.com.br/Q3mXfsV" id="mainOfferCtaBtn" class="btn-cta-gold">
                 <i class="fa-solid fa-lock-open"></i>
-                <span id="mainOfferCtaText">LIBERAR ACESSO MENSAL · R$&nbsp;37,90</span>
+                <span id="mainOfferCtaText">LIBERAR ACESSO TRIMESTRAL · R$&nbsp;97,90</span>
             </a>
 
             <div class="micro-trust" style="margin-top:16px;">
@@ -1180,7 +2336,7 @@
             </div>
         </section>
 
-        <!-- GARANTIA DE 7 DIAS -->
+        <!-- GARANTIA -->
         <div class="guarantee-box">
             <div class="guarantee-badge">
                 <span>7</span>
@@ -1189,13 +2345,18 @@
             <div style="text-align:left;">
                 <h4 style="font-size:16px; font-weight:800; color:#fff; margin-bottom:4px;">Teste o Aplicativo por 7 Dias Sem Risco</h4>
                 <p style="font-size:13.5px; color:var(--text-muted); line-height:1.5; text-wrap:pretty;">
-                    Entre no aplicativo, escaneie seus prints reais, use o Mestre da Sedução e envie as respostas. Se em até 7 dias você não destravar suas conversas, basta pedir reembolso com 1 clique na Kiwify e devolvemos 100% do seu dinheiro.
+                    Entre para a Ordem, escaneie seus prints reais e envie as respostas. Se em até 7 dias você não destravar suas conversas, basta pedir reembolso com 1 clique na Kiwify e devolvemos 100% do seu dinheiro.
                 </p>
             </div>
         </div>
     </div>
 
-    <!-- BARRA FIXA MOBILE & DESKTOP: TESTE GRATUITO / DEGUSTAÇÃO DO APLICATIVO -->
+    <!-- BOTÃO FLUTUANTE DISCRETO WHATSAPP -->
+    <a href="https://wa.me/393513261010?text=Ol%C3%A1%21%20Estou%20na%20p%C3%A1gina%20do%20Aplicativo%20Ordem%20Oculta%20e%20tenho%20uma%20d%C3%BAvida." target="_blank" rel="noopener noreferrer" id="waFloatBtn" aria-label="Atendimento via WhatsApp" onmouseover="this.style.opacity='1';this.style.transform='scale(1.08)'" onmouseout="this.style.opacity='0.6';this.style.transform='scale(1)'">
+        <i class="fa-brands fa-whatsapp" style="font-size:20px;"></i>
+    </a>
+
+    <!-- BARRA FIXA MOBILE & DESKTOP: TESTE GRATUITO NO APP -->
     <div class="sticky-bar" id="stickyMobileBar">
         <div class="sticky-inner">
             <div class="sticky-price">
@@ -1209,7 +2370,7 @@
     </div>
 
     <script>
-    // Propaga UTMs e fbclid da Página de Vendas direto para o link da Demonstração no App
+    // Propaga UTMs e fbclid da V2 direto para o link da Demonstração no App
     (function() {
         try {
             var demoBtn = document.getElementById('stickyOfferCtaBtn');
@@ -1223,6 +2384,22 @@
             }
         } catch (e) {}
     })();
+
+    function copyDemoReply(targetId, btn) {
+        var el = document.getElementById(targetId);
+        if (!el) return;
+        var text = el.textContent.replace(/^"|"$/g, '');
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).catch(function(){});
+        }
+        var oldHtml = btn.innerHTML;
+        btn.classList.add('copied');
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> <span>Copiado!</span>';
+        setTimeout(function() {
+            btn.classList.remove('copied');
+            btn.innerHTML = oldHtml;
+        }, 1800);
+    }
 
     function scrollToOfferBox(e) {
         var offerEl = document.getElementById('oferta');
@@ -1245,7 +2422,6 @@
             if (offerBox) {
                 var rect = offerBox.getBoundingClientRect();
                 var vh = window.innerHeight || document.documentElement.clientHeight;
-                // Oculta a barra quando o box de oferta já está visível na tela
                 if (rect.top < vh - 120 && rect.bottom > 100) {
                     insideOffer = true;
                 }
@@ -1263,6 +2439,31 @@
         updateStickyVisibility();
     })();
 
+    function buildCheckoutUrl(rawUrl) {
+        if (!rawUrl) return rawUrl;
+        var decorated = (window.VT && typeof window.VT.decorateUrl === 'function') ? window.VT.decorateUrl(rawUrl) : rawUrl;
+        try {
+            var targetUrl = new URL(decorated, window.location.origin);
+            var currentParams = new URLSearchParams(window.location.search);
+            var trackedKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid', 'src', 'sck'];
+            currentParams.forEach(function(val, key) {
+                if (val && !targetUrl.searchParams.get(key)) {
+                    targetUrl.searchParams.set(key, val);
+                }
+            });
+            for (var i = 0; i < trackedKeys.length; i++) {
+                var k = trackedKeys[i];
+                var v = currentParams.get(k);
+                if (v) {
+                    targetUrl.searchParams.set(k, v);
+                }
+            }
+            return targetUrl.toString();
+        } catch (e) {
+            return decorated;
+        }
+    }
+
     function selectTslPlan(el) {
         var opts = document.querySelectorAll('.tsl-plan-opt');
         for (var i = 0; i < opts.length; i++) {
@@ -1270,13 +2471,20 @@
         }
         el.classList.add('active');
         var rawUrl = el.getAttribute('data-url');
-        var url = (window.VT && typeof window.VT.decorateUrl === 'function') ? window.VT.decorateUrl(rawUrl) : rawUrl;
+        var url = buildCheckoutUrl(rawUrl);
         var label = el.getAttribute('data-label');
         var mainBtn = document.getElementById('mainOfferCtaBtn');
         var mainTxt = document.getElementById('mainOfferCtaText');
         if (mainBtn) mainBtn.href = url;
         if (mainTxt) mainTxt.textContent = label;
     }
+
+    (function() {
+        var activeOpt = document.querySelector('.tsl-plan-opt.active');
+        if (activeOpt) {
+            selectTslPlan(activeOpt);
+        }
+    })();
     </script>
 
     <!-- VeroTrack Tracker -->
