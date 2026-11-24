@@ -388,6 +388,67 @@ document.addEventListener('DOMContentLoaded', () => {
                 }).catch(() => {});
             } catch (eVt) {}
         }
+
+        // 3. CRM VeroTrack: lead demo foi pro checkout
+        if (memberEmail && localStorage.getItem('ordem_is_demo') === '1') {
+            captureVeroTrackLead('initiated_checkout', {
+                checkout_plan: meta.name,
+                checkout_price: meta.price,
+                checkout_url: url
+            }, { email: memberEmail, beacon: true });
+        }
+    }
+
+    // =========================================================================
+    // CRM VEROTRACK — captura de leads da prova grátis (Opção A: VT.captureLead)
+    // =========================================================================
+    const VT_CRM_IGNORED = ['emersonrebelo2704@gmail.com', 'assistente@pontoideal.online'];
+
+    function demoQuotasUsedAny(dq) {
+        if (!dq || typeof dq !== 'object') return false;
+        const n = (k) => parseInt(dq[k] || 0, 10) || 0;
+        return (n('scan_used') + n('coach_used') + n('desfibrilador_used') + n('friendzone_used')) > 0;
+    }
+
+    function captureVeroTrackLead(stage, extraMeta = {}, opts = {}) {
+        try {
+            const email = String(opts.email || localStorage.getItem('ordem_vip_email') || '').trim().toLowerCase();
+            if (!email || !email.includes('@') || VT_CRM_IGNORED.includes(email)) return;
+            const name = opts.name || localStorage.getItem('ordem_vip_name') || undefined;
+            const dq = opts.demo_quotas || getStoredDemoQuotas() || null;
+            const metadata = Object.assign({
+                origem: 'app_demo_ordem_oculta',
+                page_url: window.location.href
+            }, dq ? {
+                scan_used: dq.scan_used ?? null,
+                coach_used: dq.coach_used ?? null,
+                desfibrilador_used: dq.desfibrilador_used ?? null,
+                friendzone_used: dq.friendzone_used ?? null
+            } : {}, extraMeta || {});
+
+            // Caminho principal: VT.captureLead (vincula sessão, UTMs e campanha)
+            if (window.VT && typeof window.VT.captureLead === 'function') {
+                window.VT.captureLead({ email, name, step: stage, beacon: !!opts.beacon, metadata });
+                return;
+            }
+
+            // Fallback: vt.js ainda carregando — usa vt_state direto
+            let vtS = {};
+            try { vtS = JSON.parse(localStorage.getItem('vt_state') || '{}') || {}; } catch (e) {}
+            const body = JSON.stringify({ email, name, step: stage, sid: vtS.sid || undefined, utm: vtS.utm || undefined, metadata });
+            const url = 'https://api.pontoideal.online/api/leads/capture';
+            if (opts.beacon && navigator.sendBeacon) {
+                if (navigator.sendBeacon(url, new Blob([body], { type: 'text/plain;charset=UTF-8' }))) return;
+            }
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+                body,
+                keepalive: true,
+                mode: 'cors',
+                credentials: 'omit'
+            }).catch(() => {});
+        } catch (eCrm) {}
     }
 
     function refreshAllKiwifyCheckoutLinks() {
@@ -980,6 +1041,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     const data = await res.json().catch(() => ({}));
                     if (res.ok && data.success && data.token) {
                         unlockAppForMember(data.token, data.member);
+                        if (data.member && (data.member.is_demo || data.member.plan === 'demo')) {
+                            const dqG = data.member.demo_quotas || null;
+                            captureVeroTrackLead(demoQuotasUsedAny(dqG) ? 'tested_app' : 'captured', { auth_method: 'google' }, { email: data.member.email, name: data.member.name, demo_quotas: dqG });
+                        }
                         showToast('⚡ Acesso liberado via Google! Bem-vindo à Ordem.');
                     } else if (data.demo_expired) {
                         showAuthError(demoErrBox, data.error || 'Sua consulta de degustação com esta conta Google já foi concluída.');
@@ -1146,6 +1211,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     const data = await res.json().catch(() => ({}));
                     if (res.ok && data.success && data.token) {
                         unlockAppForMember(data.token, data.member);
+                        if (data.member && (data.member.is_demo || data.member.plan === 'demo')) {
+                            const dqM = data.member.demo_quotas || null;
+                            captureVeroTrackLead(demoQuotasUsedAny(dqM) ? 'tested_app' : 'captured', { auth_method: 'manual_email' }, { email: data.member.email || email, name: data.member.name || name, demo_quotas: dqM });
+                        }
                         showToast('⚡ Iniciação concluída! Sua 1ª consulta de degustação está liberada.');
                     } else if (data.demo_expired) {
                         showAuthError(demoErrBox, data.error || 'Sua consulta de Iniciação Gratuita já foi utilizada.');
@@ -1606,6 +1675,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Sucesso
                 if (res.ok && result && result.success && result.data) {
+                    if (result.demo_quotas || localStorage.getItem('ordem_is_demo') === '1') {
+                        captureVeroTrackLead('tested_app', { last_tool: apiType }, { demo_quotas: result.demo_quotas || getStoredDemoQuotas() });
+                    }
                     if (result.demo_quotas) {
                         updateDemoQuotasState(result.demo_quotas);
                     } else if (result.credits && typeof result.credits.total !== 'undefined') {
