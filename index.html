@@ -76,10 +76,13 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
+    <!-- Google Identity Services (Login com 1 Clique) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="stylesheet" href="style.css?v=38.0">
+    <link rel="stylesheet" href="style.css?v=39.0">
 </head>
 <body>
     <!-- ====================================================================
@@ -113,7 +116,14 @@
                 <div class="auth-demo-badge">
                     <i class="fa-solid fa-bolt"></i> 1 CONSULTA DE INICIAÇÃO GRATUITA
                 </div>
-                <p class="auth-subtitle">Cadastre seu e-mail para receber <strong>1 consulta imediata</strong> no Oráculo de Prints ou no Mestre da Sedução e testar a precisão na prática:</p>
+                <p class="auth-subtitle">Entre com seu Google em 1 clique para receber <strong>1 consulta imediata</strong> no Oráculo de Prints ou no Mestre da Sedução:</p>
+
+                <!-- BOTÃO OFICIAL GOOGLE SIGN-IN (1 CLIQUE) -->
+                <div class="auth-google-box">
+                    <div id="googleSignInBtnDemo" class="auth-google-btn-slot"></div>
+                </div>
+
+                <div class="auth-divider"><span>OU CRIE SEU ACESSO MANUAL</span></div>
 
                 <form id="authDemoForm" class="auth-form" autocomplete="on">
                     <div class="auth-field">
@@ -155,7 +165,14 @@
 
             <!-- TELA 1: LOGIN (E-MAIL + SENHA PARA ASSINANTES) -->
             <div id="authViewLogin" class="auth-view-pane hidden">
-                <p class="auth-subtitle">Digite o mesmo e-mail usado na compra e sua senha para entrar no aplicativo.</p>
+                <p class="auth-subtitle">Entre com sua conta Google ou digite o e-mail cadastrado na Kiwify.</p>
+
+                <!-- BOTÃO OFICIAL GOOGLE SIGN-IN (1 CLIQUE) -->
+                <div class="auth-google-box">
+                    <div id="googleSignInBtnLogin" class="auth-google-btn-slot"></div>
+                </div>
+
+                <div class="auth-divider"><span>OU ENTRE COM E-MAIL E SENHA</span></div>
 
                 <form id="authLoginForm" class="auth-form" autocomplete="on">
                     <div class="auth-field">
@@ -1590,7 +1607,7 @@
         <span id="toastMsg">Script copiado!</span>
     </div>
 
-    <script src="app.js?v=38.0"></script>
+    <script src="app.js?v=39.0"></script>
     <!-- VeroTrack Tracker -->
     <script src="https://api.pontoideal.online/vt.js" data-page="upsell" defer></script>
 </body>

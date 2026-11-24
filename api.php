@@ -902,6 +902,113 @@ if ($action === 'auth-register-demo') {
     exit;
 }
 
+if ($action === 'auth-google') {
+    $credential = trim((string)($body['credential'] ?? ''));
+    if ($credential === '') {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Credencial do Google não fornecida.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    // Valida o token ID direto no endpoint seguro do Google
+    $ch = curl_init('https://oauth2.googleapis.com/tokeninfo?id_token=' . urlencode($credential));
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 10,
+        CURLOPT_SSL_VERIFYPEER => true
+    ]);
+    $res = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($httpCode !== 200 || empty($res)) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'error' => 'Falha ao autenticar com o Google. Tente novamente.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $googleUser = json_decode($res, true);
+    if (!is_array($googleUser) || empty($googleUser['email'])) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'error' => 'E-mail do Google não identificado.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $email = strtolower(trim($googleUser['email']));
+    $name = trim($googleUser['name'] ?? 'Membro da Ordem');
+    $googleId = trim($googleUser['sub'] ?? '');
+
+    $members = loadMembersDb();
+
+    // Se o usuário já existe
+    if (isset($members[$email])) {
+        $existing = $members[$email];
+        $isPaid = in_array(strtolower((string)($existing['status'] ?? '')), ['ativa', 'active', 'paid', 'approved'], true)
+            && strtolower((string)($existing['plan'] ?? '')) !== 'demo';
+
+        if ($isPaid) {
+            // Membro oficial assinante: login direto sem senha!
+            $token = generateMemberToken($email);
+            echo json_encode([
+                'success' => true,
+                'token' => $token,
+                'member' => sanitizeMemberPublic($existing)
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        // Já existia como demo
+        $totalCredits = getMemberTotalCredits($existing);
+        if ($totalCredits <= 0) {
+            http_response_code(403);
+            echo json_encode([
+                'success' => false,
+                'demo_expired' => true,
+                'error' => 'Sua consulta de Iniciação Gratuita com este e-mail do Google já foi concluída. Escolha seu plano oficial para desbloquear o acesso ilimitado.'
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        // Se ainda tem créditos demo
+        $token = generateMemberToken($email);
+        echo json_encode([
+            'success' => true,
+            'is_demo' => true,
+            'token' => $token,
+            'member' => sanitizeMemberPublic($existing)
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    // Novo cadastro Demo via Google (1 clique!)
+    $newMember = [
+        'name' => $name !== '' ? $name : 'Iniciado da Ordem',
+        'email' => $email,
+        'google_id' => $googleId,
+        'status' => 'demo',
+        'plan' => 'demo',
+        'creditos_plano' => 1,
+        'creditos_avulsos' => 0,
+        'credits_added' => 1,
+        'password_hash' => '',
+        'created_at' => gmdate('c'),
+        'updated_at' => gmdate('c'),
+        'modules' => []
+    ];
+
+    $members[$email] = $newMember;
+    saveMembersDb($members);
+
+    $token = generateMemberToken($email);
+    echo json_encode([
+        'success' => true,
+        'is_demo' => true,
+        'token' => $token,
+        'member' => sanitizeMemberPublic($newMember)
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 if ($action === 'scan') {
     $member = requireActiveMemberSession($body);
     $isDemo = (($member['status'] ?? '') === 'demo' || ($member['plan'] ?? '') === 'demo');

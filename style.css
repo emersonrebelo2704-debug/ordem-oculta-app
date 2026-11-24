@@ -5678,3 +5678,22 @@ body {
     background: rgba(239, 68, 68, 0.1);
     border-color: #ef4444;
 }
+
+/* ====================================================================
+   SLOTS DO GOOGLE 1-CLIQUE
+   ==================================================================== */
+.auth-google-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 0 14px;
+    min-height: 44px;
+    width: 100%;
+}
+
+.auth-google-btn-slot {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    max-width: 340px;
+}

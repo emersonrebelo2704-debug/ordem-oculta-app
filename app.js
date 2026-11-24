@@ -583,6 +583,84 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // =====================================================================
+        // GOOGLE ONE-TAP & SIGN-IN (1 CLIQUE)
+        // =====================================================================
+        function setupGoogleAuth() {
+            const clientId = '24987514921-tvlgolv7ommioi52qhobg693bpgq10dc.apps.googleusercontent.com';
+
+            async function handleGoogleCredential(response) {
+                if (!response || !response.credential) return;
+                showToast('Autenticando com o Google...');
+                try {
+                    const res = await fetch(getAuthApiUrl('auth-google'), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ credential: response.credential })
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (res.ok && data.success && data.token) {
+                        unlockAppForMember(data.token, data.member);
+                        showToast('⚡ Acesso liberado via Google! Bem-vindo à Ordem.');
+                    } else if (data.demo_expired) {
+                        showAuthError(demoErrBox, data.error || 'Sua consulta de degustação com esta conta Google já foi concluída.');
+                        showAuthError(loginErrBox, data.error || 'Sua consulta de degustação com esta conta Google já foi concluída.');
+                    } else {
+                        showAuthError(demoErrBox, data.error || 'Não foi possível entrar com o Google.');
+                    }
+                } catch (e) {
+                    showAuthError(demoErrBox, 'Falha de conexão com o servidor.');
+                }
+            }
+
+            function tryRenderGoogle() {
+                if (!window.google || !window.google.accounts || !window.google.accounts.id) {
+                    setTimeout(tryRenderGoogle, 300);
+                    return;
+                }
+                try {
+                    window.google.accounts.id.initialize({
+                        client_id: clientId,
+                        callback: handleGoogleCredential,
+                        auto_select: false,
+                        cancel_on_tap_outside: true
+                    });
+
+                    const slotDemo = document.getElementById('googleSignInBtnDemo');
+                    if (slotDemo) {
+                        slotDemo.innerHTML = '';
+                        window.google.accounts.id.renderButton(slotDemo, {
+                            theme: 'filled_black',
+                            size: 'large',
+                            text: 'continue_with',
+                            shape: 'pill',
+                            width: 300,
+                            logo_alignment: 'left'
+                        });
+                    }
+
+                    const slotLogin = document.getElementById('googleSignInBtnLogin');
+                    if (slotLogin) {
+                        slotLogin.innerHTML = '';
+                        window.google.accounts.id.renderButton(slotLogin, {
+                            theme: 'filled_black',
+                            size: 'large',
+                            text: 'signin_with',
+                            shape: 'pill',
+                            width: 300,
+                            logo_alignment: 'left'
+                        });
+                    }
+                } catch (err) {
+                    console.warn('Google GSI render error:', err);
+                }
+            }
+
+            tryRenderGoogle();
+        }
+
+        setupGoogleAuth();
+
         // Navegação das Abas Superiores
         if (tabDemo) {
             tabDemo.addEventListener('click', () => {
