@@ -265,6 +265,46 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function trackInitiateCheckout(url, planTitle = 'Ordem Oculta') {
+        const memberEmail = (localStorage.getItem('ordem_vip_email') || '').trim().toLowerCase();
+        let sid = '';
+        try {
+            const vtState = JSON.parse(localStorage.getItem('vt_state') || '{}');
+            sid = vtState.sid || '';
+        } catch (e) {}
+
+        // Meta Pixel standard InitiateCheckout
+        if (typeof window.fbq === 'function') {
+            try {
+                const icId = 'ic_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+                window.fbq('track', 'InitiateCheckout', {
+                    content_name: planTitle,
+                    currency: 'BRL',
+                    value: planTitle.includes('197') ? 197.90 : (planTitle.includes('97') ? 97.90 : 37.90)
+                }, { eventID: icId });
+            } catch (eFbq) {}
+        }
+
+        // VeroTrack POST CAPI/Webhook
+        try {
+            const payload = {
+                event: 'InitiateCheckout',
+                email: memberEmail,
+                product: planTitle,
+                checkout_url: url,
+                page: 'app',
+                sid: sid || undefined,
+                timestamp: new Date().toISOString()
+            };
+            fetch('https://api.pontoideal.online/webhook/track', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+                keepalive: true
+            }).catch(() => {});
+        } catch (eVt) {}
+    }
+
     function refreshAllKiwifyCheckoutLinks() {
         document.querySelectorAll('a[href*="pay.kiwify.com.br"], a.kiwify-dynamic-link').forEach(link => {
             const baseHref = link.getAttribute('data-base-href') || link.getAttribute('href') || '';
@@ -306,6 +346,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (email) {
             localStorage.setItem('ordem_vip_email', email);
         }
+        if (member.name) {
+            localStorage.setItem('ordem_vip_name', member.name);
+        }
+        if (member.rank) {
+            localStorage.setItem('ordem_vip_rank', member.rank);
+        }
+        if (member.plan) {
+            localStorage.setItem('ordem_vip_plan', member.plan);
+        }
+        if (typeof member.is_demo !== 'undefined') {
+            localStorage.setItem('ordem_is_demo', member.is_demo ? '1' : '0');
+        }
+
         if (Array.isArray(member.modules)) {
             const serverModules = Array.from(new Set(member.modules.filter(Boolean)));
             localStorage.setItem('ordem_unlocked_modules', JSON.stringify(serverModules));
@@ -314,10 +367,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Separação de Saldos: creditos_plano (franquia mensal) + creditos_avulsos (eternos)
         const hasSplitFields = (typeof member.creditos_plano !== 'undefined' || typeof member.creditos_avulsos !== 'undefined');
+        let totalCr = 10;
+        let planCr = 10;
+        let extraCr = 0;
         if (hasSplitFields) {
-            const planCr = Math.max(0, parseInt(member.creditos_plano ?? 0, 10) || 0);
-            const extraCr = Math.max(0, parseInt(member.creditos_avulsos ?? 0, 10) || 0);
-            const totalCr = (typeof member.total_credits !== 'undefined')
+            planCr = Math.max(0, parseInt(member.creditos_plano ?? 0, 10) || 0);
+            extraCr = Math.max(0, parseInt(member.creditos_avulsos ?? 0, 10) || 0);
+            totalCr = (typeof member.total_credits !== 'undefined')
                 ? Math.max(0, parseInt(member.total_credits, 10) || 0)
                 : (planCr + extraCr);
             localStorage.setItem('ordem_creditos_plano', planCr.toString());
@@ -330,26 +386,100 @@ document.addEventListener('DOMContentLoaded', () => {
                 syncGlobalCredits(creditsAdded > 0 ? creditsAdded : 10);
                 localStorage.setItem(syncMarkerKey, '1');
             }
+            totalCr = creditsAdded;
+        }
+
+        // Atualiza elementos de UI da Patente e Perfil
+        const rank = member.rank || (member.is_demo ? 'Iniciado da Ordem' : 'Membro Guardião');
+        const plan = member.plan || (member.is_demo ? 'demo' : 'mensal');
+        const isDemo = !!(member.is_demo || plan === 'demo');
+
+        const headerRankEl = document.getElementById('headerRankLabel');
+        if (headerRankEl) {
+            headerRankEl.textContent = isDemo ? 'Iniciado' : (plan === 'anual' ? 'Mestre' : (plan === 'trimestral' ? 'Conselheiro' : 'Guardião'));
+        }
+
+        const profileRankTitleEl = document.getElementById('profileDrawerRank');
+        const profileBadgeEl = document.getElementById('profileDrawerBadge');
+        const profileNameEl = document.getElementById('profileDrawerName');
+        const profileEmailEl = document.getElementById('profileDrawerEmail');
+        const profilePlanNameEl = document.getElementById('profileDrawerPlanName');
+        const profileTotalCreditsEl = document.getElementById('profileDrawerTotalCredits');
+        const profilePlanCreditsEl = document.getElementById('profileDrawerPlanCredits');
+        const profileExtraCreditsEl = document.getElementById('profileDrawerExtraCredits');
+        const profileUpgradeLabelEl = document.getElementById('profileDrawerUpgradeLabel');
+        const profileCreditsSubEl = document.getElementById('profileDrawerCreditsSub');
+
+        if (profileRankTitleEl) profileRankTitleEl.textContent = rank;
+        if (profileBadgeEl) {
+            if (isDemo) profileBadgeEl.textContent = '[ ACESSO PROVISÓRIO · 1 CONSULTA ]';
+            else if (plan === 'anual') profileBadgeEl.textContent = '[ CHAVE MESTRE VITALÍCIA · 40 CRÉDITOS/MÊS ]';
+            else if (plan === 'trimestral') profileBadgeEl.textContent = '[ ALTO VALOR SOCIAL · 20 CRÉDITOS/MÊS ]';
+            else profileBadgeEl.textContent = '[ MEMBRO OFICIAL ATIVO · 10 CRÉDITOS/MÊS ]';
+        }
+        if (profileNameEl) profileNameEl.textContent = member.name || (isDemo ? 'Iniciado' : 'Membro da Ordem');
+        if (profileEmailEl) profileEmailEl.textContent = email;
+        if (profilePlanNameEl) {
+            if (isDemo) profilePlanNameEl.textContent = 'Degustação Gratuita (1 Consulta)';
+            else if (plan === 'anual') profilePlanNameEl.textContent = 'Plano Anual PRO (Mestre)';
+            else if (plan === 'trimestral') profilePlanNameEl.textContent = 'Plano Trimestral (Conselheiro)';
+            else profilePlanNameEl.textContent = 'Plano Mensal (Guardião)';
+        }
+        if (profileTotalCreditsEl) profileTotalCreditsEl.textContent = totalCr.toString();
+        if (profilePlanCreditsEl) profilePlanCreditsEl.textContent = planCr.toString();
+        if (profileExtraCreditsEl) profileExtraCreditsEl.textContent = extraCr.toString();
+        if (profileCreditsSubEl) {
+            profileCreditsSubEl.textContent = isDemo
+                ? (totalCr > 0 ? '1 consulta de iniciação disponível' : 'Consulta de degustação concluída')
+                : 'Disponível para escanear prints ou consultar o Mestre';
+        }
+        if (profileUpgradeLabelEl) {
+            profileUpgradeLabelEl.textContent = isDemo
+                ? 'SUBIR DE PATENTE · DESBLOQUEAR ACESSO'
+                : 'SUBIR DE PATENTE / VER RECARGAS';
         }
 
         refreshAllKiwifyCheckoutLinks();
     }
 
-    function lockAppWithAuthGate(openActivateView = false) {
+    function lockAppWithAuthGate(targetView = 'demo') {
         const appContainer = document.getElementById('app');
         const gateOverlay = document.getElementById('authGateOverlay');
+        const viewDemo = document.getElementById('authViewDemo');
         const viewLogin = document.getElementById('authViewLogin');
         const viewActivate = document.getElementById('authViewActivate');
+        const emailNotice = document.getElementById('authEmailNotice');
+
+        const tabDemo = document.getElementById('btnAuthTabDemo');
+        const tabLogin = document.getElementById('btnAuthTabLogin');
+        const tabActivate = document.getElementById('btnAuthTabActivate');
+
         if (appContainer) appContainer.classList.add('auth-locked');
         if (gateOverlay) gateOverlay.classList.remove('hidden');
-        if (viewLogin && viewActivate) {
-            if (openActivateView) {
-                viewLogin.classList.add('hidden');
-                viewActivate.classList.remove('hidden');
-            } else {
-                viewActivate.classList.add('hidden');
-                viewLogin.classList.remove('hidden');
-            }
+
+        let viewName = 'demo';
+        if (targetView === true || targetView === 'activate') viewName = 'activate';
+        else if (targetView === false || targetView === 'login') viewName = 'login';
+        else if (targetView === 'demo') viewName = 'demo';
+
+        if (viewDemo) viewDemo.classList.add('hidden');
+        if (viewLogin) viewLogin.classList.add('hidden');
+        if (viewActivate) viewActivate.classList.add('hidden');
+
+        [tabDemo, tabLogin, tabActivate].forEach(t => t && t.classList.remove('active'));
+
+        if (viewName === 'activate') {
+            if (viewActivate) viewActivate.classList.remove('hidden');
+            if (tabActivate) tabActivate.classList.add('active');
+            if (emailNotice) emailNotice.classList.remove('hidden');
+        } else if (viewName === 'login') {
+            if (viewLogin) viewLogin.classList.remove('hidden');
+            if (tabLogin) tabLogin.classList.add('active');
+            if (emailNotice) emailNotice.classList.remove('hidden');
+        } else {
+            if (viewDemo) viewDemo.classList.remove('hidden');
+            if (tabDemo) tabDemo.classList.add('active');
+            if (emailNotice) emailNotice.classList.add('hidden');
         }
     }
 
@@ -368,17 +498,64 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setupMemberAuthGate() {
         const gateOverlay = document.getElementById('authGateOverlay');
-        const viewLogin = document.getElementById('authViewLogin');
-        const viewActivate = document.getElementById('authViewActivate');
+        const tabDemo = document.getElementById('btnAuthTabDemo');
+        const tabLogin = document.getElementById('btnAuthTabLogin');
+        const tabActivate = document.getElementById('btnAuthTabActivate');
+
+        const demoForm = document.getElementById('authDemoForm');
         const loginForm = document.getElementById('authLoginForm');
         const activateForm = document.getElementById('authActivateForm');
+
         const btnGotoActivate = document.getElementById('btnGotoActivate');
         const btnBackToLogin = document.getElementById('btnBackToLogin');
         const btnLogout = document.getElementById('btnMemberLogout');
+
+        const demoErrBox = document.getElementById('authDemoError');
         const loginErrBox = document.getElementById('authLoginError');
         const actErrBox = document.getElementById('authActivateError');
         const pollingBox = document.getElementById('authPollingBox');
         const pollingTimerEl = document.getElementById('authPollingTimer');
+
+        // Drawer de Perfil
+        const btnOpenProfile = document.getElementById('btnOpenProfileDrawer');
+        const drawerModal = document.getElementById('profileDrawerModal');
+        const btnCloseProfile = document.getElementById('btnCloseProfileDrawer');
+        const overlayProfile = document.getElementById('profileDrawerOverlay');
+        const btnProfileUpgrade = document.getElementById('profileDrawerBtnUpgrade');
+        const btnProfileLogout = document.getElementById('profileDrawerBtnLogout');
+
+        function openProfileDrawer() {
+            if (drawerModal) drawerModal.classList.remove('hidden');
+        }
+        function closeProfileDrawer() {
+            if (drawerModal) drawerModal.classList.add('hidden');
+        }
+
+        if (btnOpenProfile) btnOpenProfile.addEventListener('click', openProfileDrawer);
+        if (btnCloseProfile) btnCloseProfile.addEventListener('click', closeProfileDrawer);
+        if (overlayProfile) overlayProfile.addEventListener('click', closeProfileDrawer);
+
+        if (btnProfileUpgrade) {
+            btnProfileUpgrade.addEventListener('click', () => {
+                closeProfileDrawer();
+                const planosNavBtn = document.querySelector('.bottom-nav .nav-item[data-tab="tab-protocolos"]');
+                if (planosNavBtn) {
+                    planosNavBtn.click();
+                } else {
+                    const paywallModal = document.getElementById('paywallLockModal');
+                    if (paywallModal) paywallModal.classList.remove('hidden');
+                }
+            });
+        }
+
+        if (btnProfileLogout) {
+            btnProfileLogout.addEventListener('click', () => {
+                closeProfileDrawer();
+                localStorage.removeItem('ordem_auth_token');
+                lockAppWithAuthGate('login');
+                showToast('Sessão encerrada com segurança.');
+            });
+        }
 
         let pollingTimerId = null;
         let countdownIntervalId = null;
@@ -406,15 +583,47 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // Navegação das Abas Superiores
+        if (tabDemo) {
+            tabDemo.addEventListener('click', () => {
+                stopPolling();
+                showAuthError(demoErrBox, '');
+                showAuthError(loginErrBox, '');
+                showAuthError(actErrBox, '');
+                lockAppWithAuthGate('demo');
+            });
+        }
+        if (tabLogin) {
+            tabLogin.addEventListener('click', () => {
+                stopPolling();
+                showAuthError(demoErrBox, '');
+                showAuthError(loginErrBox, '');
+                showAuthError(actErrBox, '');
+                lockAppWithAuthGate('login');
+            });
+        }
+        if (tabActivate) {
+            tabActivate.addEventListener('click', () => {
+                stopPolling();
+                showAuthError(demoErrBox, '');
+                showAuthError(loginErrBox, '');
+                showAuthError(actErrBox, '');
+                lockAppWithAuthGate('activate');
+            });
+        }
+
         const urlParams = new URLSearchParams(window.location.search);
+        const isDemoUrl = urlParams.get('demo') === '1' || urlParams.get('teste') === '1';
         const isFirstAccessUrl = urlParams.get('acesso') === '1' || urlParams.get('primeiro_acesso') === '1';
         const prefillEmail = (urlParams.get('email') || '').trim();
 
         if (prefillEmail) {
             const loginEmailEl = document.getElementById('authLoginEmail');
             const actEmailEl = document.getElementById('authActivateEmail');
+            const demoEmailEl = document.getElementById('authDemoEmail');
             if (loginEmailEl) loginEmailEl.value = prefillEmail;
             if (actEmailEl) actEmailEl.value = prefillEmail;
+            if (demoEmailEl) demoEmailEl.value = prefillEmail;
         }
 
         if (btnGotoActivate) {
@@ -427,8 +636,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (loginEmailVal && actEmailEl && !actEmailEl.value) {
                     actEmailEl.value = loginEmailVal;
                 }
-                if (viewLogin) viewLogin.classList.add('hidden');
-                if (viewActivate) viewActivate.classList.remove('hidden');
+                lockAppWithAuthGate('activate');
             });
         }
 
@@ -437,8 +645,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 stopPolling();
                 showAuthError(loginErrBox, '');
                 showAuthError(actErrBox, '');
-                if (viewActivate) viewActivate.classList.add('hidden');
-                if (viewLogin) viewLogin.classList.remove('hidden');
+                lockAppWithAuthGate('login');
             });
         }
 
@@ -446,8 +653,63 @@ document.addEventListener('DOMContentLoaded', () => {
             btnLogout.addEventListener('click', () => {
                 stopPolling();
                 localStorage.removeItem('ordem_auth_token');
-                lockAppWithAuthGate(false);
+                lockAppWithAuthGate('login');
                 showToast('Sessão encerrada com segurança.');
+            });
+        }
+
+        // Submissão do Cadastro Demo (1 Consulta Gratuita)
+        if (demoForm) {
+            demoForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                showAuthError(demoErrBox, '');
+                const name = (document.getElementById('authDemoName')?.value || '').trim();
+                const email = (document.getElementById('authDemoEmail')?.value || '').trim().toLowerCase();
+                const password = (document.getElementById('authDemoPassword')?.value || '').trim();
+                const submitBtn = document.getElementById('btnAuthDemoSubmit');
+
+                if (!email || !email.includes('@')) {
+                    showAuthError(demoErrBox, 'Digite um e-mail válido para iniciar o teste gratuito.');
+                    return;
+                }
+                if (password.length < 4) {
+                    showAuthError(demoErrBox, 'Crie uma senha de acesso com pelo menos 4 caracteres.');
+                    return;
+                }
+
+                if (submitBtn) submitBtn.disabled = true;
+                try {
+                    const res = await fetch(getAuthApiUrl('auth-register-demo'), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, email, password })
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (res.ok && data.success && data.token) {
+                        unlockAppForMember(data.token, data.member);
+                        showToast('⚡ Iniciação concluída! Sua 1ª consulta de degustação está liberada.');
+                    } else if (data.demo_expired) {
+                        showAuthError(demoErrBox, data.error || 'Sua consulta de Iniciação Gratuita já foi utilizada.');
+                        setTimeout(() => {
+                            const loginEmailEl = document.getElementById('authLoginEmail');
+                            if (loginEmailEl) loginEmailEl.value = email;
+                            lockAppWithAuthGate('login');
+                        }, 2200);
+                    } else if (data.is_paid_member) {
+                        showAuthError(demoErrBox, data.error || 'Este e-mail já é um Membro Oficial! Redirecionando...');
+                        setTimeout(() => {
+                            const loginEmailEl = document.getElementById('authLoginEmail');
+                            if (loginEmailEl) loginEmailEl.value = email;
+                            lockAppWithAuthGate('login');
+                        }, 1800);
+                    } else {
+                        showAuthError(demoErrBox, data.error || 'Não foi possível iniciar o teste gratuito. Tente novamente.');
+                    }
+                } catch (err) {
+                    showAuthError(demoErrBox, 'Erro de conexão com o servidor. Tente novamente.');
+                } finally {
+                    if (submitBtn) submitBtn.disabled = false;
+                }
             });
         }
 
@@ -575,10 +837,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        let initialView = 'demo';
+        if (isFirstAccessUrl) initialView = 'activate';
+        else if (isDemoUrl) initialView = 'demo';
+
         // Verifica sessão existente ao abrir o app
         const savedToken = localStorage.getItem('ordem_auth_token') || '';
         if (!savedToken) {
-            lockAppWithAuthGate(isFirstAccessUrl);
+            lockAppWithAuthGate(initialView);
             return;
         }
 
@@ -598,11 +864,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     unlockAppForMember(savedToken, data.member);
                 } else {
                     localStorage.removeItem('ordem_auth_token');
-                    lockAppWithAuthGate(isFirstAccessUrl);
+                    lockAppWithAuthGate(initialView);
                 }
             } catch (err) {
                 // Em caso de erro de rede temporário, mantém bloqueado se não houver confirmação
-                lockAppWithAuthGate(isFirstAccessUrl);
+                lockAppWithAuthGate(initialView);
             }
         })();
     }
@@ -1035,11 +1301,22 @@ Responda EXCLUSIVAMENTE em JSON puro:
                     syncGlobalCredits(0);
                     refreshAllKiwifyCheckoutLinks();
                     const paywallModal = document.getElementById('paywallLockModal');
-                    if (paywallModal) paywallModal.classList.remove('hidden');
+                    if (paywallModal) {
+                        const isDemo = (result && result.is_demo) || localStorage.getItem('ordem_is_demo') === '1';
+                        const badgeEl = paywallModal.querySelector('.lock-badge');
+                        const titleEl = paywallModal.querySelector('.lock-title');
+                        const descEl = paywallModal.querySelector('.lock-desc');
+                        if (isDemo) {
+                            if (badgeEl) badgeEl.textContent = 'INICIAÇÃO CONCLUÍDA';
+                            if (titleEl) titleEl.textContent = 'Você concluiu sua consulta de teste.';
+                            if (descEl) descEl.innerHTML = 'Sua resposta tática foi gerada. Para manter seu <strong>acesso irrestrito</strong> ao Oráculo, ao Mestre da Sedução e a todas as ferramentas, escolha o seu plano oficial abaixo:';
+                        }
+                        paywallModal.classList.remove('hidden');
+                    }
                     return {
                         success: false,
                         no_credits: true,
-                        error: (result && result.error) ? result.error : 'Seus Créditos Táticos acabaram.'
+                        error: (result && result.error) ? result.error : 'Seus Créditos acabaram.'
                     };
                 }
                 if (result && (result.is_black_image || result.is_unreadable_image)) {
@@ -3835,7 +4112,7 @@ Responda EXCLUSIVAMENTE em JSON puro:
     function setupCreditRecharge() {
         refreshAllKiwifyCheckoutLinks();
 
-        // Intercepta qualquer clique em link da Kiwify para garantir ?email={email_do_usuario_logado}
+        // Intercepta qualquer clique em link da Kiwify para garantir ?email={email_do_usuario_logado} e registrar InitiateCheckout no VeroTrack
         document.addEventListener('click', (e) => {
             const link = e.target.closest('a[href*="pay.kiwify.com.br"]');
             if (link) {
@@ -3844,6 +4121,16 @@ Responda EXCLUSIVAMENTE em JSON puro:
                     const cleanBase = baseHref.split('?')[0];
                     link.setAttribute('data-base-href', cleanBase);
                     link.href = decorateKiwifyUrlWithEmail(cleanBase);
+                    const title = (link.innerText || 'Plano Ordem Oculta').trim().replace(/\s+/g, ' ');
+                    trackInitiateCheckout(link.href, title);
+                }
+            }
+            const btnArsenal = e.target.closest('.btn-arsenal-checkout');
+            if (btnArsenal) {
+                const checkoutUrl = btnArsenal.getAttribute('data-checkout');
+                if (checkoutUrl) {
+                    const mod = btnArsenal.getAttribute('data-module') || 'modulo';
+                    trackInitiateCheckout(checkoutUrl, 'Arsenal: ' + mod);
                 }
             }
         });

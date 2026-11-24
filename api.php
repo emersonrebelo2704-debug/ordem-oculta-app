@@ -100,7 +100,22 @@ function saveMembersDb(array $members): void {
 
 function isMemberStatusActive(array $member): bool {
     $st = strtolower(trim((string)($member['status'] ?? '')));
-    return in_array($st, ['ativa', 'active', 'paid', 'approved'], true);
+    return in_array($st, ['ativa', 'active', 'paid', 'approved', 'demo'], true);
+}
+
+function getMemberRank(array $member): string {
+    $plan = strtolower(trim((string)($member['plan'] ?? 'mensal')));
+    $st = strtolower(trim((string)($member['status'] ?? '')));
+    if ($st === 'demo' || $plan === 'demo') {
+        return 'Iniciado da Ordem';
+    }
+    if ($plan === 'anual') {
+        return 'Mestre da Ordem';
+    }
+    if ($plan === 'trimestral') {
+        return 'Membro Conselheiro';
+    }
+    return 'Membro Guardião';
 }
 
 function getMemberPlanCredits(array $member): int {
@@ -141,16 +156,20 @@ function consumeMemberCredit(string $email): array {
     $extraCr = getMemberExtraCredits($member);
 
     if (($planCr + $extraCr) <= 0) {
+        $isDemo = (($member['status'] ?? '') === 'demo' || ($member['plan'] ?? '') === 'demo');
         http_response_code(402);
         echo json_encode([
             'success' => false,
             'no_credits' => true,
+            'is_demo' => $isDemo,
             'credits' => [
                 'creditos_plano' => 0,
                 'creditos_avulsos' => 0,
                 'total' => 0
             ],
-            'error' => 'Seus créditos acabaram. Recarregue créditos avulsos ou faça upgrade para continuar.'
+            'error' => $isDemo
+                ? 'Você concluiu sua consulta de Iniciação na Ordem Oculta. Suba para Membro Guardião ou Mestre da Ordem para manter seu acesso irrestrito.'
+                : 'Seus créditos acabaram. Recarregue créditos avulsos ou faça upgrade para continuar.'
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
@@ -316,16 +335,19 @@ function sanitizeMemberPublic(array $member): array {
     $planCr = getMemberPlanCredits($member);
     $extraCr = getMemberExtraCredits($member);
     $totalCr = $planCr + $extraCr;
+    $isDemo = (($member['status'] ?? '') === 'demo' || ($member['plan'] ?? '') === 'demo');
     return [
-        'name' => $member['name'] ?? 'Membro Ordem Oculta',
+        'name' => $member['name'] ?? ($isDemo ? 'Iniciado da Ordem' : 'Membro da Ordem'),
         'email' => $member['email'] ?? '',
-        'plan' => $member['plan'] ?? 'mensal',
+        'plan' => $member['plan'] ?? ($isDemo ? 'demo' : 'mensal'),
+        'rank' => getMemberRank($member),
+        'is_demo' => $isDemo,
         'modules' => $member['modules'] ?? [],
         'creditos_plano' => $planCr,
         'creditos_avulsos' => $extraCr,
         'total_credits' => $totalCr,
         'credits_added' => $totalCr,
-        'status' => isMemberStatusActive($member) ? 'ativa' : ($member['status'] ?? 'inativa'),
+        'status' => isMemberStatusActive($member) ? ($isDemo ? 'demo' : 'ativa') : ($member['status'] ?? 'inativa'),
         'subscription_expires_at' => $member['subscription_expires_at'] ?? null,
         'updated_at' => $member['updated_at'] ?? gmdate('c')
     ];
@@ -777,6 +799,104 @@ if ($action === 'auth-activate') {
         'activated' => true,
         'token' => $token,
         'member' => sanitizeMemberPublic($member)
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($action === 'auth-register-demo') {
+    $email = strtolower(trim((string)($body['email'] ?? '')));
+    $name = trim((string)($body['name'] ?? ''));
+    $password = trim((string)($body['password'] ?? ''));
+
+    if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Digite um e-mail válido para iniciar seu teste gratuito.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    if (strlen($password) < 4) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Crie uma senha de acesso com pelo menos 4 caracteres.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $members = loadMembersDb();
+
+    if (isset($members[$email])) {
+        $existing = $members[$email];
+        $isPaid = in_array(strtolower((string)($existing['status'] ?? '')), ['ativa', 'active', 'paid', 'approved'], true)
+            && strtolower((string)($existing['plan'] ?? '')) !== 'demo';
+
+        if ($isPaid) {
+            http_response_code(409);
+            echo json_encode([
+                'success' => false,
+                'is_paid_member' => true,
+                'error' => 'Este e-mail já é um Membro Oficial da Ordem Oculta! Vá para a aba de Login e entre com sua senha.'
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        // Já existia como conta demo
+        $totalCredits = getMemberTotalCredits($existing);
+        if ($totalCredits <= 0) {
+            http_response_code(403);
+            echo json_encode([
+                'success' => false,
+                'demo_expired' => true,
+                'error' => 'Sua consulta de Iniciação Gratuita com este e-mail já foi concluída. Escolha seu plano oficial para desbloquear o acesso ilimitado.'
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        // Se ainda tem crédito demo e digitou senha correta (ou ainda não tinha)
+        $storedHash = (string)($existing['password_hash'] ?? '');
+        if ($storedHash === '') {
+            $members[$email]['password_hash'] = password_hash($password, PASSWORD_DEFAULT);
+            saveMembersDb($members);
+        } elseif (!password_verify($password, $storedHash)) {
+            http_response_code(401);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Este e-mail já foi registrado no teste gratuito. Digite a senha cadastrada ou escolha outro e-mail.'
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        $token = generateMemberToken($email);
+        echo json_encode([
+            'success' => true,
+            'is_demo' => true,
+            'token' => $token,
+            'member' => sanitizeMemberPublic($members[$email])
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    // Novo cadastro Demo (1 crédito para degustação do Oráculo/Mestre)
+    $newMember = [
+        'name' => $name !== '' ? $name : 'Iniciado da Ordem',
+        'email' => $email,
+        'status' => 'demo',
+        'plan' => 'demo',
+        'creditos_plano' => 1,
+        'creditos_avulsos' => 0,
+        'credits_added' => 1,
+        'password_hash' => password_hash($password, PASSWORD_DEFAULT),
+        'created_at' => gmdate('c'),
+        'updated_at' => gmdate('c'),
+        'modules' => []
+    ];
+
+    $members[$email] = $newMember;
+    saveMembersDb($members);
+
+    $token = generateMemberToken($email);
+    echo json_encode([
+        'success' => true,
+        'is_demo' => true,
+        'token' => $token,
+        'member' => sanitizeMemberPublic($newMember)
     ], JSON_UNESCAPED_UNICODE);
     exit;
 }

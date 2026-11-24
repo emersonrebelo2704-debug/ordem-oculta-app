@@ -5238,3 +5238,443 @@ body {
 .alert-steps ol li:last-child {
     margin-bottom: 0;
 }
+
+/* ====================================================================
+   NOVAS ABAS DE ACESSO (DEMO / LOGIN / ATIVAÇÃO) NO AUTH GATE
+   ==================================================================== */
+.auth-nav-tabs {
+    display: flex;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    border-radius: 12px;
+    padding: 3px;
+    margin: 16px 0 14px;
+    gap: 4px;
+}
+
+.auth-nav-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 9px 4px;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+.auth-nav-tab.active {
+    background: linear-gradient(135deg, #d4af37 0%, #b89728 100%);
+    color: #08080a;
+    font-weight: 800;
+    box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);
+}
+
+.auth-nav-tab:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.08);
+    color: #f5f0e6;
+}
+
+.auth-demo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(212, 175, 55, 0.15);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    color: #d4af37;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    padding: 4px 10px;
+    border-radius: 99px;
+    margin-bottom: 10px;
+}
+
+.auth-btn-glow {
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4), 0 0 10px rgba(212, 175, 55, 0.25) !important;
+    animation: authPulseGlow 2.5s infinite ease-in-out;
+}
+
+@keyframes authPulseGlow {
+    0%, 100% { box-shadow: 0 6px 20px rgba(212, 175, 55, 0.35); }
+    50% { box-shadow: 0 8px 26px rgba(212, 175, 55, 0.65), 0 0 14px rgba(212, 175, 55, 0.4); }
+}
+
+.auth-demo-footnote {
+    margin-top: 14px;
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+/* ====================================================================
+   HEADER: BOTÃO DE PERFIL E PATENTE
+   ==================================================================== */
+.btn-member-profile {
+    background: rgba(212, 175, 55, 0.12);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    color: #f5f0e6;
+    padding: 4px 9px;
+    border-radius: 99px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.btn-member-profile:hover {
+    background: rgba(212, 175, 55, 0.24);
+    border-color: #d4af37;
+    transform: translateY(-1px);
+}
+
+.profile-header-rank {
+    color: #d4af37;
+    font-size: 10.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+/* ====================================================================
+   DRAWER / MODAL DE PERFIL DO MEMBRO
+   ==================================================================== */
+.profile-drawer-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+    transition: opacity 0.25s ease;
+}
+
+.profile-drawer-modal.hidden {
+    display: none !important;
+}
+
+.profile-drawer-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(7, 7, 11, 0.88);
+    backdrop-filter: blur(8px);
+}
+
+.profile-drawer-card {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    background: linear-gradient(180deg, #15151f 0%, #0d0d14 100%);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    border-radius: 20px;
+    padding: 22px 20px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(212, 175, 55, 0.14);
+    box-sizing: border-box;
+    z-index: 2;
+    animation: profilePopIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes profilePopIn {
+    0% { transform: scale(0.92); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.profile-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.profile-drawer-badge {
+    font-size: 11px;
+    font-weight: 800;
+    color: #d4af37;
+    letter-spacing: 0.06em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-close-profile {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #94a3b8;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-close-profile:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Avatar / Sinete e Patente */
+.profile-emblem-wrap {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 14px;
+    padding: 12px 14px;
+}
+
+.profile-crest-aura {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.25) 0%, rgba(184, 151, 40, 0.08) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 16px rgba(212, 175, 55, 0.2);
+    flex-shrink: 0;
+}
+
+.profile-crest-icon {
+    font-size: 24px;
+    color: #d4af37;
+}
+
+.profile-rank-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    text-align: left;
+}
+
+.profile-rank-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+.profile-rank-badge {
+    font-size: 10px;
+    font-weight: 800;
+    color: #d4af37;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+/* Card de Dados */
+.profile-info-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.profile-info-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.profile-info-label {
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.profile-info-val {
+    color: #f5f0e6;
+    font-weight: 600;
+}
+
+.profile-info-val.email-val {
+    font-size: 11.5px;
+    color: #cbd5e1;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profile-info-val.rank-val {
+    color: #d4af37;
+    font-weight: 700;
+}
+
+/* Card de Créditos e Quota */
+.profile-credits-card {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.08) 0%, rgba(20, 20, 28, 0.6) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 16px;
+}
+
+.profile-credits-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #d4af37;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+}
+
+.profile-credits-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.profile-credits-number {
+    font-size: 32px;
+    font-weight: 900;
+    color: #d4af37;
+    line-height: 1;
+    font-family: var(--font-heading);
+}
+
+.profile-credits-text {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    gap: 2px;
+}
+
+.profile-credits-text strong {
+    font-size: 13px;
+    color: #ffffff;
+}
+
+.profile-credits-text span {
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.profile-credits-breakdown {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.profile-credits-breakdown .breakdown-val {
+    color: #f5f0e6;
+    margin-left: 4px;
+}
+
+/* Botões de Ação do Perfil */
+.profile-actions-box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.btn-profile-upgrade {
+    width: 100%;
+    background: linear-gradient(135deg, #d4af37 0%, #b89728 100%);
+    border: none;
+    color: #08080a;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 12px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: inherit;
+    box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);
+    transition: all 0.2s ease;
+}
+
+.btn-profile-upgrade:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(212, 175, 55, 0.5);
+}
+
+.btn-profile-support {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #cbd5e1;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 10px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-profile-support:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.btn-profile-logout {
+    width: 100%;
+    background: transparent;
+    border: 1px dashed rgba(239, 68, 68, 0.35);
+    color: #f87171;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.btn-profile-logout:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: #ef4444;
+}

@@ -79,7 +79,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="stylesheet" href="style.css?v=36.0">
+    <link rel="stylesheet" href="style.css?v=38.0">
 </head>
 <body>
     <!-- ====================================================================
@@ -91,12 +91,61 @@
                 <img src="assets/hero-emblem.jpg" alt="Sinete Ordem Oculta" class="auth-crest-img">
             </div>
             <div class="auth-kicker">
-                <i class="fa-solid fa-shield-halved"></i> ÁREA EXCLUSIVA DE ASSINANTES
+                <i class="fa-solid fa-shield-halved"></i> PORTAL OFICIAL DA ORDEM
             </div>
-            <h2 class="auth-main-title">Acesso de Membros — Ordem Oculta</h2>
+            <h2 class="auth-main-title">Acesso à Ordem Oculta</h2>
 
-            <!-- AVISO FIXO DE ATENÇÃO AO E-MAIL DA COMPRA -->
-            <div class="auth-email-notice">
+            <!-- TABS SUPERIORES DE NAVEGAÇÃO -->
+            <div class="auth-nav-tabs">
+                <button type="button" class="auth-nav-tab active" id="btnAuthTabDemo">
+                    <i class="fa-solid fa-bolt"></i> Teste Grátis
+                </button>
+                <button type="button" class="auth-nav-tab" id="btnAuthTabLogin">
+                    <i class="fa-solid fa-unlock-keyhole"></i> Entrar
+                </button>
+                <button type="button" class="auth-nav-tab" id="btnAuthTabActivate">
+                    <i class="fa-solid fa-shield-halved"></i> Primeiro Acesso
+                </button>
+            </div>
+
+            <!-- TELA 0: DEGUSTAÇÃO / DEMO GRÁTIS (1 CONSULTA) -->
+            <div id="authViewDemo" class="auth-view-pane">
+                <div class="auth-demo-badge">
+                    <i class="fa-solid fa-bolt"></i> 1 CONSULTA DE INICIAÇÃO GRATUITA
+                </div>
+                <p class="auth-subtitle">Cadastre seu e-mail para receber <strong>1 consulta imediata</strong> no Oráculo de Prints ou no Mestre da Sedução e testar a precisão na prática:</p>
+
+                <form id="authDemoForm" class="auth-form" autocomplete="on">
+                    <div class="auth-field">
+                        <label for="authDemoName"><i class="fa-regular fa-user"></i> Seu Nome ou Codinome (Opcional)</label>
+                        <input type="text" id="authDemoName" class="auth-input" placeholder="Ex: Alexandre" autocomplete="name">
+                    </div>
+
+                    <div class="auth-field">
+                        <label for="authDemoEmail"><i class="fa-regular fa-envelope"></i> Seu Melhor E-mail</label>
+                        <input type="email" id="authDemoEmail" class="auth-input" placeholder="seu-email@gmail.com" required autocomplete="email">
+                    </div>
+
+                    <div class="auth-field">
+                        <label for="authDemoPassword"><i class="fa-solid fa-lock"></i> Crie uma Senha de Acesso</label>
+                        <input type="password" id="authDemoPassword" class="auth-input" placeholder="Mínimo 4 caracteres" minlength="4" required autocomplete="new-password">
+                    </div>
+
+                    <div id="authDemoError" class="auth-error-box hidden"></div>
+
+                    <button type="submit" id="btnAuthDemoSubmit" class="auth-btn-primary auth-btn-glow">
+                        <i class="fa-solid fa-bolt"></i>
+                        <span>ENTRAR NA ORDEM & TESTAR GRÁTIS ⚡</span>
+                    </button>
+                </form>
+
+                <div class="auth-demo-footnote">
+                    <span><i class="fa-solid fa-shield-halved"></i> Sem cartão de crédito · Acesso imediato</span>
+                </div>
+            </div>
+
+            <!-- AVISO FIXO DE ATENÇÃO AO E-MAIL DA COMPRA (Exibido nas abas de Login e Ativação) -->
+            <div class="auth-email-notice hidden" id="authEmailNotice">
                 <i class="fa-solid fa-triangle-exclamation"></i>
                 <div>
                     <strong>Coloque o mesmo e-mail que você usou na compra</strong>
@@ -105,7 +154,7 @@
             </div>
 
             <!-- TELA 1: LOGIN (E-MAIL + SENHA PARA ASSINANTES) -->
-            <div id="authViewLogin" class="auth-view-pane">
+            <div id="authViewLogin" class="auth-view-pane hidden">
                 <p class="auth-subtitle">Digite o mesmo e-mail usado na compra e sua senha para entrar no aplicativo.</p>
 
                 <form id="authLoginForm" class="auth-form" autocomplete="on">
@@ -208,7 +257,11 @@
             </div>
             <div class="header-status">
                 <span class="status-pulse"></span>
-                <span class="status-credits" id="headerCreditsBadge"><i class="fa-solid fa-bolt"></i> <strong id="userCreditsCount">10</strong> créditos</span>
+                <span class="status-credits" id="headerCreditsBadge"><i class="fa-solid fa-bolt"></i> <strong id="userCreditsCount">10</strong></span>
+                <button type="button" id="btnOpenProfileDrawer" class="btn-member-profile" title="Meu Perfil na Ordem">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span class="profile-header-rank" id="headerRankLabel">Iniciado</span>
+                </button>
                 <button type="button" id="btnMemberLogout" class="btn-member-logout" title="Sair da conta">
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
@@ -1419,6 +1472,93 @@
             </section>
         </main>
 
+        <!-- ============================================================
+             DRAWER / MODAL DE PERFIL DO MEMBRO DA ORDEM
+             ============================================================ -->
+        <div class="profile-drawer-modal hidden" id="profileDrawerModal">
+            <div class="profile-drawer-overlay" id="profileDrawerOverlay"></div>
+            <div class="profile-drawer-card">
+                <div class="profile-drawer-header">
+                    <span class="profile-drawer-badge"><i class="fa-solid fa-shield-halved"></i> PERFIL DO MEMBRO</span>
+                    <button class="btn-close-profile" id="btnCloseProfileDrawer" title="Fechar perfil">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="profile-drawer-body">
+                    <!-- Avatar & Patente -->
+                    <div class="profile-emblem-wrap">
+                        <div class="profile-crest-aura">
+                            <i class="fa-solid fa-chess-king profile-crest-icon"></i>
+                        </div>
+                        <div class="profile-rank-info">
+                            <h3 class="profile-rank-title" id="profileDrawerRank">Iniciado da Ordem</h3>
+                            <span class="profile-rank-badge" id="profileDrawerBadge">[ ACESSO PROVISÓRIO · 1 CONSULTA ]</span>
+                        </div>
+                    </div>
+
+                    <!-- Dados Cadastrais -->
+                    <div class="profile-info-card">
+                        <div class="profile-info-row">
+                            <span class="profile-info-label"><i class="fa-regular fa-user"></i> Identificação:</span>
+                            <strong class="profile-info-val" id="profileDrawerName">Iniciado</strong>
+                        </div>
+                        <div class="profile-info-row">
+                            <span class="profile-info-label"><i class="fa-regular fa-envelope"></i> E-mail Cadastrado:</span>
+                            <span class="profile-info-val email-val" id="profileDrawerEmail">seu-email@exemplo.com</span>
+                        </div>
+                        <div class="profile-info-row">
+                            <span class="profile-info-label"><i class="fa-solid fa-crown"></i> Patente Atual:</span>
+                            <span class="profile-info-val rank-val" id="profileDrawerPlanName">Plano de Degustação</span>
+                        </div>
+                    </div>
+
+                    <!-- Saldo de Consultas / Créditos -->
+                    <div class="profile-credits-card">
+                        <div class="profile-credits-header">
+                            <i class="fa-solid fa-bolt"></i>
+                            <span>SALDO DE CONSULTAS & ANÁLISES</span>
+                        </div>
+                        <div class="profile-credits-main">
+                            <div class="profile-credits-number" id="profileDrawerTotalCredits">1</div>
+                            <div class="profile-credits-text">
+                                <strong>Consultas Disponíveis</strong>
+                                <span id="profileDrawerCreditsSub">Disponível para escanear print ou tirar dúvida</span>
+                            </div>
+                        </div>
+                        <div class="profile-credits-breakdown">
+                            <div class="breakdown-item">
+                                <span class="breakdown-lbl">Franquia do Plano:</span>
+                                <strong class="breakdown-val" id="profileDrawerPlanCredits">1</strong>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-lbl">Créditos Avulsos (Eternos):</span>
+                                <strong class="breakdown-val" id="profileDrawerExtraCredits">0</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ações Rápidas -->
+                    <div class="profile-actions-box">
+                        <button type="button" class="btn-profile-upgrade" id="profileDrawerBtnUpgrade">
+                            <i class="fa-solid fa-crown"></i>
+                            <span id="profileDrawerUpgradeLabel">SUBIR DE PATENTE · DESBLOQUEAR ACESSO</span>
+                        </button>
+
+                        <a href="mailto:assistente@pontoideal.online?subject=Suporte%20Oficial%20-%20Ordem%20Oculta" class="btn-profile-support" id="profileDrawerBtnSupport">
+                            <i class="fa-solid fa-headset"></i>
+                            <span>Suporte Oficial da Ordem</span>
+                        </a>
+
+                        <button type="button" class="btn-profile-logout" id="profileDrawerBtnLogout">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span>Sair da Conta neste Dispositivo</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Bottom Navigation Bar (Fixed 3 Tabs) -->
         <nav class="bottom-nav">
             <button class="nav-item active" data-tab="tab-scanner">
@@ -1450,7 +1590,7 @@
         <span id="toastMsg">Script copiado!</span>
     </div>
 
-    <script src="app.js?v=37.0"></script>
+    <script src="app.js?v=38.0"></script>
     <!-- VeroTrack Tracker -->
     <script src="https://api.pontoideal.online/vt.js" data-page="upsell" defer></script>
 </body>
