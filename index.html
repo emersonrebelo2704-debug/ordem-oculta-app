@@ -87,7 +87,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="stylesheet" href="style.css?v=40.0">
+    <link rel="stylesheet" href="style.css?v=42.0">
 </head>
 <body>
     <!-- ====================================================================
@@ -116,33 +116,37 @@
                 </button>
             </div>
 
-            <!-- TELA 0: DEGUSTAÇÃO / DEMO GRÁTIS (4 FERRAMENTAS + 2 SCANS) -->
+            <!-- TELA 0: DEGUSTAÇÃO / DEMO GRÁTIS (2 OPÇÕES LIMPAS) -->
             <div id="authViewDemo" class="auth-view-pane">
                 <div class="auth-demo-badge">
-                    <i class="fa-solid fa-bolt"></i> INICIAÇÃO GRATUITA NAS 4 FERRAMENTAS
+                    <i class="fa-solid fa-bolt"></i> TESTE GRÁTIS NAS 4 FERRAMENTAS
                 </div>
-                <p class="auth-subtitle">Entre com seu Google em 1 clique e receba <strong>2 Scans de Prints no Oráculo</strong> + <strong>1 teste gratuito</strong> em cada ferramenta da Ordem:</p>
+                <p class="auth-subtitle">Escolha como deseja entrar para liberar seus testes agora:</p>
 
-                <!-- BOTÃO OFICIAL GOOGLE SIGN-IN (1 CLIQUE) -->
+                <!-- OPÇÃO 1: GOOGLE 1-CLIQUE -->
                 <div class="auth-google-box">
                     <div id="googleSignInBtnDemo" class="auth-google-btn-slot"></div>
                 </div>
 
-                <div class="auth-divider"><span>OU CRIE SEU ACESSO MANUAL</span></div>
+                <!-- OPÇÃO 2: CAIXINHA DE ACESSO MANUAL (ABRE AO CLICAR) -->
+                <button type="button" id="btnToggleManualDemo" class="auth-btn-secondary" style="width:100%; margin-top:4px; justify-content:space-between; padding: 13px 16px;" aria-expanded="false">
+                    <span><i class="fa-regular fa-envelope"></i> Crie seu acesso manual</span>
+                    <i class="fa-solid fa-chevron-down" id="iconToggleManualDemo" style="font-size:12px; opacity:0.75; transition: transform .2s ease;"></i>
+                </button>
 
-                <form id="authDemoForm" class="auth-form" autocomplete="on">
+                <form id="authDemoForm" class="auth-form hidden" autocomplete="on" style="margin-top:14px;">
                     <div class="auth-field">
-                        <label for="authDemoName"><i class="fa-regular fa-user"></i> Seu Nome ou Codinome (Opcional)</label>
+                        <label for="authDemoName"><i class="fa-regular fa-user"></i> Seu Nome (Opcional)</label>
                         <input type="text" id="authDemoName" class="auth-input" placeholder="Ex: Alexandre" autocomplete="name">
                     </div>
 
                     <div class="auth-field">
-                        <label for="authDemoEmail"><i class="fa-regular fa-envelope"></i> Seu Melhor E-mail</label>
+                        <label for="authDemoEmail"><i class="fa-regular fa-envelope"></i> Seu E-mail</label>
                         <input type="email" id="authDemoEmail" class="auth-input" placeholder="seu-email@gmail.com" required autocomplete="email">
                     </div>
 
                     <div class="auth-field">
-                        <label for="authDemoPassword"><i class="fa-solid fa-lock"></i> Crie uma Senha de Acesso</label>
+                        <label for="authDemoPassword"><i class="fa-solid fa-lock"></i> Crie uma Senha</label>
                         <input type="password" id="authDemoPassword" class="auth-input" placeholder="Mínimo 4 caracteres" minlength="4" required autocomplete="new-password">
                     </div>
 
@@ -150,7 +154,7 @@
 
                     <button type="submit" id="btnAuthDemoSubmit" class="auth-btn-primary auth-btn-glow">
                         <i class="fa-solid fa-bolt"></i>
-                        <span>ENTRAR NA ORDEM & TESTAR GRÁTIS ⚡</span>
+                        <span>ENTRAR E TESTAR GRÁTIS ⚡</span>
                     </button>
                 </form>
 
@@ -1681,7 +1685,7 @@
         <span id="toastMsg">Script copiado!</span>
     </div>
 
-    <script src="app.js?v=41.0"></script>
+    <script src="app.js?v=42.0"></script>
     <!-- VeroTrack Tracker -->
     <script src="https://api.pontoideal.online/vt.js" data-page="app" defer></script>
 </body>

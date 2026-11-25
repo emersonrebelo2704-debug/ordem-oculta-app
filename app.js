@@ -943,7 +943,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const tabActivate = document.getElementById('btnAuthTabActivate');
 
         const demoForm = document.getElementById('authDemoForm');
+        const btnToggleManualDemo = document.getElementById('btnToggleManualDemo');
+        const iconToggleManualDemo = document.getElementById('iconToggleManualDemo');
         const loginForm = document.getElementById('authLoginForm');
+
+        if (btnToggleManualDemo && demoForm) {
+            btnToggleManualDemo.addEventListener('click', () => {
+                const isHidden = demoForm.classList.contains('hidden');
+                demoForm.classList.toggle('hidden', !isHidden);
+                btnToggleManualDemo.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+                if (iconToggleManualDemo) {
+                    iconToggleManualDemo.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+                }
+                if (isHidden) {
+                    const emailInput = document.getElementById('authDemoEmail');
+                    if (emailInput) setTimeout(() => emailInput.focus(), 60);
+                }
+            });
+        }
         const activateForm = document.getElementById('authActivateForm');
 
         const btnGotoActivate = document.getElementById('btnGotoActivate');
@@ -1148,6 +1165,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (loginEmailEl) loginEmailEl.value = prefillEmail;
             if (actEmailEl) actEmailEl.value = prefillEmail;
             if (demoEmailEl) demoEmailEl.value = prefillEmail;
+            if (demoForm) demoForm.classList.remove('hidden');
         }
 
         if (btnGotoActivate) {
