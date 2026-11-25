@@ -1797,9 +1797,9 @@
                 </div>
             </div>
 
-            <a href="#oferta" class="btn-cta-gold" onclick="scrollToOfferBox(event)">
-                <span>QUERO ACESSAR O APLICATIVO AGORA</span>
-                <i class="fa-solid fa-arrow-right"></i>
+            <a href="https://pontoideal.online/app/?demo=1" class="btn-cta-gold js-demo-cta">
+                <span>TESTAR O APLICATIVO GRÁTIS AGORA</span>
+                <i class="fa-solid fa-bolt"></i>
             </a>
             <div class="micro-trust">
                 <span><i class="fa-solid fa-bolt"></i> Acesso imediato no celular</span>
@@ -2088,9 +2088,9 @@
             </article>
         </div>
 
-        <a href="#oferta" class="btn-cta-gold" onclick="scrollToOfferBox(event)" style="margin: 26px 0 4px;">
-            <span>QUERO TER ESSAS 4 ARMAS NO MEU CELULAR</span>
-            <i class="fa-solid fa-arrow-right"></i>
+        <a href="https://pontoideal.online/app/?demo=1" class="btn-cta-gold js-demo-cta" style="margin: 26px 0 4px;">
+            <span>TESTAR AS 4 FERRAMENTAS GRÁTIS AGORA</span>
+            <i class="fa-solid fa-bolt"></i>
         </a>
 
         <!-- =========================================================
@@ -2370,17 +2370,20 @@
     </div>
 
     <script>
-    // Propaga UTMs e fbclid da V2 direto para o link da Demonstração no App
+    // Propaga UTMs e fbclid da V2 direto para todos os links da Demonstração no App
     (function() {
         try {
-            var demoBtn = document.getElementById('stickyOfferCtaBtn');
-            if (demoBtn && window.location.search) {
-                var srcParams = new URLSearchParams(window.location.search);
-                var dstUrl = new URL(demoBtn.href);
+            if (!window.location.search) return;
+            var srcParams = new URLSearchParams(window.location.search);
+            var demoBtns = document.querySelectorAll('a[href*="pontoideal.online/app/"], #stickyOfferCtaBtn, .js-demo-cta');
+            for (var i = 0; i < demoBtns.length; i++) {
+                var btn = demoBtns[i];
+                if (!btn.href) continue;
+                var dstUrl = new URL(btn.href, window.location.origin);
                 srcParams.forEach(function(val, key) {
                     if (val && key !== 'demo') dstUrl.searchParams.set(key, val);
                 });
-                demoBtn.href = dstUrl.toString();
+                btn.href = dstUrl.toString();
             }
         } catch (e) {}
     })();
