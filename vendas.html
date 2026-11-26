@@ -374,6 +374,37 @@
             transform: translateY(-2px);
             box-shadow: 0 14px 36px rgba(245, 158, 11, 0.5);
         }
+        .btn-cta-pulse {
+            animation: ctaGoldPulse 2.4s ease-in-out infinite;
+        }
+        @keyframes ctaGoldPulse {
+            0%, 100% { box-shadow: 0 10px 30px rgba(245, 158, 11, 0.38), 0 0 0 0 rgba(245, 158, 11, 0.35); }
+            50% { box-shadow: 0 14px 36px rgba(245, 158, 11, 0.58), 0 0 0 10px rgba(245, 158, 11, 0); }
+        }
+        .btn-demo-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            margin-top: 14px;
+            padding: 13px 18px;
+            border-radius: 12px;
+            background: rgba(245, 158, 11, 0.10);
+            border: 1px solid rgba(245, 158, 11, 0.45);
+            color: var(--gold-light);
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 800;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        .btn-demo-secondary:hover {
+            background: rgba(245, 158, 11, 0.20);
+            transform: translateY(-1px);
+        }
         .micro-trust {
             display: flex;
             justify-content: center;
@@ -1580,8 +1611,14 @@
            RESPONSIVIDADE MOBILE E DESKTOP
            ========================================================= */
         @media (max-width: 600px) {
-            .hero { padding: 20px 0 18px; }
-            .wax-seal-wrapper { width: 82px; height: 82px; margin-bottom: 12px; }
+            .top-bar { padding: 7px 10px; font-size: 10.5px; letter-spacing: 0.4px; }
+            .hero { padding: 14px 0 14px; }
+            .wax-seal-wrapper { width: 64px; height: 64px; margin-bottom: 9px; }
+            .eyebrow-badge { font-size: 10px; padding: 5px 11px; margin-bottom: 10px; letter-spacing: 0.8px; }
+            h1.hero-headline { font-size: 25px; line-height: 1.15; margin-bottom: 10px; }
+            .hero-sub { font-size: 14.5px; line-height: 1.45; margin-bottom: 16px; }
+            .btn-cta-gold { font-size: 15.5px; padding: 16px 18px; }
+            .micro-trust { gap: 10px; margin-top: 10px; font-size: 11.5px; }
             .quick-workflow-bar {
                 flex-direction: column;
                 align-items: stretch;
@@ -1634,7 +1671,7 @@
 <body>
 
     <div class="top-bar">
-        <i class="fa-solid fa-crown"></i> CONVOCAÇÃO LIBERADA · <span>APLICATIVO ORDEM OCULTA DISPONÍVEL NO SEU CELULAR</span>
+        <i class="fa-solid fa-bolt"></i> TESTE GRATUITO LIBERADO · <span>USE O APP NO SEU PRINT AGORA (SEM CARTÃO)</span>
     </div>
 
     <div class="container">
@@ -1648,18 +1685,29 @@
             </div>
 
             <div class="eyebrow-badge">
-                <i class="fa-solid fa-mobile-screen-button"></i> NÃO É UM CURSO LONGO · É UM APLICATIVO DE BOLSO 24H
+                <i class="fa-solid fa-mobile-screen-button"></i> APP DE BOLSO 24H · SEM BAIXAR NA LOJA
             </div>
 
             <h1 class="hero-headline">
-                Suba o Print do Story ou DM e Tenha em <span class="gold" style="white-space:nowrap;">5&#160;Segundos</span> a Resposta Que Faz Ela Querer Te Ver
+                Chega de Ficar no Vácuo. Suba o Print e Receba em <span class="gold" style="white-space:nowrap;">5&#160;Segundos</span> a Resposta Que Faz Ela Querer Te Ver
             </h1>
 
             <p class="hero-sub">
-                Chega de travar olhando para a tela. O <strong>Aplicativo Ordem Oculta</strong> lê a foto ou conversa na hora e entrega <strong>3 respostas magnéticas prontas para copiar</strong>.
+                Tire print do Story, Instagram ou WhatsApp. O <strong>Aplicativo Ordem Oculta</strong> lê os detalhes que você não viu e gera <strong>3 respostas prontas para copiar</strong> — teste grátis agora no seu print.
             </p>
 
-            <!-- MENU FLUTUANTE DE PROVAS SOCIAIS (LOGO ABAIXO DA HEADLINE/SUBHEADLINE) -->
+            <a href="https://pontoideal.online/app/?demo=1" id="heroDemoCtaBtn" class="btn-cta-gold btn-cta-pulse demo-app-link" data-placement="hero">
+                <i class="fa-solid fa-bolt"></i>
+                <span>TESTAR GRÁTIS NO MEU PRINT AGORA</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+            <div class="micro-trust" style="margin-bottom: 18px;">
+                <span><i class="fa-brands fa-google"></i> Entra em 1 clique no Google</span>
+                <span><i class="fa-solid fa-ban"></i> Sem cartão de crédito</span>
+                <span><i class="fa-solid fa-user-secret"></i> 2 Scans + 4 armas grátis</span>
+            </div>
+
+            <!-- MENU FLUTUANTE DE PROVAS SOCIAIS (LOGO ABAIXO DA DOBRA PRINCIPAL) -->
             <div class="floating-proofs-wrapper">
                 <div class="floating-proofs-header">
                     <span class="live-dot"></span>
@@ -1795,16 +1843,6 @@
                         <span>3 respostas calibradas para marcar o encontro</span>
                     </div>
                 </div>
-            </div>
-
-            <a href="https://pontoideal.online/app/?demo=1" class="btn-cta-gold js-demo-cta">
-                <span>TESTAR O APLICATIVO GRÁTIS AGORA</span>
-                <i class="fa-solid fa-bolt"></i>
-            </a>
-            <div class="micro-trust">
-                <span><i class="fa-solid fa-bolt"></i> Acesso imediato no celular</span>
-                <span><i class="fa-solid fa-user-secret"></i> 100% discreto e anônimo</span>
-                <span><i class="fa-solid fa-shield-halved"></i> Garantia de 7 dias</span>
             </div>
         </header>
 
@@ -1967,6 +2005,18 @@
                     </div>
                 </div>
             </div>
+
+            <div style="margin-top: 22px;">
+                <a href="https://pontoideal.online/app/?demo=1" class="btn-cta-gold demo-app-link" data-placement="after_scanner">
+                    <i class="fa-solid fa-crosshairs"></i>
+                    <span>TESTAR AGORA COM O MEU PRINT (GRÁTIS)</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+                <div class="micro-trust">
+                    <span><i class="fa-brands fa-google"></i> Login Google em 1 clique</span>
+                    <span><i class="fa-solid fa-shield-halved"></i> Print descartado na hora · Sem cartão</span>
+                </div>
+            </div>
         </section>
 
         <!-- =========================================================
@@ -2088,10 +2138,15 @@
             </article>
         </div>
 
-        <a href="https://pontoideal.online/app/?demo=1" class="btn-cta-gold js-demo-cta" style="margin: 26px 0 4px;">
-            <span>TESTAR AS 4 FERRAMENTAS GRÁTIS AGORA</span>
+        <a href="https://pontoideal.online/app/?demo=1" class="btn-cta-gold demo-app-link" data-placement="after_tools" style="margin: 26px 0 4px;">
             <i class="fa-solid fa-bolt"></i>
+            <span>TESTAR AS 4 ARMAS GRÁTIS NO APP AGORA</span>
+            <i class="fa-solid fa-arrow-right"></i>
         </a>
+        <div class="micro-trust" style="margin-bottom: 6px;">
+            <span><i class="fa-solid fa-gift"></i> 2 Scans no Oráculo + 1 uso grátis em cada arma</span>
+            <span><i class="fa-solid fa-ban"></i> Sem cadastrar cartão</span>
+        </div>
 
         <!-- =========================================================
              BLOCO 5: TIRA-DÚVIDAS RÁPIDO (RESPOSTAS DIRETAS E LEVES)
@@ -2334,6 +2389,14 @@
                 <span><i class="fa-solid fa-shield-halved"></i> Ambiente Criptografado Kiwify</span>
                 <span><i class="fa-solid fa-bolt"></i> Receba o acesso em segundos</span>
             </div>
+
+            <div style="margin-top: 18px; padding-top: 16px; border-top: 1px dashed rgba(255,255,255,0.12);">
+                <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 4px;">Prefere testar no seu próprio print antes de assinar?</p>
+                <a href="https://pontoideal.online/app/?demo=1" class="btn-demo-secondary demo-app-link" data-placement="offer_fallback">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span>Abrir Teste Grátis no App (Sem Cartão)</span>
+                </a>
+            </div>
         </section>
 
         <!-- GARANTIA -->
@@ -2360,30 +2423,40 @@
     <div class="sticky-bar" id="stickyMobileBar">
         <div class="sticky-inner">
             <div class="sticky-price">
-                Teste Grátis no App
-                <strong>Experimente no Seu Print</strong>
+                Teste Grátis · Sem Cartão
+                <strong>2 Scans + 4 Armas no App</strong>
             </div>
-            <a href="https://pontoideal.online/app/?demo=1" id="stickyOfferCtaBtn" class="sticky-btn" style="box-shadow: 0 4px 18px rgba(245, 158, 11, 0.45);">
-                TESTAR GRÁTIS AGORA <i class="fa-solid fa-bolt"></i>
+            <a href="https://pontoideal.online/app/?demo=1" id="stickyOfferCtaBtn" class="sticky-btn demo-app-link" data-placement="sticky_bar" style="box-shadow: 0 4px 18px rgba(245, 158, 11, 0.45);">
+                ABRIR APP GRÁTIS <i class="fa-solid fa-bolt"></i>
             </a>
         </div>
     </div>
 
     <script>
-    // Propaga UTMs e fbclid da V2 direto para todos os links da Demonstração no App
+    // Propaga UTMs e fbclid da V2 direto para todos os links de Demonstração no App
     (function() {
         try {
-            if (!window.location.search) return;
-            var srcParams = new URLSearchParams(window.location.search);
-            var demoBtns = document.querySelectorAll('a[href*="pontoideal.online/app/"], #stickyOfferCtaBtn, .js-demo-cta');
-            for (var i = 0; i < demoBtns.length; i++) {
-                var btn = demoBtns[i];
-                if (!btn.href) continue;
-                var dstUrl = new URL(btn.href, window.location.origin);
-                srcParams.forEach(function(val, key) {
-                    if (val && key !== 'demo') dstUrl.searchParams.set(key, val);
-                });
-                btn.href = dstUrl.toString();
+            var demoLinks = document.querySelectorAll('a.demo-app-link');
+            var srcParams = window.location.search ? new URLSearchParams(window.location.search) : null;
+            for (var i = 0; i < demoLinks.length; i++) {
+                (function(link) {
+                    if (srcParams) {
+                        var dstUrl = new URL(link.href);
+                        srcParams.forEach(function(val, key) {
+                            if (val && key !== 'demo') dstUrl.searchParams.set(key, val);
+                        });
+                        link.href = dstUrl.toString();
+                    }
+                    link.addEventListener('click', function() {
+                        try {
+                            if (typeof window.fbq === 'function') {
+                                window.fbq('trackCustom', 'ClickOpenAppDemo', {
+                                    placement: link.getAttribute('data-placement') || 'unknown'
+                                });
+                            }
+                        } catch (err) {}
+                    });
+                })(demoLinks[i]);
             }
         } catch (e) {}
     })();
@@ -2414,12 +2487,13 @@
 
     (function() {
         var stickyBar = document.getElementById('stickyMobileBar');
+        var heroBtn = document.getElementById('heroDemoCtaBtn');
         var offerBox = document.getElementById('oferta');
         if (!stickyBar) return;
 
         function updateStickyVisibility() {
             var scrollY = window.scrollY || window.pageYOffset || 0;
-            var pastFirstFold = scrollY > 420;
+            var pastFirstFold = heroBtn ? (heroBtn.getBoundingClientRect().bottom < 0) : (scrollY > 360);
             var insideOffer = false;
 
             if (offerBox) {
