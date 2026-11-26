@@ -889,7 +889,7 @@ if ($action === 'auth-login') {
             http_response_code(401);
             echo json_encode([
                 'success' => false,
-                'error' => 'Esta conta foi criada com o Google. Toque em "Continuar com o Google" acima para entrar com 1 clique.'
+                'error' => 'Esta conta está no modo Teste Grátis. Volte na aba "Teste Grátis" e entre só com seu e-mail (ou Google) em 1 clique.'
             ], JSON_UNESCAPED_UNICODE);
             exit;
         }
@@ -998,12 +998,6 @@ if ($action === 'auth-register-demo') {
         exit;
     }
 
-    if (strlen($password) < 4) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'error' => 'Crie uma senha de acesso com pelo menos 4 caracteres.'], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-
     $members = loadMembersDb();
 
     if (isset($members[$email])) {
@@ -1027,20 +1021,9 @@ if ($action === 'auth-register-demo') {
             exit;
         }
 
-        // Já existia como conta demo: valida senha (ou exige Google se criada via Google) e permite re-entrar!
+        // Já existia como conta demo: retoma sem resetar cotas nem o cronômetro de 30 min
         $storedHash = (string)($existing['password_hash'] ?? '');
-        if ($storedHash === '') {
-            if (!empty($existing['google_id'])) {
-                http_response_code(401);
-                echo json_encode([
-                    'success' => false,
-                    'error' => 'Este e-mail foi iniciado pelo Google. Clique em "Continuar com o Google" acima para entrar.'
-                ], JSON_UNESCAPED_UNICODE);
-                exit;
-            }
-            $members[$email]['password_hash'] = password_hash($password, PASSWORD_DEFAULT);
-            saveMembersDb($members);
-        } elseif (!password_verify($password, $storedHash)) {
+        if ($password !== '' && $storedHash !== '' && !password_verify($password, $storedHash)) {
             http_response_code(401);
             echo json_encode([
                 'success' => false,
@@ -1060,6 +1043,7 @@ if ($action === 'auth-register-demo') {
     }
 
     // Novo cadastro Demo (1 teste em cada uma das 4 ferramentas + 2º Scan liberado após 30 min = 5 testes totais)
+    $passwordHash = ($password !== '' && strlen($password) >= 4) ? password_hash($password, PASSWORD_DEFAULT) : '';
     $newMember = [
         'name' => $name !== '' ? $name : 'Iniciado da Ordem',
         'email' => $email,
@@ -1075,7 +1059,7 @@ if ($action === 'auth-register-demo') {
         'creditos_plano' => 5,
         'creditos_avulsos' => 0,
         'credits_added' => 5,
-        'password_hash' => password_hash($password, PASSWORD_DEFAULT),
+        'password_hash' => $passwordHash,
         'created_at' => gmdate('c'),
         'updated_at' => gmdate('c'),
         'modules' => []

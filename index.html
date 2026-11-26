@@ -87,7 +87,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="stylesheet" href="style.css?v=42.0">
+    <link rel="stylesheet" href="style.css?v=43.0">
 </head>
 <body>
     <!-- ====================================================================
@@ -98,10 +98,10 @@
             <div class="auth-crest-wrap">
                 <img src="assets/hero-emblem.jpg" alt="Sinete Ordem Oculta" class="auth-crest-img">
             </div>
-            <div class="auth-kicker">
-                <i class="fa-solid fa-shield-halved"></i> PORTAL OFICIAL DA ORDEM
+            <div class="auth-kicker" id="authGateKicker">
+                <i class="fa-solid fa-bolt"></i> ACESSO GRATUITO LIBERADO
             </div>
-            <h2 class="auth-main-title">Acesso à Ordem Oculta</h2>
+            <h2 class="auth-main-title" id="authGateTitle">Libere Seus 2 Scans + 4 Armas Grátis</h2>
 
             <!-- TABS SUPERIORES DE NAVEGAÇÃO -->
             <div class="auth-nav-tabs">
@@ -116,50 +116,38 @@
                 </button>
             </div>
 
-            <!-- TELA 0: DEGUSTAÇÃO / DEMO GRÁTIS (2 OPÇÕES LIMPAS) -->
+            <!-- TELA 0: DEGUSTAÇÃO / DEMO GRÁTIS (ACESSO DIRETO SÓ COM E-MAIL + GOOGLE) -->
             <div id="authViewDemo" class="auth-view-pane">
                 <div class="auth-demo-badge">
-                    <i class="fa-solid fa-bolt"></i> TESTE GRÁTIS NAS 4 FERRAMENTAS
+                    <i class="fa-solid fa-bolt"></i> 2 SCANS NO ORÁCULO + TODAS AS 4 ARMAS
                 </div>
-                <p class="auth-subtitle">Escolha como deseja entrar para liberar seus testes agora:</p>
+                <p class="auth-subtitle">Digite seu melhor e-mail abaixo para abrir o aplicativo agora (sem senha e sem cartão):</p>
 
-                <!-- OPÇÃO 1: GOOGLE 1-CLIQUE -->
-                <div class="auth-google-box">
-                    <div id="googleSignInBtnDemo" class="auth-google-btn-slot"></div>
-                </div>
-
-                <!-- OPÇÃO 2: CAIXINHA DE ACESSO MANUAL (ABRE AO CLICAR) -->
-                <button type="button" id="btnToggleManualDemo" class="auth-btn-secondary" style="width:100%; margin-top:4px; justify-content:space-between; padding: 13px 16px;" aria-expanded="false">
-                    <span><i class="fa-regular fa-envelope"></i> Crie seu acesso manual</span>
-                    <i class="fa-solid fa-chevron-down" id="iconToggleManualDemo" style="font-size:12px; opacity:0.75; transition: transform .2s ease;"></i>
-                </button>
-
-                <form id="authDemoForm" class="auth-form hidden" autocomplete="on" style="margin-top:14px;">
-                    <div class="auth-field">
-                        <label for="authDemoName"><i class="fa-regular fa-user"></i> Seu Nome (Opcional)</label>
-                        <input type="text" id="authDemoName" class="auth-input" placeholder="Ex: Alexandre" autocomplete="name">
-                    </div>
-
-                    <div class="auth-field">
-                        <label for="authDemoEmail"><i class="fa-regular fa-envelope"></i> Seu E-mail</label>
-                        <input type="email" id="authDemoEmail" class="auth-input" placeholder="seu-email@gmail.com" required autocomplete="email">
-                    </div>
-
-                    <div class="auth-field">
-                        <label for="authDemoPassword"><i class="fa-solid fa-lock"></i> Crie uma Senha</label>
-                        <input type="password" id="authDemoPassword" class="auth-input" placeholder="Mínimo 4 caracteres" minlength="4" required autocomplete="new-password">
+                <!-- OPÇÃO 1: ACESSO INSTANTÂNEO SÓ COM E-MAIL (100% COMPATÍVEL COM INSTAGRAM / FACEBOOK) -->
+                <form id="authDemoForm" class="auth-form" autocomplete="on" style="margin-top:10px;">
+                    <div class="auth-field" style="margin-bottom:10px;">
+                        <label for="authDemoEmail"><i class="fa-regular fa-envelope"></i> Seu Melhor E-mail</label>
+                        <input type="email" id="authDemoEmail" class="auth-input" placeholder="Ex: seunome@gmail.com" required autocomplete="email" inputmode="email">
                     </div>
 
                     <div id="authDemoError" class="auth-error-box hidden"></div>
 
                     <button type="submit" id="btnAuthDemoSubmit" class="auth-btn-primary auth-btn-glow">
                         <i class="fa-solid fa-bolt"></i>
-                        <span>ENTRAR E TESTAR GRÁTIS ⚡</span>
+                        <span>ABRIR APP E TESTAR GRÁTIS ⚡</span>
                     </button>
                 </form>
 
+                <!-- OPÇÃO 2: GOOGLE 1-CLIQUE (Ocultado automaticamente dentro do navegador do Instagram/Facebook) -->
+                <div id="authGoogleDemoWrap">
+                    <div class="auth-divider" style="margin: 14px 0 10px;"><span>OU ENTRE EM 1 CLIQUE COM GOOGLE</span></div>
+                    <div class="auth-google-box" style="margin: 6px 0 6px;">
+                        <div id="googleSignInBtnDemo" class="auth-google-btn-slot"></div>
+                    </div>
+                </div>
+
                 <div class="auth-demo-footnote">
-                    <span><i class="fa-solid fa-shield-halved"></i> Sem cartão de crédito · Acesso imediato</span>
+                    <span><i class="fa-solid fa-shield-halved"></i> Sem senha · Sem cartão · Acesso imediato</span>
                 </div>
             </div>
 
@@ -177,11 +165,12 @@
                 <p class="auth-subtitle">Entre com sua conta Google ou digite o e-mail cadastrado na Kiwify.</p>
 
                 <!-- BOTÃO OFICIAL GOOGLE SIGN-IN (1 CLIQUE) -->
-                <div class="auth-google-box">
-                    <div id="googleSignInBtnLogin" class="auth-google-btn-slot"></div>
+                <div id="authGoogleLoginWrap">
+                    <div class="auth-google-box">
+                        <div id="googleSignInBtnLogin" class="auth-google-btn-slot"></div>
+                    </div>
+                    <div class="auth-divider"><span>OU ENTRE COM E-MAIL E SENHA</span></div>
                 </div>
-
-                <div class="auth-divider"><span>OU ENTRE COM E-MAIL E SENHA</span></div>
 
                 <form id="authLoginForm" class="auth-form" autocomplete="on">
                     <div class="auth-field">
@@ -1685,7 +1674,7 @@
         <span id="toastMsg">Script copiado!</span>
     </div>
 
-    <script src="app.js?v=42.0"></script>
+    <script src="app.js?v=43.0"></script>
     <!-- VeroTrack Tracker -->
     <script src="https://api.pontoideal.online/vt.js" data-page="app" defer></script>
 </body>

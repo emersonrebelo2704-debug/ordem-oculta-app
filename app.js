@@ -893,6 +893,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const tabDemo = document.getElementById('btnAuthTabDemo');
         const tabLogin = document.getElementById('btnAuthTabLogin');
         const tabActivate = document.getElementById('btnAuthTabActivate');
+        const gateKicker = document.getElementById('authGateKicker');
+        const gateTitle = document.getElementById('authGateTitle');
 
         if (appContainer) appContainer.classList.add('auth-locked');
         if (gateOverlay) gateOverlay.classList.remove('hidden');
@@ -912,14 +914,20 @@ document.addEventListener('DOMContentLoaded', () => {
             if (viewActivate) viewActivate.classList.remove('hidden');
             if (tabActivate) tabActivate.classList.add('active');
             if (emailNotice) emailNotice.classList.remove('hidden');
+            if (gateKicker) gateKicker.innerHTML = '<i class="fa-solid fa-shield-halved"></i> PORTAL OFICIAL DA ORDEM';
+            if (gateTitle) gateTitle.textContent = 'Acesso à Ordem Oculta';
         } else if (viewName === 'login') {
             if (viewLogin) viewLogin.classList.remove('hidden');
             if (tabLogin) tabLogin.classList.add('active');
             if (emailNotice) emailNotice.classList.remove('hidden');
+            if (gateKicker) gateKicker.innerHTML = '<i class="fa-solid fa-shield-halved"></i> PORTAL OFICIAL DA ORDEM';
+            if (gateTitle) gateTitle.textContent = 'Acesso à Ordem Oculta';
         } else {
             if (viewDemo) viewDemo.classList.remove('hidden');
             if (tabDemo) tabDemo.classList.add('active');
             if (emailNotice) emailNotice.classList.add('hidden');
+            if (gateKicker) gateKicker.innerHTML = '<i class="fa-solid fa-bolt"></i> ACESSO GRATUITO LIBERADO';
+            if (gateTitle) gateTitle.textContent = 'Libere Seus 2 Scans + 4 Armas Grátis';
         }
     }
 
@@ -1041,9 +1049,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // =====================================================================
-        // GOOGLE ONE-TAP & SIGN-IN (1 CLIQUE)
+        // GOOGLE ONE-TAP & SIGN-IN (1 CLIQUE) + DETECÇÃO DE WEBVIEW (IG/FB)
         // =====================================================================
+        function isInAppWebView() {
+            const ua = navigator.userAgent || navigator.vendor || window.opera || '';
+            return /Instagram|FBAN|FBAV|FB_IAB|FBIOS|Messenger|Line\/|TikTok|BytedanceWebview|Musical_ly|Snapchat|Twitter|wv\)/i.test(ua);
+        }
+
+        function hideGoogleAuthWrappers() {
+            const gDemoWrap = document.getElementById('authGoogleDemoWrap');
+            const gLoginWrap = document.getElementById('authGoogleLoginWrap');
+            if (gDemoWrap) gDemoWrap.classList.add('hidden');
+            if (gLoginWrap) gLoginWrap.classList.add('hidden');
+        }
+
         function setupGoogleAuth() {
+            if (isInAppWebView()) {
+                hideGoogleAuthWrappers();
+                return;
+            }
+
             const clientId = '24987514921-tvlgolv7ommioi52qhobg693bpgq10dc.apps.googleusercontent.com';
 
             async function handleGoogleCredential(response) {
@@ -1061,6 +1086,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (data.member && (data.member.is_demo || data.member.plan === 'demo')) {
                             const dqG = data.member.demo_quotas || null;
                             captureVeroTrackLead(demoQuotasUsedAny(dqG) ? 'tested_app' : 'captured', { auth_method: 'google' }, { email: data.member.email, name: data.member.name, demo_quotas: dqG });
+                            try {
+                                if (typeof window.fbq === 'function') {
+                                    window.fbq('track', 'Lead', { content_name: 'Ordem Oculta App Demo', method: 'google' });
+                                }
+                            } catch (fbErr) {}
                         }
                         showToast('⚡ Acesso liberado via Google! Bem-vindo à Ordem.');
                     } else if (data.demo_expired) {
@@ -1074,8 +1104,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
+            let gsiAttempts = 0;
             function tryRenderGoogle() {
                 if (!window.google || !window.google.accounts || !window.google.accounts.id) {
+                    gsiAttempts++;
+                    if (gsiAttempts >= 20) {
+                        hideGoogleAuthWrappers();
+                        return;
+                    }
                     setTimeout(tryRenderGoogle, 300);
                     return;
                 }
@@ -1116,6 +1152,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 } catch (err) {
                     console.warn('Google GSI render error:', err);
+                    hideGoogleAuthWrappers();
                 }
             }
 
@@ -1200,40 +1237,42 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Submissão do Cadastro Demo (1 Consulta Gratuita)
+        // Submissão do Cadastro Demo (Acesso Instantâneo Só com E-mail)
         if (demoForm) {
             demoForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 showAuthError(demoErrBox, '');
-                const name = (document.getElementById('authDemoName')?.value || '').trim();
                 const email = (document.getElementById('authDemoEmail')?.value || '').trim().toLowerCase();
-                const password = (document.getElementById('authDemoPassword')?.value || '').trim();
                 const submitBtn = document.getElementById('btnAuthDemoSubmit');
+                const submitSpan = submitBtn ? submitBtn.querySelector('span') : null;
+                const origLabel = submitSpan ? submitSpan.textContent : '';
 
                 if (!email || !email.includes('@')) {
-                    showAuthError(demoErrBox, 'Digite um e-mail válido para iniciar o teste gratuito.');
-                    return;
-                }
-                if (password.length < 4) {
-                    showAuthError(demoErrBox, 'Crie uma senha de acesso com pelo menos 4 caracteres.');
+                    showAuthError(demoErrBox, 'Digite um e-mail válido para iniciar seu teste gratuito.');
                     return;
                 }
 
                 if (submitBtn) submitBtn.disabled = true;
+                if (submitSpan) submitSpan.textContent = 'Liberando seu acesso...';
                 try {
                     const res = await fetch(getAuthApiUrl('auth-register-demo'), {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name, email, password })
+                        body: JSON.stringify({ email, quick_email: true })
                     });
                     const data = await res.json().catch(() => ({}));
                     if (res.ok && data.success && data.token) {
                         unlockAppForMember(data.token, data.member);
                         if (data.member && (data.member.is_demo || data.member.plan === 'demo')) {
                             const dqM = data.member.demo_quotas || null;
-                            captureVeroTrackLead(demoQuotasUsedAny(dqM) ? 'tested_app' : 'captured', { auth_method: 'manual_email' }, { email: data.member.email || email, name: data.member.name || name, demo_quotas: dqM });
+                            captureVeroTrackLead(demoQuotasUsedAny(dqM) ? 'tested_app' : 'captured', { auth_method: 'quick_email' }, { email: data.member.email || email, name: data.member.name || '', demo_quotas: dqM });
+                            try {
+                                if (typeof window.fbq === 'function') {
+                                    window.fbq('track', 'Lead', { content_name: 'Ordem Oculta App Demo', method: 'quick_email' });
+                                }
+                            } catch (fbErr) {}
                         }
-                        showToast('⚡ Iniciação concluída! Sua 1ª consulta de degustação está liberada.');
+                        showToast('⚡ Acesso liberado! Seus 2 Scans + 4 Armas grátis estão prontos.');
                     } else if (data.demo_expired) {
                         showAuthError(demoErrBox, data.error || 'Sua consulta de Iniciação Gratuita já foi utilizada.');
                         setTimeout(() => {
@@ -1255,6 +1294,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     showAuthError(demoErrBox, 'Erro de conexão com o servidor. Tente novamente.');
                 } finally {
                     if (submitBtn) submitBtn.disabled = false;
+                    if (submitSpan && origLabel) submitSpan.textContent = origLabel;
                 }
             });
         }
