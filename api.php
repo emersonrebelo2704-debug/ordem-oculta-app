@@ -990,6 +990,7 @@ if ($action === 'auth-activate') {
 if ($action === 'auth-register-demo') {
     $email = strtolower(trim((string)($body['email'] ?? '')));
     $name = trim((string)($body['name'] ?? ''));
+    $phone = trim((string)($body['phone'] ?? ''));
     $password = trim((string)($body['password'] ?? ''));
 
     if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -1032,6 +1033,11 @@ if ($action === 'auth-register-demo') {
             exit;
         }
 
+        if ($phone !== '' && empty($members[$email]['phone'])) {
+            $members[$email]['phone'] = $phone;
+            $members[$email]['updated_at'] = gmdate('c');
+            saveMembersDb($members);
+        }
         $token = generateMemberToken($email);
         echo json_encode([
             'success' => true,
@@ -1047,6 +1053,7 @@ if ($action === 'auth-register-demo') {
     $newMember = [
         'name' => $name !== '' ? $name : 'Iniciado da Ordem',
         'email' => $email,
+        'phone' => $phone,
         'status' => 'demo',
         'plan' => 'demo',
         'demo_quotas' => [
@@ -1134,7 +1141,12 @@ if ($action === 'auth-google') {
                 saveMembersDb($members);
                 $existing = $members[$email];
             }
-            $token = generateMemberToken($email);
+            if ($phone !== '' && empty($members[$email]['phone'])) {
+            $members[$email]['phone'] = $phone;
+            $members[$email]['updated_at'] = gmdate('c');
+            saveMembersDb($members);
+        }
+        $token = generateMemberToken($email);
             echo json_encode([
                 'success' => true,
                 'is_demo' => false,
@@ -1167,6 +1179,11 @@ if ($action === 'auth-google') {
         }
         saveMembersDb($members);
 
+        if ($phone !== '' && empty($members[$email]['phone'])) {
+            $members[$email]['phone'] = $phone;
+            $members[$email]['updated_at'] = gmdate('c');
+            saveMembersDb($members);
+        }
         $token = generateMemberToken($email);
         echo json_encode([
             'success' => true,

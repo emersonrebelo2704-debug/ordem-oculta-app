@@ -282,6 +282,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (email) {
                 urlObj.searchParams.set('email', email);
             }
+            const phone = (localStorage.getItem('ordem_vip_phone') || '').replace(/\D+/g, '');
+            if (phone && !urlObj.searchParams.get('phone')) {
+                urlObj.searchParams.set('phone', phone);
+            }
             return urlObj.toString();
         } catch (e) {
             if (!email) return rawUrl;
@@ -415,6 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const email = String(opts.email || localStorage.getItem('ordem_vip_email') || '').trim().toLowerCase();
             if (!email || !email.includes('@') || VT_CRM_IGNORED.includes(email)) return;
             const name = opts.name || localStorage.getItem('ordem_vip_name') || undefined;
+            const phone = opts.phone || localStorage.getItem('ordem_vip_phone') || undefined;
             const dq = opts.demo_quotas || getStoredDemoQuotas() || null;
             const metadata = Object.assign({
                 origem: 'app_demo_ordem_oculta',
@@ -428,14 +433,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Caminho principal: VT.captureLead (vincula sessão, UTMs e campanha)
             if (window.VT && typeof window.VT.captureLead === 'function') {
-                window.VT.captureLead({ email, name, step: stage, beacon: !!opts.beacon, metadata });
+                window.VT.captureLead({ email, name, phone, step: stage, beacon: !!opts.beacon, metadata });
                 return;
             }
 
             // Fallback: vt.js ainda carregando — usa vt_state direto
             let vtS = {};
             try { vtS = JSON.parse(localStorage.getItem('vt_state') || '{}') || {}; } catch (e) {}
-            const body = JSON.stringify({ email, name, step: stage, sid: vtS.sid || undefined, utm: vtS.utm || undefined, metadata });
+            const body = JSON.stringify({ email, name, phone, step: stage, sid: vtS.sid || undefined, utm: vtS.utm || undefined, metadata });
             const url = 'https://api.pontoideal.online/api/leads/capture';
             if (opts.beacon && navigator.sendBeacon) {
                 if (navigator.sendBeacon(url, new Blob([body], { type: 'text/plain;charset=UTF-8' }))) return;
@@ -773,6 +778,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (email) {
             localStorage.setItem('ordem_vip_email', email);
+        }
+        if (member.phone) {
+            localStorage.setItem('ordem_vip_phone', String(member.phone).trim());
         }
         if (member.name) {
             localStorage.setItem('ordem_vip_name', member.name);
@@ -1243,6 +1251,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 showAuthError(demoErrBox, '');
                 const email = (document.getElementById('authDemoEmail')?.value || '').trim().toLowerCase();
+                const phone = (document.getElementById('authDemoPhone')?.value || '').replace(/\D+/g, '');
                 const submitBtn = document.getElementById('btnAuthDemoSubmit');
                 const submitSpan = submitBtn ? submitBtn.querySelector('span') : null;
                 const origLabel = submitSpan ? submitSpan.textContent : '';
@@ -1252,20 +1261,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
+                if (phone) {
+                    localStorage.setItem('ordem_vip_phone', phone);
+                }
+
                 if (submitBtn) submitBtn.disabled = true;
                 if (submitSpan) submitSpan.textContent = 'Liberando seu acesso...';
                 try {
                     const res = await fetch(getAuthApiUrl('auth-register-demo'), {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email, quick_email: true })
+                        body: JSON.stringify({ email, phone: phone || undefined, quick_email: true })
                     });
                     const data = await res.json().catch(() => ({}));
                     if (res.ok && data.success && data.token) {
                         unlockAppForMember(data.token, data.member);
                         if (data.member && (data.member.is_demo || data.member.plan === 'demo')) {
                             const dqM = data.member.demo_quotas || null;
-                            captureVeroTrackLead(demoQuotasUsedAny(dqM) ? 'tested_app' : 'captured', { auth_method: 'quick_email' }, { email: data.member.email || email, name: data.member.name || '', demo_quotas: dqM });
+                            captureVeroTrackLead(demoQuotasUsedAny(dqM) ? 'tested_app' : 'captured', { auth_method: 'quick_email' }, { email: data.member.email || email, name: data.member.name || '', phone: phone || data.member.phone || '', demo_quotas: dqM });
                             try {
                                 if (typeof window.fbq === 'function') {
                                     window.fbq('track', 'Lead', { content_name: 'Ordem Oculta App Demo', method: 'quick_email' });
