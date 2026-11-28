@@ -1563,12 +1563,14 @@
         </div>
 
         <!-- MODAL: AVISO INTELIGENTE AO REMOVER FOTO DURANTE COOLDOWN DE 30 MIN -->
-        <div class="paywall-modal hidden" id="clearImageCooldownModal">
-            <div class="paywall-overlay" id="clearWarnOverlay"></div>
-            <div class="paywall-card clear-warn-card">
-                <button type="button" class="btn-close-modal" id="btnCloseClearWarn" title="Fechar">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+        <div class="paywall-lock-modal hidden" id="clearImageCooldownModal">
+            <div class="paywall-lock-overlay" id="clearWarnOverlay"></div>
+            <div class="paywall-lock-card clear-warn-card">
+                <div class="lock-header" style="justify-content: flex-end; margin-bottom: 4px;">
+                    <button type="button" class="btn-close-lock" id="btnCloseClearWarn" title="Fechar">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
                 <div class="clear-warn-icon">
                     <i class="fa-regular fa-clock"></i>
                 </div>
