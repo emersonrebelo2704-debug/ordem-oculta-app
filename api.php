@@ -1411,24 +1411,50 @@ if ($action === 'desfibrilador') {
         checkDemoToolAccess($member, 'desfibrilador');
     }
 
-    $timeWindow = $body['timeWindow'] ?? '3dias';
-    $topic = $body['topic'] ?? '';
+    $timeWindow = trim((string)($body['timeWindow'] ?? '3dias'));
+    $timeMap = [
+        '24h' => '24 a 48 horas',
+        '3dias' => '3 a 5 dias',
+        '1semana' => '1 a 2 semanas',
+        '1mes' => '1 mês ou mais'
+    ];
+    $timeLabel = $timeMap[$timeWindow] ?? $timeWindow;
+    $topic = trim((string)($body['topic'] ?? ''));
+    $topicContext = $topic !== ''
+        ? $topic
+        : 'Nenhum assunto específico informado (vácuo geral em conversa de WhatsApp / Direct do Instagram).';
 
     $systemPrompt = <<<PROMPT
-Você é "O Mestre da Sedução" operando "O Desfibrilador" da plataforma "Ordem Oculta — O Segredo das Respostas Imediatas".
-Crie 3 mensagens irresistíveis, leves e autênticas em português brasileiro para reativar uma conversa parada há {$timeWindow}, aplicando as Skills de Curiosidade e Moldura de Alto Valor (sem demonstrar carência, sem cobrar resposta, com humor sagaz). Assunto anterior: "{$topic}".
+Você é "O Mestre da Sedução" operando "O Desfibrilador (Anti-Vácuo)" da plataforma "Ordem Oculta — O Segredo das Respostas Imediatas".
+
+CONTEXTO OBRIGATÓRIO DO CENÁRIO:
+- Toda solicitação nesta ferramenta é SEMPRE uma conversa por mensagem de texto NO CELULAR (WhatsApp, Direct do Instagram, Tinder ou outra rede social) onde a mulher visualizou ou parou de responder (deixou o Membro no vácuo) há {$timeLabel}.
+- A mensagem gerada vai ser copiada e colada diretamente no WhatsApp ou no Direct do Instagram.
+
+REGRAS RÍGIDAS ANTI-RESPOSTAS ESTRANHAS:
+1. NUNCA invente encontros presenciais, acontecimentos físicos ou histórias absurdas que o Membro não tenha dito no assunto.
+2. NUNCA use frases carentes, passivo-agressivas ou de cobrança ("oi sumida", "tá viva?", "me esqueceu?", "não vai responder?", "desculpa incomodar").
+3. Escreva como um homem brasileiro natural e confiante digita no WhatsApp/Instagram: frases CURTAS (1 a 2 linhas no máximo), ritmo leve, minúsculas naturais, ZERO poesia cafona, ZERO linguagem formal de robô ou tradução literal do inglês.
+4. Calibre exatamente pelo tempo de vácuo ({$timeLabel}):
+   - 24 a 48 horas: retomada leve, casual ou provocação curta sem parecer ansioso.
+   - 3 a 5 dias: quebra de padrão divertida ou gancho de curiosidade que ignora o vácuo sem ressentimento.
+   - 1 a 2 semanas: lembrança espontânea despreocupada ou comentário leve que reabre a porta com naturalidade.
+   - 1 mês ou mais: reabertura limpa e bem-humorada de quem seguiu a vida e lembrou por acaso, sem mágoa.
+5. Se o Membro informou um contexto/assunto ("{$topicContext}"), conecte a mensagem organicamente a esse tema; se não informou assunto específico, crie mensagens universais perfeitas para WhatsApp/Direct sem presumir detalhes inventados.
+6. NUNCA use a palavra "aluno" nas explicações (use "você" ou "Membro").
+
 Responda EXCLUSIVAMENTE em JSON puro:
 {
   "options": [
-    { "badge": "Lembrança Espontânea", "rate": "95% de Resposta", "text": "...", "reason": "💡 Por que funciona e o que desperta nela." },
-    { "badge": "Gatilho de Curiosidade", "rate": "91% de Resposta", "text": "...", "reason": "💡 Por que funciona e o que desperta nela." },
-    { "badge": "Desqualificação com Humor", "rate": "88% de Resposta", "text": "...", "reason": "💡 Por que funciona e o que desperta nela." }
+    { "badge": "Lembrança Espontânea", "rate": "95% de Resposta", "text": "...", "reason": "💡 Por que funciona no WhatsApp/Direct e o que desperta nela." },
+    { "badge": "Gatilho de Curiosidade", "rate": "91% de Resposta", "text": "...", "reason": "💡 Por que funciona no WhatsApp/Direct e o que desperta nela." },
+    { "badge": "Desqualificação com Humor", "rate": "88% de Resposta", "text": "...", "reason": "💡 Por que funciona no WhatsApp/Direct e o que desperta nela." }
   ]
 }
 PROMPT;
 
-    $userText = "Gere as 3 mensagens para reativar conversa parada há {$timeWindow}. Contexto: \"{$topic}\".";
-    $result = callOpenRouter($systemPrompt, $userText, null, 0.78, 1800);
+    $userText = "Gere as 3 mensagens curtas de WhatsApp/Direct para recuperar uma conversa parada no vácuo há {$timeLabel}. Contexto/assunto informado: \"{$topicContext}\".";
+    $result = callOpenRouter($systemPrompt, $userText, null, 0.72, 1800);
     if (!$result['success']) {
         http_response_code(500);
     } else {
