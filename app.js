@@ -2666,6 +2666,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         dropzone.addEventListener('click', (e) => {
             if (e.target.closest('#btnClearImage')) return;
+            const isDemo = localStorage.getItem('ordem_is_demo') === '1';
+            const dq = getStoredDemoQuotas();
+            const cooldownSec = (isDemo && dq && dq.scan_used === 1) ? getLiveScanCooldownSeconds(dq) : 0;
+            const hasSavedOrVisible = !elements.resultsContainer.classList.contains('hidden') || !!loadLastOracleScan();
+            const warnModal = document.getElementById('clearImageCooldownModal');
+            const warnClock = document.getElementById('clearWarnClock');
+
+            if (cooldownSec > 0 && state.selectedBase64 && hasSavedOrVisible && warnModal) {
+                triggerHaptic(20);
+                if (warnClock) warnClock.textContent = formatMmSs(cooldownSec);
+                warnModal.classList.remove('hidden');
+                return;
+            }
             fileInput.click();
         });
 
@@ -2729,7 +2742,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btnPostScanUpgrade.addEventListener('click', () => {
                 triggerHaptic(20);
                 const dq = getStoredDemoQuotas();
-                openPaywallLockModal({ isDemo: true, cooldownSeconds: getLiveScanCooldownSeconds(dq) });
+                openGlobalPaywallModal({ isDemo: true, cooldownSeconds: getLiveScanCooldownSeconds(dq) });
             });
         }
 
@@ -2761,7 +2774,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 triggerHaptic(20);
                 closeClearWarn();
                 const dq = getStoredDemoQuotas();
-                openPaywallLockModal({ isDemo: true, cooldownSeconds: getLiveScanCooldownSeconds(dq) });
+                openGlobalPaywallModal({ isDemo: true, cooldownSeconds: getLiveScanCooldownSeconds(dq) });
             });
         }
         if (btnClearWarnProceed) {
