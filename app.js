@@ -572,6 +572,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const oraculoStripSub = document.getElementById('oraculoDemoStripSub');
         const oraculoStripBtn = document.getElementById('oraculoDemoStripBtn');
         const rechargeCard = document.getElementById('card-credit-recharge');
+        const postScanUpgradeCard = document.getElementById('oraculoPostScanUpgradeCard');
+        const postScanBadgeEl = document.getElementById('postScanCooldownBadge');
+        const postScanTitleEl = document.getElementById('postScanUpgradeTitle');
+        const postScanSubEl = document.getElementById('postScanUpgradeSub');
 
         const profileDemoList = document.getElementById('profileDemoQuotasList');
         const profilePaidBreakdown = document.getElementById('profilePaidBreakdown');
@@ -589,6 +593,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (hubTagDesf) hubTagDesf.innerHTML = '<i class="fa-solid fa-bolt"></i> ANTI-GHOSTING';
             if (hubTagFz) hubTagFz.innerHTML = '<i class="fa-solid fa-door-open"></i> ANTI-FRIENDZONE';
             if (oraculoStrip) oraculoStrip.classList.add('hidden');
+            if (postScanUpgradeCard) postScanUpgradeCard.classList.add('hidden');
             if (rechargeCard) rechargeCard.classList.remove('hidden');
             if (profileDemoList) profileDemoList.classList.add('hidden');
             if (profilePaidBreakdown) profilePaidBreakdown.classList.remove('hidden');
@@ -667,7 +672,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // 3. Atualiza relógio do modal caso esteja aberto
+        // 3. Atualiza relógio do modal de paywall, modal de remoção e card pós-scan
         const lockClockEl = document.getElementById('lockCooldownClock');
         const lockCooldownBox = document.getElementById('lockCooldownTimerBox');
         if (lockClockEl && lockCooldownBox && !lockCooldownBox.classList.contains('hidden')) {
@@ -678,6 +683,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 const paywallModal = document.getElementById('paywallLockModal');
                 if (paywallModal) paywallModal.classList.add('hidden');
                 showToast('🔥 Seu 2º Scan Gratuito acabou de liberar!');
+            }
+        }
+
+        const clearWarnModal = document.getElementById('clearImageCooldownModal');
+        const clearWarnClock = document.getElementById('clearWarnClock');
+        if (clearWarnClock && cooldownSec > 0) {
+            clearWarnClock.textContent = mmss;
+        }
+        if (clearWarnModal && !clearWarnModal.classList.contains('hidden') && cooldownSec <= 0) {
+            clearWarnModal.classList.add('hidden');
+        }
+
+        if (postScanUpgradeCard) {
+            if (dq.scan_used === 0) {
+                postScanUpgradeCard.classList.add('hidden');
+            } else if (dq.scan_used === 1 && cooldownSec > 0) {
+                postScanUpgradeCard.classList.remove('hidden');
+                if (postScanBadgeEl) postScanBadgeEl.innerHTML = `2º SCAN EM <strong id="postScanCooldownClock">${mmss}</strong>`;
+                if (postScanTitleEl) postScanTitleEl.textContent = 'Quer escanear outro print agora sem esperar?';
+                if (postScanSubEl) postScanSubEl.innerHTML = 'Desbloqueie <strong>Scans Ilimitados no Oráculo</strong> + todas as 4 armas da Ordem a partir de R$&nbsp;32,63/mês.';
+            } else if (dq.scan_used === 1) {
+                postScanUpgradeCard.classList.remove('hidden');
+                if (postScanBadgeEl) postScanBadgeEl.textContent = '2º SCAN GRÁTIS LIBERADO · OU ILIMITADO';
+                if (postScanTitleEl) postScanTitleEl.textContent = 'Quer Scans Ilimitados + todas as 4 armas?';
+                if (postScanSubEl) postScanSubEl.innerHTML = 'Pare de depender de limites no teste grátis e use o arsenal completo a qualquer hora a partir de R$&nbsp;32,63/mês.';
+            } else {
+                postScanUpgradeCard.classList.remove('hidden');
+                if (postScanBadgeEl) postScanBadgeEl.textContent = '2/2 SCANS GRATUITOS CONCLUÍDOS';
+                if (postScanTitleEl) postScanTitleEl.textContent = 'Desbloqueie Scans Ilimitados no Oráculo agora';
+                if (postScanSubEl) postScanSubEl.innerHTML = 'Continue destravando suas conversas todos os dias com <strong>Scans Ilimitados + 4 armas</strong> a partir de R$&nbsp;32,63/mês.';
             }
         }
 
@@ -950,6 +985,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const gateOverlay = document.getElementById('authGateOverlay');
         if (gateOverlay) gateOverlay.classList.add('hidden');
         if (appContainer) appContainer.classList.remove('auth-locked');
+        if (typeof updateRestoreLastScanBar === 'function') updateRestoreLastScanBar();
     }
 
     function setupMemberAuthGate() {
@@ -2664,8 +2700,78 @@ document.addEventListener('DOMContentLoaded', () => {
         btnClearImage.addEventListener('click', (e) => {
             e.stopPropagation();
             triggerHaptic(20);
+            const isDemo = localStorage.getItem('ordem_is_demo') === '1';
+            const dq = getStoredDemoQuotas();
+            const cooldownSec = (isDemo && dq && dq.scan_used === 1) ? getLiveScanCooldownSeconds(dq) : 0;
+            const hasSavedOrVisible = !elements.resultsContainer.classList.contains('hidden') || !!loadLastOracleScan();
+            const warnModal = document.getElementById('clearImageCooldownModal');
+            const warnClock = document.getElementById('clearWarnClock');
+
+            if (cooldownSec > 0 && hasSavedOrVisible && warnModal) {
+                if (warnClock) warnClock.textContent = formatMmSs(cooldownSec);
+                warnModal.classList.remove('hidden');
+                return;
+            }
             resetUpload();
         });
+
+        // Barrinha para reabrir o último scan salvo e botões do Card Pós-Scan / Modal de Aviso no X
+        const btnRestoreLastScan = document.getElementById('btnRestoreLastScan');
+        if (btnRestoreLastScan) {
+            btnRestoreLastScan.addEventListener('click', () => {
+                triggerHaptic(18);
+                restoreLastOracleScan();
+            });
+        }
+
+        const btnPostScanUpgrade = document.getElementById('btnPostScanUpgrade');
+        if (btnPostScanUpgrade) {
+            btnPostScanUpgrade.addEventListener('click', () => {
+                triggerHaptic(20);
+                const dq = getStoredDemoQuotas();
+                openPaywallLockModal({ isDemo: true, cooldownSeconds: getLiveScanCooldownSeconds(dq) });
+            });
+        }
+
+        const clearWarnModalEl = document.getElementById('clearImageCooldownModal');
+        const closeClearWarn = () => {
+            if (clearWarnModalEl) clearWarnModalEl.classList.add('hidden');
+        };
+        const btnCloseClearWarn = document.getElementById('btnCloseClearWarn');
+        const clearWarnOverlay = document.getElementById('clearWarnOverlay');
+        const btnClearWarnKeep = document.getElementById('btnClearWarnKeep');
+        const btnClearWarnUpgrade = document.getElementById('btnClearWarnUpgrade');
+        const btnClearWarnProceed = document.getElementById('btnClearWarnProceed');
+
+        if (btnCloseClearWarn) btnCloseClearWarn.addEventListener('click', closeClearWarn);
+        if (clearWarnOverlay) clearWarnOverlay.addEventListener('click', closeClearWarn);
+        if (btnClearWarnKeep) {
+            btnClearWarnKeep.addEventListener('click', () => {
+                triggerHaptic(15);
+                closeClearWarn();
+                if (elements.resultsContainer.classList.contains('hidden')) {
+                    restoreLastOracleScan();
+                } else {
+                    elements.resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        }
+        if (btnClearWarnUpgrade) {
+            btnClearWarnUpgrade.addEventListener('click', () => {
+                triggerHaptic(20);
+                closeClearWarn();
+                const dq = getStoredDemoQuotas();
+                openPaywallLockModal({ isDemo: true, cooldownSeconds: getLiveScanCooldownSeconds(dq) });
+            });
+        }
+        if (btnClearWarnProceed) {
+            btnClearWarnProceed.addEventListener('click', () => {
+                triggerHaptic(15);
+                closeClearWarn();
+                resetUpload();
+                showToast('Foto removida. Suas 3 respostas anteriores continuam salvas abaixo.');
+            });
+        }
 
         // Clique no Botão de Decodificar
         elements.btnScan.addEventListener('click', () => {
@@ -2771,6 +2877,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.btnLabel.textContent = 'CARREGANDO NOVO PRINT...';
         elements.resultsContainer.classList.add('hidden');
         if (elements.scanBlackAlert) elements.scanBlackAlert.classList.add('hidden');
+        updateRestoreLastScanBar();
 
         const reader = new FileReader();
         reader.onload = async (e) => {
@@ -2803,6 +2910,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.btnLabel.textContent = 'ENVIE O PRINT PARA DECODIFICAR';
         elements.previewWrapper.classList.remove('scanning');
         elements.resultsContainer.classList.add('hidden');
+        updateRestoreLastScanBar();
     }
 
     function showScanAlertCard(mode, customReason = '', customRec = '') {
@@ -2897,6 +3005,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (result && result.success && result.data && Array.isArray(result.data.options) && result.data.options.length >= 3) {
                 // SUCESSO REAL VIA IA
                 renderRealAIResponse(result.data);
+                saveLastOracleScan(result.data);
                 scanOk = true;
                 state.scanCount = (state.scanCount || 0) + 1;
                 if (isDemo && result.demo_quotas && result.demo_quotas.scan_used === 1) {
@@ -2921,6 +3030,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (scanOk) {
                 elements.btnLabel.textContent = `DECODIFICAR NOVAMENTE`;
                 elements.resultsContainer.classList.remove('hidden');
+                updateRestoreLastScanBar();
                 elements.resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
             } else if (isPaywallOrCooldown) {
                 elements.btnLabel.textContent = `DECODIFICAR ${phaseDefinitions[state.selectedPhase].badge}`;
@@ -2932,6 +3042,58 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             triggerHaptic(50);
         }
+    }
+
+    function getLastOracleScanKey() {
+        const email = (localStorage.getItem('ordem_vip_email') || 'guest').trim().toLowerCase();
+        return 'ordem_last_oracle_scan_' + email;
+    }
+
+    function saveLastOracleScan(data) {
+        if (!data || !Array.isArray(data.options) || data.options.length < 3) return;
+        try {
+            localStorage.setItem(getLastOracleScanKey(), JSON.stringify({ data, savedAt: Date.now() }));
+        } catch (e) {}
+    }
+
+    function loadLastOracleScan() {
+        try {
+            const raw = localStorage.getItem(getLastOracleScanKey());
+            if (!raw) return null;
+            const parsed = JSON.parse(raw);
+            if (parsed && parsed.data && Array.isArray(parsed.data.options) && parsed.data.options.length >= 3) {
+                return parsed.data;
+            }
+        } catch (e) {}
+        return null;
+    }
+
+    function updateRestoreLastScanBar() {
+        const btn = document.getElementById('btnRestoreLastScan');
+        if (!btn) return;
+        const hasSaved = !!loadLastOracleScan();
+        const isResultsHidden = elements.resultsContainer ? elements.resultsContainer.classList.contains('hidden') : true;
+        if (hasSaved && isResultsHidden) {
+            btn.classList.remove('hidden');
+        } else {
+            btn.classList.add('hidden');
+        }
+    }
+
+    function restoreLastOracleScan() {
+        const saved = loadLastOracleScan();
+        if (!saved) {
+            showToast('Nenhum scan anterior encontrado neste dispositivo.');
+            return;
+        }
+        renderRealAIResponse(saved);
+        if (elements.resultsContainer) {
+            elements.resultsContainer.classList.remove('hidden');
+            updateRestoreLastScanBar();
+            elements.resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        syncDemoQuotasUI();
+        showToast('📋 Últimas 3 respostas recarregadas!');
     }
 
     function renderRealAIResponse(data) {

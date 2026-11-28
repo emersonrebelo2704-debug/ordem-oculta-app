@@ -87,7 +87,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="stylesheet" href="style.css?v=43.0">
+    <link rel="stylesheet" href="style.css?v=44.0">
 </head>
 <body>
     <!-- ====================================================================
@@ -628,6 +628,15 @@
                     </button>
                 </div>
 
+                <!-- Barrinha para Recarregar Últimas 3 Respostas Salvas -->
+                <button type="button" class="btn-restore-last-scan hidden" id="btnRestoreLastScan">
+                    <span class="restore-left">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                        <span>Últimas 3 respostas salvas · <strong>Toque para reabrir</strong></span>
+                    </span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+
                 <!-- Results Area (3 Copie & Cole Options) -->
                 <div class="results-container hidden" id="resultsContainer">
                     <div class="intel-strip">
@@ -744,10 +753,24 @@
                     <div class="pm-crosssell pm-cs-purple">
                         <div class="pm-cs-icon"><i class="fa-solid fa-chess-king"></i></div>
                         <div class="pm-cs-body">
-                            <strong>Ela respondeu? Não improvise o próximo passo.</strong>
-                            <p>É no segundo e terceiro movimento que a maioria dos homens perde a mulher. Leve a resposta dela para <b>O Mestre da Sedução</b> e receba a condução exata.</p>
-                            <button class="pm-cs-btn" data-action="open-coach">Consultar o Mestre <i class="fa-solid fa-arrow-right"></i></button>
+                            <strong>Precisa explicar algum contexto a mais sobre essa conversa?</strong>
+                            <p>Por exemplo: <em>"saí com ela e aconteceu isso..."</em> ou ela mandou algo fora do padrão. Conte o contexto completo para <b>O Mestre da Sedução</b> e receba a resposta e postura exatas.</p>
+                            <button class="pm-cs-btn" data-action="open-coach">Explicar Caso para o Mestre <i class="fa-solid fa-arrow-right"></i></button>
                         </div>
+                    </div>
+
+                    <!-- Card de Upgrade Discreto (Somente Demo · Posicionado abaixo do botão do Mestre) -->
+                    <div class="oraculo-demo-upgrade-card hidden" id="oraculoPostScanUpgradeCard">
+                        <div class="demo-upg-head">
+                            <span class="demo-upg-pill"><i class="fa-regular fa-clock"></i> <span id="postScanCooldownBadge">2º SCAN EM <strong id="postScanCooldownClock">30:00</strong></span></span>
+                        </div>
+                        <h4 class="demo-upg-title" id="postScanUpgradeTitle">Quer escanear outro print agora sem esperar?</h4>
+                        <p class="demo-upg-desc" id="postScanUpgradeSub">Desbloqueie <strong>Scans Ilimitados no Oráculo</strong> + todas as 4 armas da Ordem a partir de R$&nbsp;32,63/mês.</p>
+                        <button type="button" class="btn-demo-upg-cta" id="btnPostScanUpgrade">
+                            <i class="fa-solid fa-bolt"></i>
+                            <span>LIBERAR SCANS ILIMITADOS AGORA</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1535,6 +1558,36 @@
                             <span>Ou faça upgrade para o <strong>Plano Anual PRO (R$ 197,90)</strong> · 40 créditos/mês</span>
                         </a>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL: AVISO INTELIGENTE AO REMOVER FOTO DURANTE COOLDOWN DE 30 MIN -->
+        <div class="paywall-modal hidden" id="clearImageCooldownModal">
+            <div class="paywall-overlay" id="clearWarnOverlay"></div>
+            <div class="paywall-card clear-warn-card">
+                <button type="button" class="btn-close-modal" id="btnCloseClearWarn" title="Fechar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="clear-warn-icon">
+                    <i class="fa-regular fa-clock"></i>
+                </div>
+                <h3 class="clear-warn-title">Aguarde para Escanear Outra Foto</h3>
+                <p class="clear-warn-desc">
+                    Seu 2º Scan gratuito libera em <strong id="clearWarnClock" style="color:#fde68a;">30:00</strong>. Suas 3 respostas desta foto continuam salvas logo abaixo — mas se quiser escanear outra imagem agora sem esperar, libere Scans Ilimitados:
+                </p>
+                <div class="clear-warn-actions">
+                    <button type="button" class="btn-demo-upg-cta" id="btnClearWarnUpgrade">
+                        <i class="fa-solid fa-bolt"></i>
+                        <span>LIBERAR SCANS ILIMITADOS AGORA</span>
+                    </button>
+                    <button type="button" class="btn-clear-warn-keep" id="btnClearWarnKeep">
+                        <i class="fa-solid fa-arrow-down"></i>
+                        <span>Voltar para minhas 3 respostas</span>
+                    </button>
+                    <button type="button" class="btn-clear-warn-proceed" id="btnClearWarnProceed">
+                        Remover foto mesmo assim (respostas continuam salvas)
+                    </button>
                 </div>
             </div>
         </div>
