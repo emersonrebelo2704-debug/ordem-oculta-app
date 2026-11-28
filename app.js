@@ -1235,7 +1235,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const urlParams = new URLSearchParams(window.location.search);
-        const isDemoUrl = urlParams.get('demo') === '1' || urlParams.get('teste') === '1';
+        const refLower = (document.referrer || '').toLowerCase();
+        const fromSalesPage = refLower.includes('/ordem');
+        const isDemoUrl = urlParams.get('demo') === '1' || urlParams.get('teste') === '1' || fromSalesPage;
         const isFirstAccessUrl = urlParams.get('acesso') === '1' || urlParams.get('primeiro_acesso') === '1';
         const prefillEmail = (urlParams.get('email') || '').trim();
 
@@ -1472,7 +1474,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        let initialView = 'demo';
+        let initialView = 'login';
         if (isFirstAccessUrl) initialView = 'activate';
         else if (isDemoUrl) initialView = 'demo';
 
@@ -1726,7 +1728,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Sessão inválida ou assinatura revogada
                 if (res.status === 401 || res.status === 403 || (result && (result.auth_required || result.revoked))) {
                     localStorage.removeItem('ordem_auth_token');
-                    lockAppWithAuthGate('login');
+                    const pErr = new URLSearchParams(window.location.search);
+                    const refErr = (document.referrer || '').toLowerCase();
+                    const fallbackView = (pErr.get('demo') === '1' || pErr.get('teste') === '1' || refErr.includes('/ordem')) ? 'demo' : 'login';
+                    lockAppWithAuthGate(fallbackView);
                     return {
                         success: false,
                         auth_required: true,
